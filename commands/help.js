@@ -3,6 +3,7 @@ const { t } = require('../lib/language');
 const { sendWithChannelButton } = require('../lib/channelButton');
 const fs = require('fs');
 const path = require('path');
+const { prepareWAMessageMedia, generateWAMessageFromContent } = require('@whiskeysockets/baileys');
 
 module.exports = async (sock, chatId, msg, args, commands, userLang) => {
     try {
@@ -81,7 +82,64 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
             `┃ 🤖 *Ver:* ${settings.version || '2.0.0'}\n` +
             `┗━━━━━━━━━━━━━━━━━━┛\n\n`;
 
-        // Common Send Function with Image
+        // Interactive Send Function (Adapted from sendMangaListButtons structure)
+        const sendInteractiveMenu = async ({ bodyText, title = "Menu", rows = [], footerText = "حمزة اعمرني" }) => {
+            const sections = [{ title, rows }];
+
+            // Prepare Media
+            let media;
+            try {
+                media = await prepareWAMessageMedia(
+                    { image: thumbBuffer || fs.readFileSync(path.join(__dirname, '..', settings.botThumbnail)) },
+                    { upload: sock.waUploadToServer }
+                );
+            } catch (e) {
+                console.error('Error preparing media:', e);
+                // Fallback to text only if media fails
+                return await sock.sendMessage(chatId, { text: bodyText + `\n\n📢 *القناة:* ${settings.officialChannel}` }, { quoted: msg });
+            }
+
+            const buttons = rows.length > 0 ? [
+                {
+                    name: "single_select",
+                    buttonParamsJson: JSON.stringify({
+                        title: title,
+                        sections
+                    })
+                }
+            ] : [];
+
+            // Add Official Channel link button if possible or just as text in body
+            const fullBody = bodyText + `\n\n📢 *القناة الرسمية:*\n${settings.officialChannel}`;
+
+            const interactiveMsg = generateWAMessageFromContent(
+                chatId,
+                {
+                    viewOnceMessage: {
+                        message: {
+                            interactiveMessage: {
+                                header: {
+                                    hasMediaAttachment: true,
+                                    imageMessage: media.imageMessage
+                                },
+                                body: { text: fullBody },
+                                footer: { text: footerText },
+                                nativeFlowMessage: {
+                                    buttons: buttons
+                                }
+                            }
+                        }
+                    }
+                },
+                { userJid: sock.user.jid, quoted: msg }
+            );
+
+            return await sock.relayMessage(chatId, interactiveMsg.message, {
+                messageId: interactiveMsg.key.id
+            });
+        };
+
+        // Common Send Function with Image (Old style / Fallback)
         const sendMenu = async (text, title = "✨ Hamza Amirni Bot ✨") => {
             // Add channel link to the bottom of text
             const fullText = text + `\n\n📢 *القناة الرسمية:*\n${settings.officialChannel}`;
@@ -126,15 +184,22 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
                     menuText += `🚀 *ملاحظة:* البوت كيتيليشارجي تلقائياً من أي رابط (Insta, TikTok, FB, YouTube) غير صيفط الليان بوحدو!\n\n`;
                 }
 
-                catMap[selectedKey].forEach(c => {
+                const cmdRows = catMap[selectedKey].map(c => {
                     const icon = cmdIcons[c] || '▫️';
                     const desc = t(`command_desc.${c}`, {}, userLang);
-                    const descText = desc.startsWith('command_desc.') ? '' : ` : ${desc}`;
-                    menuText += `│ ${icon} *${prefix}${c}*${descText}\n`;
+                    const descText = desc.startsWith('command_desc.') ? '' : desc;
+                    return {
+                        title: `${prefix}${c}`,
+                        description: descText,
+                        id: `${prefix}${c}`
+                    };
                 });
-                menuText += `\n└──────────────────────┘\n`;
-                menuText += `\n🔙 اكتب *.menu* للرجوع للقائمة الرئيسية.`;
-                return await sendMenu(menuText, `${catName} Menu`);
+
+                return await sendInteractiveMenu({
+                    bodyText: menuText,
+                    title: `أوامر ${catName}`,
+                    rows: cmdRows
+                });
             }
 
             // Islamic Sub-Menu
@@ -223,27 +288,27 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
             'general': '⚙️ *النظام (System)*'
         };
 
-        for (const key of Object.keys(catMap)) {
-            if (sectionDividers[key]) menuText += `\n${sectionDividers[key]}\n`;
-            let icon = '📂';
-            let cmdAlias = key;
-            if (key === 'new') icon = '🔥';
-            else if (key === 'religion') { icon = '🕌'; cmdAlias = 'deen'; }
-            else if (key === 'download') { icon = '📥'; cmdAlias = 'tahmilat'; }
-            else if (key === 'ai') icon = '🤖';
-            else if (key === 'fun') { icon = '🤣'; cmdAlias = 'dahik'; }
-            else if (key === 'games') { icon = '🎮'; cmdAlias = 'game'; }
-            else if (key === 'tools') { icon = '🛠️'; cmdAlias = 'adawat'; }
-            else if (key === 'owner') { icon = '👑'; cmdAlias = 'molchi'; }
-            else if (key === 'general') { icon = '⚙️'; cmdAlias = '3am'; }
+        const categoryRows = [
+            { title: "🚀 الأقسام الأساسية (Hot)", description: "أحدث الأوامر والإضافات", id: `${prefix}menu new` },
+            { title: "🕌 الركن الديني", description: "قرآن، أحاديث، مواقيت الصلاة", id: `${prefix}menu deen` },
+            { title: "🤖 الذكاء الاصطناعي", description: "ChatGPT, Gemini, DeepSeek", id: `${prefix}menu ai` },
+            { title: "📥 التحميلات (Downloads)", description: "فيسبوك، انستا، يوتيوب، تيكتوك", id: `${prefix}menu tahmilat` },
+            { title: "🛠️ الأدوات (Tools)", description: "ملصقات، ترجمة، OCR، تحويل", id: `${prefix}menu adawat` },
+            { title: "🤣 الترفيه (Fun)", description: "نكت، ميمز، صراحة، تحدي", id: `${prefix}menu dahik` },
+            { title: "🎮 الألعاب (Games)", description: "XO، مسابقات، ألعاب جماعية", id: `${prefix}menu game` },
+            { title: "👥 المجموعات", description: "طرد، ترقية، منشن، حماية", id: `${prefix}menu group` },
+            { title: "📰 الأخبار والرياضة", description: "أخبار، كرة قدم، طقس", id: `${prefix}menu news` },
+            { title: "💰 الاقتصاد", description: "بروفايل، يومي، متجر", id: `${prefix}menu economy` },
+            { title: "⚙️ النظام (System)", description: "بوت، بينغ، مطور، لغة", id: `${prefix}menu 3am` },
+            { title: "👑 المالك (Owner)", description: "أوامر المطور فقط", id: `${prefix}menu molchi` },
+            { title: "🌟 كل الأوامر", description: "عرض جميع أوامر البوت", id: `${prefix}menu all` }
+        ];
 
-            menuText += `┃ ${icon} *${prefix}menu ${cmdAlias}*\n`;
-        }
-
-        menuText += `\n🌟 *${prefix}menu all* - عرض كل الأوامر دفعة واحدة\n`;
-        menuText += `\n💡 *معلومة:* البوت كيتيليشارجي تلقائياً (Auto DL) من أي رابط!`;
-
-        await sendMenu(menuText, "Main Menu");
+        await sendInteractiveMenu({
+            bodyText: menuText,
+            title: "قائمة الأقسام 🏰",
+            rows: categoryRows
+        });
 
     } catch (error) {
         console.error('Error in help command:', error);
