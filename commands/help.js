@@ -83,10 +83,10 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
             `┃ 🤖 *Ver:* ${settings.version || '2.0.0'}\n` +
             `┗━━━━━━━━━━━━━━━━━━┛\n\n`;
 
-        // Interactive Send Function (Minimal Version for LID Compatibility)
+        // Interactive Send Function (Ultra Compatibility Version for LID)
         const sendInteractiveMenu = async ({ bodyText, title = "Menu", rows = [], footerText = "حمزة اعمرني" }) => {
-            console.log(`[Help] 📂 Generating interactive menu for: ${chatId}`);
-            const fullBody = bodyText + `\n\n *القناة:* ${settings.officialChannel}`;
+            console.log(`[Help] 📂 Generating Ultra-Hybrid menu for: ${chatId}`);
+            const fullBody = bodyText + `\n\n📢 *القناة:* ${settings.officialChannel}`;
             try {
                 const sections = [{ title, rows }];
 
@@ -104,12 +104,19 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
                 const botJid = sock.decodeJid(sock.user.id);
 
                 const msgContent = {
-                    viewOnceMessage: {
+                    viewOnceMessageV2: {
                         message: {
+                            messageContextInfo: {
+                                deviceListMetadata: {},
+                                deviceListMetadataVersion: 2
+                            },
                             interactiveMessage: {
                                 header: {
                                     hasMediaAttachment: !!media,
-                                    imageMessage: media ? media.imageMessage : null
+                                    imageMessage: media ? media.imageMessage : null,
+                                    title: "Hamza Amirni Bot",
+                                    subtitle: "Choice",
+                                    hasMediaAttachment: !!media
                                 },
                                 body: { text: fullBody },
                                 footer: { text: footerText },
@@ -118,11 +125,15 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
                                         {
                                             name: "single_select",
                                             buttonParamsJson: JSON.stringify({
-                                                title,
+                                                title: title,
                                                 sections
                                             })
                                         }
-                                    ]
+                                    ],
+                                    messageParamsJson: JSON.stringify({
+                                        from: "bot",
+                                        templateId: "1"
+                                    })
                                 }
                             }
                         }
@@ -135,10 +146,12 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
                     { userJid: botJid, quoted: msg }
                 );
 
-                console.log(`[Help] 🚀 Relaying message...`);
-                return await sock.relayMessage(chatId, interactiveMsg.message, {
+                console.log(`[Help] 🚀 Relaying Ultra-Hybrid message...`);
+                await sock.relayMessage(chatId, interactiveMsg.message, {
                     messageId: interactiveMsg.key.id
                 });
+                console.log(`[Help] ✅ Message relayed successfully`);
+                return true;
             } catch (err) {
                 console.error('[Help] Interactive Relay Error:', err);
                 return await sock.sendMessage(chatId, { text: fullBody }, { quoted: msg });
