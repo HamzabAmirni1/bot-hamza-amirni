@@ -48,7 +48,8 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
             'sticker': '🖼️', 'translate': '🗣️', 'ocr': '🔍', 'qrcode': '🏁', 'weather': '🌦️', 'lyrics': '📜', 'calc': '🔢',
             'game': '🎮', 'quiz': '🧠', 'riddle': '🧩', 'joke': '🤣', 'meme': '🐸', 'truth': '💡', 'dare': '🔥',
             'profile': '👤', 'daily': '💰', 'top': '🏆', 'shop': '🛒',
-            'alive': '🟢', 'ping': '⚡', 'owner': '👑', 'help': '❓'
+            'alive': '🟢', 'ping': '⚡', 'owner': '👑', 'help': '❓',
+            'brat-vd': '🎬', 'hdvideo': '📀', 'winkvideo': '📹', 'musicgen': '🎵', 'removebg': '🖼️', 'unblur': '✨', 'upload': '📤', 'readviewonce': '👁️'
         };
 
         // 3. Runtime Stats & Thumbnail

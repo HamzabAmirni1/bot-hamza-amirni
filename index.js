@@ -412,26 +412,37 @@ async function startBot() {
 
                     if (sock.user && !sock.isClosed) {
                         try {
-                            const botJid = sock.user.id.split(':')[0] + '@s.whatsapp.net';
-                            const thumbBuffer = fs.readFileSync(path.resolve(__dirname, './media/hamza.jpg'));
+                            const targetJid = sock.decodeJid(sock.user.id);
 
-                            await sock.sendMessage(botJid, {
-                                image: thumbBuffer,
-                                caption: msgText,
-                                contextInfo: {
-                                    externalAdReply: {
-                                        title: "BOT CONNECTED",
-                                        body: "𝐇𝐀𝐌𝐙𝐀 𝐀𝐌𝐈𝐑𝐍𝐈",
-                                        thumbnail: thumbBuffer,
-                                        sourceUrl: settings.officialChannel,
-                                        mediaType: 1,
-                                        renderLargerThumbnail: true
+                            // Re-read thumb to ensure it's fresh
+                            let startThumb = thumbBuffer;
+                            if (!startThumb) {
+                                try {
+                                    const tPath = path.resolve(__dirname, settings.botThumbnail);
+                                    if (fs.existsSync(tPath)) startThumb = fs.readFileSync(tPath);
+                                } catch (e) { }
+                            }
+
+                            if (startThumb) {
+                                await sock.sendMessage(targetJid, {
+                                    image: startThumb,
+                                    caption: msgText,
+                                    contextInfo: {
+                                        externalAdReply: {
+                                            title: "BOT CONNECTED",
+                                            body: "𝐇𝐀𝐌𝐙𝐀 𝐀𝐌𝐈𝐑𝐍𝐈",
+                                            thumbnail: startThumb,
+                                            sourceUrl: settings.officialChannel,
+                                            mediaType: 1,
+                                            renderLargerThumbnail: true
+                                        }
                                     }
-                                }
-                            });
+                                });
+                            } else {
+                                await sock.sendMessage(targetJid, { text: msgText });
+                            }
                         } catch (e) {
-                            // Fallback to text if image fails
-                            await sock.sendMessage(botJid, { text: msgText });
+                            console.error('Failed to send startup message:', e.message);
                         }
                     }
 
