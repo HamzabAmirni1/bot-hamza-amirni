@@ -82,72 +82,66 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
             `┃ 🤖 *Ver:* ${settings.version || '2.0.0'}\n` +
             `┗━━━━━━━━━━━━━━━━━━┛\n\n`;
 
-        // Interactive Send Function (Hybrid Style for PC & Mobile Compatibility)
+        // Interactive Send Function (Fixed for LID & Phone visibility)
         const sendInteractiveMenu = async ({ bodyText, title = "Menu", rows = [], footerText = "حمزة اعمرني" }) => {
-            console.log(`[Help] 📂 Generating Hybrid Menu for: ${chatId}`);
+            const fullBody = bodyText + `\n\n💡 *ملاحظة:* إذا لم تظهر الأزرار (خاصة على الكمبيوتر)، المرجو استخدام الهاتف.\n\n📢 *القناة:* ${settings.officialChannel}`;
+            try {
+                const sections = [{ title, rows }];
 
-            const sections = [{ title, rows }];
-            const buttons = rows.length > 0 ? [
-                {
-                    name: "single_select",
-                    buttonParamsJson: JSON.stringify({ title: "إضغط هنا للعرض 📂", sections })
+                // Use pre-loaded thumbBuffer or read it
+                let imageSource = thumbBuffer;
+                if (!imageSource) {
+                    const thumbPath = path.resolve(__dirname, '..', settings.botThumbnail);
+                    if (fs.existsSync(thumbPath)) {
+                        imageSource = fs.readFileSync(thumbPath);
+                    }
                 }
-            ] : [];
 
-            // Add Official Channel link and a help note for PC users
-            const fullBody = bodyText + `\n\n💡 *ملاحظة:* إذا لم تظهر الأزرار، يمكنك استخدام الأوامر يدوياً.\n\n📢 *القناة:* ${settings.officialChannel}`;
+                const media = imageSource ? await prepareWAMessageMedia(
+                    { image: imageSource },
+                    { upload: sock.waUploadToServer }
+                ).catch(() => null) : null;
 
-            // Prepare Thumbnail Buffer safely
-            let finalThumb = thumbBuffer;
-            if (!finalThumb) {
-                try {
-                    const thumbPath = path.isAbsolute(settings.botThumbnail) ? settings.botThumbnail : path.join(__dirname, '..', settings.botThumbnail);
-                    if (fs.existsSync(thumbPath)) finalThumb = fs.readFileSync(thumbPath);
-                } catch (e) { console.error('[Help] Thumb Read Error:', e.message); }
-            }
+                // Fix JID for LID accounts: remove :xx suffix to prevent relay errors
+                const botJid = sock.user.id.includes(':') ? sock.user.id.split(':')[0] + '@s.whatsapp.net' : sock.user.id;
 
-            const msgContent = {
-                viewOnceMessage: {
-                    message: {
-                        interactiveMessage: {
-                            header: {
-                                title: `⚔️ ${settings.botName.toUpperCase()} ⚔️`,
-                                hasMediaAttachment: false
-                            },
-                            body: { text: fullBody },
-                            footer: { text: footerText },
-                            nativeFlowMessage: {
-                                buttons: buttons
-                            },
-                            contextInfo: {
-                                mentionedJid: [msg.sender],
-                                externalAdReply: {
-                                    title: "🛡️ " + title,
-                                    body: "𝐇𝐀𝐌𝐙𝐀 𝐀𝐌𝐈𝐑𝐍𝐈 - 𝐃𝐄𝐕𝐄𝐋𝐎𝐏𝐄𝐑",
-                                    mediaType: 1,
-                                    thumbnail: finalThumb,
-                                    sourceUrl: settings.officialChannel,
-                                    renderLargerThumbnail: true,
-                                    showAdAttribution: true
+                const msgContent = {
+                    viewOnceMessage: {
+                        message: {
+                            interactiveMessage: {
+                                header: {
+                                    hasMediaAttachment: !!media,
+                                    imageMessage: media ? media.imageMessage : null
+                                },
+                                body: { text: fullBody },
+                                footer: { text: footerText },
+                                nativeFlowMessage: {
+                                    buttons: [
+                                        {
+                                            name: "single_select",
+                                            buttonParamsJson: JSON.stringify({
+                                                title,
+                                                sections
+                                            })
+                                        }
+                                    ]
                                 }
                             }
                         }
                     }
-                }
-            };
+                };
 
-            const interactiveMsg = generateWAMessageFromContent(
-                chatId,
-                msgContent,
-                { userJid: sock.user.id, quoted: msg }
-            );
+                const interactiveMsg = generateWAMessageFromContent(
+                    chatId,
+                    msgContent,
+                    { userJid: botJid, quoted: msg }
+                );
 
-            try {
                 return await sock.relayMessage(chatId, interactiveMsg.message, {
                     messageId: interactiveMsg.key.id
                 });
             } catch (err) {
-                console.error('[Help] ❌ Hybrid Relay Error:', err.message);
+                console.error('[Help] Interactive Relay Error:', err);
                 return await sock.sendMessage(chatId, { text: fullBody }, { quoted: msg });
             }
         };
