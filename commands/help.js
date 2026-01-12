@@ -82,10 +82,14 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
             `┃ 🤖 *Ver:* ${settings.version || '2.0.0'}\n` +
             `┗━━━━━━━━━━━━━━━━━━┛\n\n`;
 
-        // Interactive Send Function (Final Compatibility Fix)
+        // Interactive Send Function (Final Compatibility Version for LID)
         const sendInteractiveMenu = async ({ bodyText, title = "Menu", rows = [], footerText = "حمزة اعمرني" }) => {
             console.log(`[Help] 📂 Generating interactive menu for: ${chatId}`);
             const sections = [{ title, rows }];
+            const buttons = [{
+                name: "single_select",
+                buttonParamsJson: JSON.stringify({ title, sections })
+            }];
 
             // Prepare Media
             let media;
@@ -101,30 +105,31 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
                 console.error('[Help] 🖼️ Media Error:', e.message);
             }
 
-            const buttons = rows.length > 0 ? [
-                {
-                    name: "single_select",
-                    buttonParamsJson: JSON.stringify({
-                        title: title,
-                        sections
-                    })
-                }
-            ] : [];
-
+            const botJid = sock.decodeJid(sock.user.id);
             const fullBody = bodyText + `\n\n📢 *القناة:* ${settings.officialChannel}`;
 
             const msgContent = {
-                viewOnceMessage: {
+                viewOnceMessageV2: {
                     message: {
+                        messageContextInfo: {
+                            deviceListMetadata: {},
+                            deviceListMetadataVersion: 2
+                        },
                         interactiveMessage: {
                             header: {
                                 hasMediaAttachment: !!media,
-                                imageMessage: media ? media.imageMessage : null
+                                imageMessage: media ? media.imageMessage : null,
+                                title: "Hamza Amirni Bot",
+                                hasMediaAttachment: !!media
                             },
                             body: { text: fullBody },
                             footer: { text: footerText },
                             nativeFlowMessage: {
-                                buttons: buttons
+                                buttons: buttons,
+                                messageParamsJson: JSON.stringify({
+                                    from: "bot",
+                                    templateId: "1"
+                                })
                             }
                         }
                     }
@@ -134,10 +139,10 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
             const interactiveMsg = generateWAMessageFromContent(
                 chatId,
                 msgContent,
-                { userJid: sock.user.id, quoted: msg }
+                { userJid: botJid, quoted: msg }
             );
 
-            console.log(`[Help] 🚀 Relaying message...`);
+            console.log(`[Help] 🚀 Relaying interactive message to ${chatId}`);
             try {
                 return await sock.relayMessage(chatId, interactiveMsg.message, {
                     messageId: interactiveMsg.key.id
