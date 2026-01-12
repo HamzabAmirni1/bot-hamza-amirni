@@ -12,7 +12,7 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
         const prefix = settings.prefix;
 
         const requested = args[0] ? args[0].toLowerCase() : null;
-        const islamicAliases = ['islam', 'islamic', 'deen', 'دين', 'ديني', 'اسلاميات', 'اسلام', 'religion'];
+        const islamicAliases = ['islam', 'islamic', 'deen', 'دين', 'ديني', 'اسلاميات', 'islam', 'religion'];
         const gameAliases = ['games', 'game', 'العاب', 'لعب', 'منيو_لعب', 'menugame'];
         const funAliases = ['fun', 'dahik', 'ضحك', 'ترفيه', 'نكت'];
         const downloadAliases = ['download', 'tahmilat', 'tahmil', 'تحميل', 'تيليشارجي'];
@@ -83,9 +83,9 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
             `┃ 🤖 *Ver:* ${settings.version || '2.0.0'}\n` +
             `┗━━━━━━━━━━━━━━━━━━┛\n\n`;
 
-        // Interactive Send Function (Ultra Compatibility Version for LID)
+        // Interactive Send Function (Minimal Fix for LID)
         const sendInteractiveMenu = async ({ bodyText, title = "Menu", rows = [], footerText = "حمزة اعمرني" }) => {
-            console.log(`[Help] 📂 Generating Ultra-Hybrid menu for: ${chatId}`);
+            console.log(`[Help] 📂 Generating interactive menu for: ${chatId}`);
             const fullBody = bodyText + `\n\n📢 *القناة:* ${settings.officialChannel}`;
             try {
                 const sections = [{ title, rows }];
@@ -101,22 +101,13 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
                     { upload: sock.waUploadToServer }
                 ).catch(() => null) : null;
 
-                const botJid = sock.decodeJid(sock.user.id);
-
                 const msgContent = {
-                    viewOnceMessageV2: {
+                    viewOnceMessage: {
                         message: {
-                            messageContextInfo: {
-                                deviceListMetadata: {},
-                                deviceListMetadataVersion: 2
-                            },
                             interactiveMessage: {
                                 header: {
                                     hasMediaAttachment: !!media,
-                                    imageMessage: media ? media.imageMessage : null,
-                                    title: "Hamza Amirni Bot",
-                                    subtitle: "Choice",
-                                    hasMediaAttachment: !!media
+                                    imageMessage: media ? media.imageMessage : null
                                 },
                                 body: { text: fullBody },
                                 footer: { text: footerText },
@@ -125,15 +116,11 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
                                         {
                                             name: "single_select",
                                             buttonParamsJson: JSON.stringify({
-                                                title: title,
+                                                title,
                                                 sections
                                             })
                                         }
-                                    ],
-                                    messageParamsJson: JSON.stringify({
-                                        from: "bot",
-                                        templateId: "1"
-                                    })
+                                    ]
                                 }
                             }
                         }
@@ -143,17 +130,15 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
                 const interactiveMsg = generateWAMessageFromContent(
                     chatId,
                     msgContent,
-                    { userJid: botJid, quoted: msg }
+                    { userJid: sock.user.id, quoted: msg }
                 );
 
-                console.log(`[Help] 🚀 Relaying Ultra-Hybrid message...`);
-                await sock.relayMessage(chatId, interactiveMsg.message, {
+                console.log(`[Help] 🚀 Relaying interactive message...`);
+                return await sock.relayMessage(chatId, interactiveMsg.message, {
                     messageId: interactiveMsg.key.id
                 });
-                console.log(`[Help] ✅ Message relayed successfully`);
-                return true;
             } catch (err) {
-                console.error('[Help] Interactive Relay Error:', err);
+                console.error('[Help] Relay Error:', err.message);
                 return await sock.sendMessage(chatId, { text: fullBody }, { quoted: msg });
             }
         };
@@ -298,14 +283,6 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
         let menuText = header +
             `🏰 *مرحباً بك في إمبراطورية الأوامر* 🏰\n` +
             `بوت شامل، ذكي، وسريع.. كلشي بين يديك! اختر القسم المناسب:\n\n`;
-
-        const sectionDividers = {
-            'new': '🚀 *الأقسام الأساسية (Hot)*',
-            'religion': '🕌 *الركن الديني*',
-            'download': '📥 *التحميلات (Downloads)*',
-            'fun': '🤣 *الترفيه (Fun)*',
-            'general': '⚙️ *النظام (System)*'
-        };
 
         const categoryRows = [
             { title: "🚀 الأقسام الأساسية (Hot)", description: "أحدث الأوامر والإضافات", id: `${prefix}menu new` },
