@@ -83,20 +83,17 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
             `┃ 🤖 *Ver:* ${settings.version || '2.0.0'}\n` +
             `┗━━━━━━━━━━━━━━━━━━┛\n\n`;
 
-        // Interactive Send Function (Fixed for LID & Phone visibility)
+        // Interactive Send Function (Minimal Version for LID Compatibility)
         const sendInteractiveMenu = async ({ bodyText, title = "Menu", rows = [], footerText = "حمزة اعمرني" }) => {
             console.log(`[Help] 📂 Generating interactive menu for: ${chatId}`);
-            const fullBody = bodyText + `\n\n💡 *ملاحظة:* إذا لم تظهر الأزرار (خاصة على الكمبيوتر)، المرجو استخدام الهاتف.\n\n📢 *القناة:* ${settings.officialChannel}`;
+            const fullBody = bodyText + `\n\n *القناة:* ${settings.officialChannel}`;
             try {
                 const sections = [{ title, rows }];
 
-                // Use pre-loaded thumbBuffer or read it
                 let imageSource = thumbBuffer;
                 if (!imageSource) {
                     const thumbPath = path.resolve(__dirname, '..', settings.botThumbnail);
-                    if (fs.existsSync(thumbPath)) {
-                        imageSource = fs.readFileSync(thumbPath);
-                    }
+                    if (fs.existsSync(thumbPath)) imageSource = fs.readFileSync(thumbPath);
                 }
 
                 const media = imageSource ? await prepareWAMessageMedia(
@@ -104,24 +101,15 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
                     { upload: sock.waUploadToServer }
                 ).catch(() => null) : null;
 
-                if (media) console.log(`[Help] 🖼️ Media prepared successfully`);
-
-                // Fix JID for LID accounts: remove :xx suffix to prevent relay errors
                 const botJid = sock.decodeJid(sock.user.id);
 
                 const msgContent = {
-                    viewOnceMessageV2: {
+                    viewOnceMessage: {
                         message: {
-                            messageContextInfo: {
-                                deviceListMetadata: {},
-                                deviceListMetadataVersion: 2
-                            },
                             interactiveMessage: {
                                 header: {
                                     hasMediaAttachment: !!media,
-                                    imageMessage: media ? media.imageMessage : null,
-                                    title: "إمبراطورية الأوامر",
-                                    hasMediaAttachment: !!media
+                                    imageMessage: media ? media.imageMessage : null
                                 },
                                 body: { text: fullBody },
                                 footer: { text: footerText },
@@ -147,7 +135,7 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
                     { userJid: botJid, quoted: msg }
                 );
 
-                console.log(`[Help] 🚀 Relaying message to WhatsApp...`);
+                console.log(`[Help] 🚀 Relaying message...`);
                 return await sock.relayMessage(chatId, interactiveMsg.message, {
                     messageId: interactiveMsg.key.id
                 });
