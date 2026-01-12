@@ -115,32 +115,27 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
             // Add Official Channel link to text
             const fullBody = bodyText + `\n\n📢 *القناة الرسمية:*\n${settings.officialChannel}`;
 
-            const interactiveMsg = generateWAMessageFromContent(
-                chatId,
-                {
-                    viewOnceMessage: {
-                        message: {
-                            messageContextInfo: {
-                                deviceListMetadata: {},
-                                deviceListMetadataVersion: 2
+            const msgContent = {
+                viewOnceMessage: {
+                    message: {
+                        interactiveMessage: {
+                            header: {
+                                hasMediaAttachment: !!media,
+                                imageMessage: media ? media.imageMessage : null
                             },
-                            interactiveMessage: {
-                                header: {
-                                    hasMediaAttachment: !!media,
-                                    imageMessage: media ? media.imageMessage : null,
-                                    title: "قائمة الأوامر",
-                                    subtitle: "حمزة اعمرني",
-                                    hasMediaAttachment: !!media
-                                },
-                                body: { text: fullBody },
-                                footer: { text: footerText },
-                                nativeFlowMessage: {
-                                    buttons: buttons
-                                }
+                            body: { text: fullBody },
+                            footer: { text: footerText },
+                            nativeFlowMessage: {
+                                buttons: buttons
                             }
                         }
                     }
-                },
+                }
+            };
+
+            const interactiveMsg = generateWAMessageFromContent(
+                chatId,
+                msgContent,
                 { userJid: sock.user.id || sock.user.jid, quoted: msg }
             );
 
