@@ -89,14 +89,17 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
             // Prepare Media
             let media;
             try {
-                media = await prepareWAMessageMedia(
-                    { image: thumbBuffer || fs.readFileSync(path.join(__dirname, '..', settings.botThumbnail)) },
-                    { upload: sock.waUploadToServer }
-                );
+                const thumbPath = path.isAbsolute(settings.botThumbnail) ? settings.botThumbnail : path.join(__dirname, '..', settings.botThumbnail);
+                const imageSource = thumbBuffer || (fs.existsSync(thumbPath) ? fs.readFileSync(thumbPath) : null);
+
+                if (imageSource) {
+                    media = await prepareWAMessageMedia(
+                        { image: imageSource },
+                        { upload: sock.waUploadToServer }
+                    );
+                }
             } catch (e) {
                 console.error('Error preparing media:', e);
-                // Fallback to text only if media fails
-                return await sock.sendMessage(chatId, { text: bodyText + `\n\n📢 *القناة:* ${settings.officialChannel}` }, { quoted: msg });
             }
 
             const buttons = rows.length > 0 ? [
@@ -109,7 +112,7 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
                 }
             ] : [];
 
-            // Add Official Channel link button if possible or just as text in body
+            // Add Official Channel link to text
             const fullBody = bodyText + `\n\n📢 *القناة الرسمية:*\n${settings.officialChannel}`;
 
             const interactiveMsg = generateWAMessageFromContent(
@@ -117,10 +120,17 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
                 {
                     viewOnceMessage: {
                         message: {
+                            messageContextInfo: {
+                                deviceListMetadata: {},
+                                deviceListMetadataVersion: 2
+                            },
                             interactiveMessage: {
                                 header: {
-                                    hasMediaAttachment: true,
-                                    imageMessage: media.imageMessage
+                                    hasMediaAttachment: !!media,
+                                    imageMessage: media ? media.imageMessage : null,
+                                    title: "قائمة الأوامر",
+                                    subtitle: "حمزة اعمرني",
+                                    hasMediaAttachment: !!media
                                 },
                                 body: { text: fullBody },
                                 footer: { text: footerText },
@@ -131,7 +141,7 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
                         }
                     }
                 },
-                { userJid: sock.user.jid, quoted: msg }
+                { userJid: sock.user.id || sock.user.jid, quoted: msg }
             );
 
             return await sock.relayMessage(chatId, interactiveMsg.message, {
