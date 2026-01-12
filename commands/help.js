@@ -82,9 +82,9 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
             `┃ 🤖 *Ver:* ${settings.version || '2.0.0'}\n` +
             `┗━━━━━━━━━━━━━━━━━━┛\n\n`;
 
-        // Interactive Send Function (Highest Compatibility Version)
+        // Interactive Send Function (Final Compatibility Fix)
         const sendInteractiveMenu = async ({ bodyText, title = "Menu", rows = [], footerText = "حمزة اعمرني" }) => {
-            console.log(`[Help] 📂 Generating interactive menu: ${title}`);
+            console.log(`[Help] 📂 Generating interactive menu for: ${chatId}`);
             const sections = [{ title, rows }];
 
             // Prepare Media
@@ -111,31 +111,20 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
                 }
             ] : [];
 
-            const botJid = sock.decodeJid(sock.user.id);
             const fullBody = bodyText + `\n\n📢 *القناة:* ${settings.officialChannel}`;
 
             const msgContent = {
-                viewOnceMessageV2: {
+                viewOnceMessage: {
                     message: {
-                        messageContextInfo: {
-                            deviceListMetadata: {},
-                            deviceListMetadataVersion: 2
-                        },
                         interactiveMessage: {
                             header: {
                                 hasMediaAttachment: !!media,
-                                imageMessage: media ? media.imageMessage : null,
-                                title: "Hamza Amirni Bot",
-                                subtitle: "Interactive Menu"
+                                imageMessage: media ? media.imageMessage : null
                             },
                             body: { text: fullBody },
                             footer: { text: footerText },
                             nativeFlowMessage: {
-                                buttons: buttons,
-                                messageParamsJson: JSON.stringify({
-                                    from: "bot",
-                                    templateId: "1"
-                                })
+                                buttons: buttons
                             }
                         }
                     }
@@ -145,17 +134,16 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
             const interactiveMsg = generateWAMessageFromContent(
                 chatId,
                 msgContent,
-                { userJid: botJid, quoted: msg }
+                { userJid: sock.user.id, quoted: msg }
             );
 
-            console.log(`[Help] 🚀 Sending via relayMessage to ${chatId}`);
+            console.log(`[Help] 🚀 Relaying message...`);
             try {
                 return await sock.relayMessage(chatId, interactiveMsg.message, {
-                    messageId: interactiveMsg.key.id,
-                    participant: msg.sender
+                    messageId: interactiveMsg.key.id
                 });
             } catch (err) {
-                console.error('[Help] ❌ Relay Error:', err.message);
+                console.error('[Help] ❌ Final Relay Error:', err.message);
                 return await sock.sendMessage(chatId, { text: fullBody }, { quoted: msg });
             }
         };
