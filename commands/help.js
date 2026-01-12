@@ -84,6 +84,7 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
 
         // Interactive Send Function (Adapted from sendMangaListButtons structure)
         const sendInteractiveMenu = async ({ bodyText, title = "Menu", rows = [], footerText = "حمزة اعمرني" }) => {
+            console.log(`[Help] 📂 Generating interactive menu: ${title} with ${rows.length} rows`);
             const sections = [{ title, rows }];
 
             // Prepare Media
@@ -93,13 +94,14 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
                 const imageSource = thumbBuffer || (fs.existsSync(thumbPath) ? fs.readFileSync(thumbPath) : null);
 
                 if (imageSource) {
+                    console.log(`[Help] 🖼️ Preparing media from: ${thumbPath}`);
                     media = await prepareWAMessageMedia(
                         { image: imageSource },
                         { upload: sock.waUploadToServer }
                     );
                 }
             } catch (e) {
-                console.error('Error preparing media:', e);
+                console.error('[Help] ❌ Error preparing media:', e.message);
             }
 
             const buttons = rows.length > 0 ? [
@@ -115,6 +117,8 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
             // Add Official Channel link to text
             const fullBody = bodyText + `\n\n📢 *القناة الرسمية:*\n${settings.officialChannel}`;
 
+            const botJid = sock.decodeJid(sock.user.id);
+
             const msgContent = {
                 viewOnceMessage: {
                     message: {
@@ -127,21 +131,33 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
                             footer: { text: footerText },
                             nativeFlowMessage: {
                                 buttons: buttons
+                            },
+                            contextInfo: {
+                                mentionedJid: [msg.sender],
+                                forwardingScore: 999,
+                                isForwarded: true
                             }
                         }
                     }
                 }
             };
 
+            console.log(`[Help] 🚀 Relaying interactive message to ${chatId}`);
             const interactiveMsg = generateWAMessageFromContent(
                 chatId,
                 msgContent,
-                { userJid: sock.user.id || sock.user.jid, quoted: msg }
+                { userJid: botJid, quoted: msg }
             );
 
-            return await sock.relayMessage(chatId, interactiveMsg.message, {
-                messageId: interactiveMsg.key.id
-            });
+            try {
+                return await sock.relayMessage(chatId, interactiveMsg.message, {
+                    messageId: interactiveMsg.key.id
+                });
+            } catch (err) {
+                console.error('[Help] ❌ Failed to relay message:', err.message);
+                // Last fallback: send as normal text
+                return await sock.sendMessage(chatId, { text: fullBody }, { quoted: msg });
+            }
         };
 
         // Common Send Function with Image (Old style / Fallback)
