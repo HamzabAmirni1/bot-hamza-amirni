@@ -181,25 +181,43 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
             `┃ ⏳ *النشاط:* ${days}d ${hours}h ${minutes}m\n` +
             `┃ 🤖 *الإصدار:* 2026.1.1\n` +
             `*┗━━━━━━━━━━━━━━━━━━━┛*\n\n` +
-            `اختر القسم لي بغيتي من اللائحة:`;
+            `✨ *إليك قائمة بجميع الأوامر المتاحة:* ✨`;
 
-        let mainMenu = bodyText + "\n\n" +
-            `🚀 *${prefix}menu new* : الجديد (Hot)\n` +
-            `🕌 *${prefix}menu deen* : الركن الإسلامي\n` +
-            `🤖 *${prefix}menu ai* : الذكاء الاصطناعي\n` +
-            `📥 *${prefix}menu download* : التحميلات\n` +
-            `🛠️ *${prefix}menu tools* : الأدوات والخدمات\n` +
-            `🤣 *${prefix}menu fun* : الترفيه والضحك\n` +
-            `🎮 *${prefix}menu game* : قسم الألعاب\n` +
-            `👥 *${prefix}menu group* : إدارة المجموعات\n` +
-            `📰 *${prefix}menu news* : الأخبار والرياضة\n` +
-            `💰 *${prefix}menu economy* : الاقتصاد (البنك)\n` +
-            `⚙️ *${prefix}menu general* : نظام البوت\n` +
-            `👑 *${prefix}menu owner* : قسم المطور\n` +
-            `🌟 *${prefix}allmenu* : جميع الأوامر\n\n` +
-            `💡 *نصيحة:* اكتب .menu متبوعاً باسم القسم (مثال: .menu ai)`;
+        let mainMenu = bodyText + "\n";
 
-        await sendMenu(mainMenu, `${botName} - القائمة الرئيسية`);
+        const sections = [
+            { key: 'new', title: '🚀 الجديد (Exclusive)' },
+            { key: 'deen', title: '🕌 الركن الديني' },
+            { key: 'ai', title: '🤖 الذكاء الاصطناعي' },
+            { key: 'download', title: '📥 التحميلات' },
+            { key: 'tools', title: '🛠️ الأدوات والخدمات' },
+            { key: 'fun', title: '🤣 الترفيه والضحك' },
+            { key: 'game', title: '🎮 الألعاب' },
+            { key: 'group', title: '👥 إدارة المجموعات' },
+            { key: 'news', title: '📰 الأخبار والرياضة' },
+            { key: 'economy', title: '💰 الاقتصاد' },
+            { key: 'general', title: '⚙️ النظام' },
+            { key: 'owner', title: '👑 المطور فقط' }
+        ];
+
+        sections.forEach(section => {
+            const cmds = catMap[section.key];
+            if (cmds && cmds.length > 0) {
+                mainMenu += `\n*${section.title}*\n`;
+                // mainMenu += `─━━━━━━━━━━━━━━─\n`; // Make it cleaner, removed divider line per section to save space
+
+                cmds.forEach(cmd => {
+                    const icon = cmdIcons[cmd] || '🔹';
+                    const displayName = arCmds[cmd] ? arCmds[cmd] : cmd;
+                    mainMenu += `${icon} *${displayName}*  `;
+                });
+                mainMenu += `\n`;
+            }
+        });
+
+        mainMenu += `\n💡 *ملاحظة:* لطلب أمر أكتب النقطة (.) قبل الاسم (مثال: .ذكاء)`;
+
+        await sendMenu(mainMenu, `${botName} - القائمة الكاملة`);
 
     } catch (error) {
         console.error('Error in menuu command:', error);
