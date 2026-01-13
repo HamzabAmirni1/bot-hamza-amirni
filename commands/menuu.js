@@ -162,8 +162,9 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
 
                 catMap[selectedKey].forEach(cmd => {
                     const icon = cmdIcons[cmd] || '🔹';
-                    const arAlias = arCmds[cmd] ? ` / .${arCmds[cmd]}` : '';
-                    menuText += `${icon} *${prefix}${cmd}*${arAlias}\n`;
+                    // Show ONLY Arabic alias if available, otherwise show English command
+                    const displayName = arCmds[cmd] ? arCmds[cmd] : cmd;
+                    menuText += `${icon} *${prefix}${displayName}*\n`;
                 });
 
                 menuText += `\n─━━━━━━━━━━━━━━─\n` + `🔙 للرجوع: *.menu*`;
