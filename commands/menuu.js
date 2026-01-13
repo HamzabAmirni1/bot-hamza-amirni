@@ -68,11 +68,25 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
             ];
 
             return await sock.sendMessage(chatId, {
-                text: fullBody,
+                text: "اختار القسم من اللائحة 👇",
                 footer: "حمزة اعمرني",
                 title: botName,
                 buttonText: "اختار القسم 👇",
                 sections
+            }, { quoted: msg });
+        };
+
+        const sendButtonsFallback = async () => {
+            const fullBody = bodyText + `\n\n📢 *القناة:* ${settings.officialChannel}`;
+            return await sock.sendMessage(chatId, {
+                text: fullBody,
+                footer: "حمزة اعمرني",
+                buttons: [
+                    { buttonId: `${prefix}allmenu`, buttonText: { displayText: 'كل الأوامر 📜' }, type: 1 },
+                    { buttonId: `${prefix}menu ai`, buttonText: { displayText: '🤖 الذكاء الاصطناعي' }, type: 1 },
+                    { buttonId: `${prefix}menu deen`, buttonText: { displayText: '🕌 الركن الديني' }, type: 1 }
+                ],
+                headerType: 1
             }, { quoted: msg });
         };
 
@@ -154,11 +168,16 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
         try {
             await sendListMenu();
         } catch (e) {
+            console.warn('[Menuu] listMessage failed:', e?.message || e);
             try {
-                await sendInteractiveMenu();
+                await sendButtonsFallback();
             } catch (err) {
-                const fullBody = bodyText + `\n\n📢 *القناة:* ${settings.officialChannel}`;
-                await sock.sendMessage(chatId, { text: fullBody }, { quoted: msg });
+                try {
+                    await sendInteractiveMenu();
+                } catch (e2) {
+                    const fullBody = bodyText + `\n\n📢 *القناة:* ${settings.officialChannel}`;
+                    await sock.sendMessage(chatId, { text: fullBody }, { quoted: msg });
+                }
             }
         }
 

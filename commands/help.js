@@ -91,7 +91,7 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
             try {
                 try {
                     await sock.sendMessage(chatId, {
-                        text: fullBody,
+                        text: "اختر القسم من اللائحة 👇",
                         footer: footerText,
                         title,
                         buttonText: "اختار من هنا 👇",
@@ -107,7 +107,25 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
                         ]
                     }, { quoted: msg });
                     return;
-                } catch (e) { }
+                } catch (e) {
+                    console.warn('[Help] listMessage failed:', e?.message || e);
+                }
+
+                try {
+                    await sock.sendMessage(chatId, {
+                        text: fullBody,
+                        footer: footerText,
+                        buttons: [
+                            { buttonId: `${settings.prefix}allmenu`, buttonText: { displayText: 'كل الأوامر 📜' }, type: 1 },
+                            { buttonId: `${settings.prefix}menu ai`, buttonText: { displayText: '🤖 الذكاء الاصطناعي' }, type: 1 },
+                            { buttonId: `${settings.prefix}menu deen`, buttonText: { displayText: '🕌 الركن الديني' }, type: 1 }
+                        ],
+                        headerType: 1
+                    }, { quoted: msg });
+                    return;
+                } catch (e) {
+                    console.warn('[Help] buttons fallback failed:', e?.message || e);
+                }
 
                 const sections = [{ title: "الأقسام", rows }];
 
