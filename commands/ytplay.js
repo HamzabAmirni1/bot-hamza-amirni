@@ -31,48 +31,41 @@ async function ytplayCommand(sock, chatId, msg, args) {
         let audioUrl = null;
         let finalTitle = "yt-audio";
 
-        try {
-            const apiUrl = `https://yt-dl.officialhectormanuel.workers.dev/?url=${encodeURIComponent(videoUrl)}`;
-            const response = await axios.get(apiUrl, { timeout: 45000 });
-            if (response.data && response.data.status) {
-                audioUrl = response.data.audio;
-                finalTitle = response.data.title || finalTitle;
-            }
-        } catch (e) {
-            console.log('[ytplay.js] Primary API failed, trying Vreden fallback:', e.message);
-        }
+        const apiList = [
+            `https://yt-dl.officialhectormanuel.workers.dev/?url=${encodeURIComponent(videoUrl)}`,
+            `https://api.vreden.my.id/api/ytmp3?url=${encodeURIComponent(videoUrl)}`,
+            `https://deliriussapi-oficial.vercel.app/download/ytmp3?url=${encodeURIComponent(videoUrl)}`,
+            `https://api.guruapi.tech/videodownloader/ytmp3?url=${encodeURIComponent(videoUrl)}`,
+            `https://widipe.com/download/ytmp3?url=${encodeURIComponent(videoUrl)}`,
+            `https://itzpire.com/download/youtube-mp3?url=${encodeURIComponent(videoUrl)}`
+        ];
 
-        // Fallback to Vreden
-        if (!audioUrl) {
+        for (const url of apiList) {
             try {
-                const vredenUrl = `https://api.vreden.my.id/api/ytmp3?url=${encodeURIComponent(videoUrl)}`;
-                const vResponse = await axios.get(vredenUrl, { timeout: 30000 });
-                if (vResponse.data && vResponse.data.status) {
-                    audioUrl = vResponse.data.result.download;
-                    finalTitle = vResponse.data.result.title || finalTitle;
-                }
-            } catch (ve) {
-                console.log('[ytplay.js] Vreden fallback also failed:', ve.message);
-            }
-        }
+                console.log(`[ytplay.js] Trying API: ${url.split('?')[0]}`);
+                const response = await axios.get(url, { timeout: 30000 });
 
-        // Fallback 3: Deliriuss API
-        if (!audioUrl) {
-            try {
-                const deliriussUrl = `https://deliriussapi-oficial.vercel.app/download/ytmp3?url=${encodeURIComponent(videoUrl)}`;
-                const dResponse = await axios.get(deliriussUrl, { timeout: 30000 });
-                if (dResponse.data && dResponse.data.status) {
-                    audioUrl = dResponse.data.data.download.url;
-                    finalTitle = dResponse.data.data.title || finalTitle;
+                if (response.data && response.data.status) {
+                    if (response.data.audio) audioUrl = response.data.audio;
+                    else if (response.data.result && response.data.result.download) audioUrl = response.data.result.download;
+                    else if (response.data.data && response.data.data.download && response.data.data.download.url) audioUrl = response.data.data.download.url;
+
+                    if (audioUrl) {
+                        finalTitle = response.data.title || (response.data.result && response.data.result.title) || (response.data.data && response.data.data.title) || finalTitle;
+                        break;
+                    }
+                } else if (response.data && response.data.result && response.data.result.url) {
+                    audioUrl = response.data.result.url;
+                    break;
                 }
-            } catch (de) {
-                console.log('[ytplay.js] Deliriuss fallback failed:', de.message);
+            } catch (e) {
+                console.log(`[ytplay.js] API failed (${url.split('?')[0]}):`, e.message);
             }
         }
 
         if (!audioUrl) {
             await sock.sendMessage(chatId, { react: { text: "❌", key: msg.key } });
-            return await sock.sendMessage(chatId, { text: "❌ فشل جلب الصوت. حاول مرة أخرى." }, { quoted: msg });
+            return await sock.sendMessage(chatId, { text: "❌ فشل جلب الصوت. حاول مرة أخرى بكلمات بحث مختلفة." }, { quoted: msg });
         }
 
         // Step 3: React while sending audio
@@ -82,7 +75,15 @@ async function ytplayCommand(sock, chatId, msg, args) {
             audio: { url: audioUrl },
             mimetype: "audio/mpeg",
             ptt: false,
-            fileName: `${finalTitle}.mp3`
+            fileName: `${finalTitle}.mp3`,
+            contextInfo: {
+                externalAdReply: {
+                    title: finalTitle,
+                    body: "Hamza Amirni Music",
+                    mediaType: 2,
+                    sourceUrl: videoUrl
+                }
+            }
         }, { quoted: msg });
 
         // Final ✅ reaction

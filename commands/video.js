@@ -55,53 +55,46 @@ async function videoCommand(sock, chatId, msg, args, commands, userLang) {
         await sock.sendMessage(chatId, { text: dlMsg }, { quoted: msg });
         await sock.sendMessage(chatId, { react: { text: '⏳', key: msg.key } });
 
-        // Use primary API (Hamza Amirni's Official Worker)
+        // Multi-API Download System
         let videoDownloadUrl = null;
         let title = previewTitle || 'video.mp4';
         let thumbnail = previewThumbnail;
         let quality = "360p";
 
-        try {
-            const apiUrl = `https://yt-dl.officialhectormanuel.workers.dev/?url=${encodeURIComponent(videoUrl)}`;
-            const response = await axios.get(apiUrl, { headers: { 'Accept': 'application/json' }, timeout: 30000 });
+        const apiList = [
+            `https://yt-dl.officialhectormanuel.workers.dev/?url=${encodeURIComponent(videoUrl)}`,
+            `https://api.vreden.my.id/api/ytmp4?url=${encodeURIComponent(videoUrl)}`,
+            `https://deliriussapi-oficial.vercel.app/download/ytmp4?url=${encodeURIComponent(videoUrl)}`,
+            `https://api.guruapi.tech/videodownloader/ytmp4?url=${encodeURIComponent(videoUrl)}`,
+            `https://widipe.com/download/ytmp4?url=${encodeURIComponent(videoUrl)}`,
+            `https://itzpire.com/download/youtube-mp4?url=${encodeURIComponent(videoUrl)}`
+        ];
 
-            if (response.data && response.data.status) {
-                const data = response.data;
-                title = data.title || title;
-                thumbnail = data.thumbnail || thumbnail;
-                // Prefer 360p, fallback to what's available
-                videoDownloadUrl = data.videos["360"] || data.videos["480"] || data.videos["720"] || Object.values(data.videos)[0];
-            }
-        } catch (e) {
-            console.log('[video.js] Primary API failed, trying Vreden fallback:', e.message);
-        }
-
-        // Fallback to Vreden API if primary failed
-        if (!videoDownloadUrl) {
+        for (const url of apiList) {
             try {
-                const vredenUrl = `https://api.vreden.my.id/api/ytmp4?url=${encodeURIComponent(videoUrl)}`;
-                const vResponse = await axios.get(vredenUrl, { timeout: 30000 });
-                if (vResponse.data && vResponse.data.status) {
-                    const vData = vResponse.data.result;
-                    videoDownloadUrl = vData.download;
-                    title = vData.title || title;
-                }
-            } catch (ve) {
-                console.log('[video.js] Vreden fallback also failed:', ve.message);
-            }
-        }
+                console.log(`[video.js] Trying API: ${url.split('?')[0]}`);
+                const response = await axios.get(url, { headers: { 'Accept': 'application/json' }, timeout: 30000 });
 
-        // Fallback 3: Deliriuss API
-        if (!videoDownloadUrl) {
-            try {
-                const deliriussUrl = `https://deliriussapi-oficial.vercel.app/download/ytmp4?url=${encodeURIComponent(videoUrl)}`;
-                const dResponse = await axios.get(deliriussUrl, { timeout: 30000 });
-                if (dResponse.data && dResponse.data.status) {
-                    videoDownloadUrl = dResponse.data.data.download.url;
-                    title = dResponse.data.data.title || title;
+                if (response.data && response.data.status) {
+                    const data = response.data;
+                    title = data.title || (data.result && data.result.title) || (data.data && data.data.title) || title;
+                    thumbnail = data.thumbnail || (data.result && data.result.thumbnail) || thumbnail;
+
+                    if (data.videos) {
+                        videoDownloadUrl = data.videos["360"] || data.videos["480"] || data.videos["720"] || Object.values(data.videos)[0];
+                    } else if (data.result && data.result.download) {
+                        videoDownloadUrl = data.result.download;
+                    } else if (data.data && data.data.download && data.data.download.url) {
+                        videoDownloadUrl = data.data.download.url;
+                    }
+
+                    if (videoDownloadUrl) break;
+                } else if (response.data && response.data.result && response.data.result.url) {
+                    videoDownloadUrl = response.data.result.url;
+                    break;
                 }
-            } catch (de) {
-                console.log('[video.js] Deliriuss fallback failed:', de.message);
+            } catch (e) {
+                console.log(`[video.js] API failed (${url.split('?')[0]}):`, e.message);
             }
         }
 

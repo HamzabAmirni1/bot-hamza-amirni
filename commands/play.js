@@ -38,42 +38,38 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
         let audioUrl = null;
         let finalTitle = video.title;
 
-        try {
-            const apiUrl = `https://yt-dl.officialhectormanuel.workers.dev/?url=${encodeURIComponent(videoUrl)}`;
-            const response = await axios.get(apiUrl, { timeout: 45000 });
-            if (response.data && response.data.status) {
-                audioUrl = response.data.audio;
-                finalTitle = response.data.title || finalTitle;
-            }
-        } catch (e) {
-            console.log('[play.js] Primary API failed, trying Vreden fallback:', e.message);
-        }
+        // Try consecutive APIs
+        const apiList = [
+            `https://yt-dl.officialhectormanuel.workers.dev/?url=${encodeURIComponent(videoUrl)}`,
+            `https://api.vreden.my.id/api/ytmp3?url=${encodeURIComponent(videoUrl)}`,
+            `https://deliriussapi-oficial.vercel.app/download/ytmp3?url=${encodeURIComponent(videoUrl)}`,
+            `https://api.guruapi.tech/videodownloader/ytmp3?url=${encodeURIComponent(videoUrl)}`,
+            `https://widipe.com/download/ytmp3?url=${encodeURIComponent(videoUrl)}`,
+            `https://itzpire.com/download/youtube-mp3?url=${encodeURIComponent(videoUrl)}`
+        ];
 
-        // Fallback to Vreden
-        if (!audioUrl) {
+        for (const url of apiList) {
             try {
-                const vredenUrl = `https://api.vreden.my.id/api/ytmp3?url=${encodeURIComponent(videoUrl)}`;
-                const vResponse = await axios.get(vredenUrl, { timeout: 30000 });
-                if (vResponse.data && vResponse.data.status) {
-                    audioUrl = vResponse.data.result.download;
-                    finalTitle = vResponse.data.result.title || finalTitle;
-                }
-            } catch (ve) {
-                console.log('[play.js] Vreden fallback also failed:', ve.message);
-            }
-        }
+                console.log(`[play.js] Trying API: ${url.split('?')[0]}`);
+                const response = await axios.get(url, { timeout: 30000 });
 
-        // Fallback 3: Deliriuss API
-        if (!audioUrl) {
-            try {
-                const deliriussUrl = `https://deliriussapi-oficial.vercel.app/download/ytmp3?url=${encodeURIComponent(videoUrl)}`;
-                const dResponse = await axios.get(deliriussUrl, { timeout: 30000 });
-                if (dResponse.data && dResponse.data.status) {
-                    audioUrl = dResponse.data.data.download.url;
-                    finalTitle = dResponse.data.data.title || finalTitle;
+                // Handle different response structures
+                if (response.data && response.data.status) {
+                    if (response.data.audio) audioUrl = response.data.audio;
+                    else if (response.data.result && response.data.result.download) audioUrl = response.data.result.download;
+                    else if (response.data.data && response.data.data.download && response.data.data.download.url) audioUrl = response.data.data.download.url;
+                    else if (response.data.result && response.data.result.url) audioUrl = response.data.result.url;
+
+                    if (audioUrl) {
+                        finalTitle = response.data.title || (response.data.result && response.data.result.title) || (response.data.data && response.data.data.title) || finalTitle;
+                        break;
+                    }
+                } else if (response.data && response.data.result && response.data.result.url) { // itzpire style
+                    audioUrl = response.data.result.url;
+                    break;
                 }
-            } catch (de) {
-                console.log('[play.js] Deliriuss fallback failed:', de.message);
+            } catch (e) {
+                console.log(`[play.js] API failed (${url.split('?')[0]}):`, e.message);
             }
         }
 
@@ -106,8 +102,10 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
 
     } catch (error) {
         console.error('Error in play command:', error);
-        await sock.sendMessage(chatId, {
-            text: t('play.error_generic', {}, userLang)
-        }, { quoted: msg });
+        try {
+            await sock.sendMessage(chatId, {
+                text: t('play.error_generic', {}, userLang) + (error.message ? `\n\nError: ${error.message}` : '')
+            }, { quoted: msg });
+        } catch (e) { }
     }
 };
