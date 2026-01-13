@@ -55,35 +55,41 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
         ];
 
         // ROOT FIX: Premium Text + Image Menu (100% Reliability)
+        // ROOT FIX: Premium Text + Image Menu (100% Reliability)
         const sendMenu = async (text, headerTitle = "Hamza Amirni Bot") => {
             const footerBranding = `\n\n🛡️ *${botName.toUpperCase()}* 🛡️\n📢 *قناتنا:* ${settings.officialChannel}`;
             const fullText = text + footerBranding;
 
-            const contextInfo = {
-                mentionedJid: [chatId],
-                isForwarded: true,
-                forwardingScore: 999,
-                externalAdReply: {
-                    title: headerTitle,
-                    body: "المطور: حمزة اعمرني",
-                    thumbnail: thumbBuffer,
-                    sourceUrl: settings.officialChannel,
-                    mediaType: 1,
-                    renderLargerThumbnail: true,
-                    showAdAttribution: true
-                }
-            };
-
             if (thumbBuffer) {
+                // Send standard Image Message (Most Reliable)
+                // We REMOVE externalAdReply from image message to prevent conflicts
                 await sock.sendMessage(chatId, {
                     image: thumbBuffer,
                     caption: fullText,
-                    contextInfo
+                    contextInfo: {
+                        mentionedJid: [chatId],
+                        isForwarded: true,
+                        forwardingScore: 999
+                    }
                 }, { quoted: msg });
             } else {
+                // Text Fallback with Link Preview
                 await sock.sendMessage(chatId, {
                     text: fullText,
-                    contextInfo
+                    contextInfo: {
+                        mentionedJid: [chatId],
+                        isForwarded: true,
+                        forwardingScore: 999,
+                        externalAdReply: {
+                            title: headerTitle,
+                            body: "المطور: حمزة اعمرني",
+                            thumbnail: thumbBuffer, // If buffer exists but image send failed? just consistent logic
+                            sourceUrl: settings.officialChannel,
+                            mediaType: 1,
+                            renderLargerThumbnail: true,
+                            showAdAttribution: true
+                        }
+                    }
                 }, { quoted: msg });
             }
         };
