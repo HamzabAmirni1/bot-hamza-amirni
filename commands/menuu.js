@@ -1,6 +1,7 @@
 const settings = require('../settings');
 const fs = require('fs');
 const path = require('path');
+const { prepareWAMessageMedia, generateWAMessageFromContent } = require('@whiskeysockets/baileys');
 
 module.exports = async (sock, chatId, msg, args, commands, userLang) => {
     try {
@@ -28,141 +29,137 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
         const dateStr = date.toLocaleDateString('ar-MA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
         const timeStr = date.toLocaleTimeString('ar-MA', { hour: '2-digit', minute: '2-digit' });
 
-        let menuText = `*┏━━❰ ⚔️ ${botName.toUpperCase()} ⚔️ ❱━━┓*\n┃\n`;
+        const bodyText =
+            `*┏━━❰ ⚔️ ${botName.toUpperCase()} ⚔️ ❱━━┓*\n` +
+            `┃ 🤵‍♂️ *المطور:* حمزة اعمرني\n` +
+            `┃ 📅 *التاريخ:* ${dateStr}\n` +
+            `┃ ⌚ *الوقت:* ${timeStr}\n` +
+            `┃ ⏳ *النشاط:* ${days}d ${hours}h ${minutes}m\n` +
+            `┃ 🤖 *الإصدار:* 2026.1.1\n` +
+            `*┗━━━━━━━━━━━━━━━━━━━┛*\n\n` +
+            `اختر القسم لي بغيتي من اللائحة:`;
 
-        menuText += `┃ 🤵‍♂️ *المطور:* حمزة اعمرني\n`;
-        menuText += `┃ 📅 *التاريخ:* ${dateStr}\n`;
-        menuText += `┃ ⌚ *الوقت:* ${timeStr}\n`;
-        menuText += `┃ ⏳ *النشاط:* ${days}d ${hours}h ${minutes}m\n`;
-        menuText += `┃ 🤖 *الإصدار:* 2026.1.1\n`;
-        menuText += `┃\n`;
-        menuText += `*┗━━━━━━━━━━━━━━━━━━━┛*\n\n`;
+        const rows = [
+            { title: "🚀 الجديد (Hot)", description: "أحدث الأوامر والإضافات", id: `${prefix}menu new` },
+            { title: "🕌 الركن الديني", description: "قرآن، أحاديث، مواقيت الصلاة", id: `${prefix}menu deen` },
+            { title: "🤖 الذكاء الاصطناعي", description: "ChatGPT, Gemini, DeepSeek", id: `${prefix}menu ai` },
+            { title: "📥 التحميلات", description: "FB, Insta, YouTube, TikTok", id: `${prefix}menu tahmilat` },
+            { title: "🛠️ الأدوات", description: "ستيكر، ترجمة، OCR، تحويل", id: `${prefix}menu adawat` },
+            { title: "🤣 الترفيه", description: "نكت، ميمز، صراحة، تحدي", id: `${prefix}menu dahik` },
+            { title: "🎮 الألعاب", description: "XO، مسابقات، ألعاب", id: `${prefix}menu game` },
+            { title: "👥 المجموعات", description: "طرد، ترقية، حماية...", id: `${prefix}menu group` },
+            { title: "📰 الأخبار والرياضة", description: "أخبار، كرة قدم، طقس", id: `${prefix}menu news` },
+            { title: "💰 الاقتصاد", description: "بروفايل، يومي، متجر", id: `${prefix}menu economy` },
+            { title: "⚙️ النظام", description: "بينغ، لغة، وضع...", id: `${prefix}menu 3am` },
+            { title: "👑 المالك", description: "أوامر المطور فقط", id: `${prefix}menu molchi` }
+        ];
 
-        // 🕌 الإسلاميات
-        menuText += `*╭━━❰ 🕌 الركن الديني ❱━━╮*\n`;
-        menuText += `┃ 📖 .قرآن (quran)\n`;
-        menuText += `┃ 🕌 .صلاة (salat)\n`;
-        menuText += `┃ 🕌 .مواقيت (prayertimes)\n`;
-        menuText += `┃ 📢 .أذان (adhan)\n`;
-        menuText += `┃ 📚 .حديث (hadith)\n`;
-        menuText += `┃ 🤲 .أدعية (ad3iya)\n`;
-        menuText += `┃ ✨ .أسماء (asmaa)\n`;
-        menuText += `┃ 📿 .أذكار (azkar)\n`;
-        menuText += `┃ 🧭 .قبلة (qibla)\n`;
-        menuText += `┃ 📖 .تفسير (tafsir)\n`;
-        menuText += `┃ 🕊️ .سيرة (sira)\n`;
-        menuText += `┃ 📜 .قصص (qisas)\n`;
-        menuText += `*╰━━━━━━━━━━━━━━━━━━━╯*\n\n`;
-
-        // 🤖 الذكاء الاصطناعي
-        menuText += `*╭━━❰ 🤖 الذكاء الاصطناعي ❱━━╮*\n`;
-        menuText += `┃ 🧠 .ذكاء (gpt)\n`;
-        menuText += `┃ ♊ .جيميني (gemini)\n`;
-        menuText += `┃ 🖼️ .تخيل (imagine)\n`;
-        menuText += `┃ 🎨 .فن (aiart)\n`;
-        menuText += `┃ 🎭 .جيبلي (ghibli)\n`;
-        menuText += `┃ 🍌 .نانو (nanobanana)\n`;
-        menuText += `┃ 📸 .سكرين (screenshot)\n`;
-        menuText += `┃ 🔍 .جيميني-حلل (analyze)\n`;
-        menuText += `┃ ✨ .توضيح (remini)\n`;
-        menuText += `┃ 🪄 .تحسين (enhance)\n`;
-        menuText += `┃ 🖌️ .تلوين (colorize)\n`;
-        menuText += `┃ 🧪 .حذف_خلفية (removebg)\n`;
-        menuText += `*╰━━━━━━━━━━━━━━━━━━━╯*\n\n`;
-
-        // 📥 التحميلات
-        menuText += `*╭━━❰ 📥 قسم التحميلات ❱━━╮*\n`;
-        menuText += `┃ 🎬 .يوتيوب (youtube)\n`;
-        menuText += `┃ 📸 .انستغرام (instagram)\n`;
-        menuText += `┃ 🔵 .فيسبوك (facebook)\n`;
-        menuText += `┃ 🎵 .تيكتوك (tiktok)\n`;
-        menuText += `┃ 📂 .ميديافاير (mediafire)\n`;
-        menuText += `┃ 🎧 .شغل (play)\n`;
-        menuText += `┃ 🎥 .فيديو (video)\n`;
-        menuText += `┃ 🎶 .أغنية (song)\n`;
-        menuText += `┃ 🔍 .بحث (yts)\n`;
-        menuText += `*╰━━━━━━━━━━━━━━━━━━━╯*\n\n`;
-
-        // 🛠️ الأدوات
-        menuText += `*╭━━❰ 🛠️ قسم الأدوات ❱━━╮*\n`;
-        menuText += `┃ 🖼️ .ملصق (sticker)\n`;
-        menuText += `┃ 🗣️ .ترجمة (translate)\n`;
-        menuText += `┃ 🔍 .استخراج (ocr)\n`;
-        menuText += `┃ 📄 .pdf-صور (pdf2img)\n`;
-        menuText += `┃ 🎵 .صوت (tomp3)\n`;
-        menuText += `┃ 🏁 .باركود (qrcode)\n`;
-        menuText += `┃ 🌦️ .طقس (weather)\n`;
-        menuText += `┃ 📜 .كلمات (lyrics)\n`;
-        menuText += `┃ 🔢 .حساب (calc)\n`;
-        menuText += `┃ 📤 .رفع (upload)\n`;
-        menuText += `*╰━━━━━━━━━━━━━━━━━━━╯*\n\n`;
-
-        // 👥 المجموعات
-        menuText += `*╭━━❰ 👥 المجموعات ❱━━╮*\n`;
-        menuText += `┃ 🚫 .طرد (kick)\n`;
-        menuText += `┃ 🆙 .ترقية (promote)\n`;
-        menuText += `┃ ⬇️ .تخفيض (demote)\n`;
-        menuText += `┃ 📢 .منشن (tagall)\n`;
-        menuText += `┃ 🔇 .قفل (mute)\n`;
-        menuText += `┃ 🔓 .فتح (unmute)\n`;
-        menuText += `┃ 🗑️ .حذف (delete)\n`;
-        menuText += `┃ 🛡️ .حماية (antilink)\n`;
-        menuText += `┃ 👋 .ترحيب (welcome)\n`;
-        menuText += `*╰━━━━━━━━━━━━━━━━━━━╯*\n\n`;
-
-        // 💰 الاقتصاد
-        menuText += `*╭━━❰ 💰 قسم الاقتصاد ❱━━╮*\n`;
-        menuText += `┃ 👤 .بروفايل (profile)\n`;
-        menuText += `┃ 👤 .حسابي (my)\n`;
-        menuText += `┃ 💰 .يومي (daily)\n`;
-        menuText += `┃ 🏆 .ترتيب (top)\n`;
-        menuText += `┃ 🛒 .متجر (shop)\n`;
-        menuText += `┃ 🎰 .سلوتس (slots)\n`;
-        menuText += `┃ 🃏 .بلاك_جاك (blackjack)\n`;
-        menuText += `*╰━━━━━━━━━━━━━━━━━━━╯*\n\n`;
-
-        // 🎮 الألعاب
-        menuText += `*╭━━❰ 🎮 قسم الألعاب ❱━━╮*\n`;
-        menuText += `┃ ❌ .إكس_أو (xo)\n`;
-        menuText += `┃ ❓ .مسابقة (quiz)\n`;
-        menuText += `┃ 🧩 .لغز (riddle)\n`;
-        menuText += `┃ 🎲 .تخمين (guess)\n`;
-        menuText += `┃ 🤣 .نكتة (joke)\n`;
-        menuText += `┃ 🐸 .ميمز (meme)\n`;
-        menuText += `┃ 💡 .صراحة (truth)\n`;
-        menuText += `┃ 🔥 .تحدي (dare)\n`;
-        menuText += `┃ 💘 .حب (ship)\n`;
-        menuText += `*╰━━━━━━━━━━━━━━━━━━━╯*\n\n`;
-
-        // ⚙️ النظام
-        menuText += `*╭━━❰ ⚙️ قسم النظام ❱━━╮*\n`;
-        menuText += `┃ 🟢 .شغال (alive)\n`;
-        menuText += `┃ ⚡ .سرعة (ping)\n`;
-        menuText += `┃ 👑 .مطور (owner)\n`;
-        menuText += `┃ 🌐 .لغة (setlang)\n`;
-        menuText += `┃ 🔒 .وضع (mode)\n`;
-        menuText += `*╰━━━━━━━━━━━━━━━━━━━╯*\n\n`;
-
-        menuText += `*┃ 📢 القناة:* ${settings.officialChannel}\n`;
-        menuText += `*┃ ✨ حمزة اعمرني نطور مستقبلك الرقمي! ✨*`;
-
-        if (thumbBuffer) {
-            await sock.sendMessage(chatId, {
-                image: thumbBuffer,
-                caption: menuText,
-                contextInfo: {
-                    externalAdReply: {
-                        renderLargerThumbnail: true,
-                        title: `🛡️ قائمة أوامر ${botName}`,
-                        body: "𝐇𝐀𝐌𝐙𝐀 𝐀𝐌𝐈𝐑𝐍𝐈",
-                        mediaType: 1,
-                        thumbnail: thumbBuffer,
-                        sourceUrl: settings.officialChannel
-                    }
+        const sendListMenu = async () => {
+            const fullBody = bodyText + `\n\n📢 *القناة:* ${settings.officialChannel}`;
+            const sections = [
+                {
+                    title: "الأقسام",
+                    rows: rows.map(r => ({
+                        title: r.title,
+                        description: r.description,
+                        rowId: r.id
+                    }))
                 }
+            ];
+
+            return await sock.sendMessage(chatId, {
+                text: fullBody,
+                footer: "حمزة اعمرني",
+                title: botName,
+                buttonText: "اختار القسم 👇",
+                sections
             }, { quoted: msg });
-        } else {
-            await sock.sendMessage(chatId, { text: menuText }, { quoted: msg });
+        };
+
+        const sendInteractiveMenu = async () => {
+            const fullBody = bodyText + `\n\n📢 *القناة:* ${settings.officialChannel}`;
+            try {
+                const sections = [{ title: "الأقسام", rows }];
+
+                const imageSource = thumbBuffer || null;
+                const media = imageSource ? await prepareWAMessageMedia(
+                    { image: imageSource },
+                    { upload: sock.waUploadToServer }
+                ).catch(() => null) : null;
+
+                const msgContent = {
+                    viewOnceMessageV2: {
+                        message: {
+                            messageContextInfo: {
+                                deviceListMetadata: {},
+                                deviceListMetadataVersion: 2
+                            },
+                            interactiveMessage: {
+                                header: {
+                                    title: botName,
+                                    hasMediaAttachment: !!media,
+                                    ...(media || {})
+                                },
+                                body: {
+                                    text: fullBody
+                                },
+                                footer: {
+                                    text: "حمزة اعمرني"
+                                },
+                                nativeFlowMessage: {
+                                    buttons: [
+                                        {
+                                            name: "single_select",
+                                            buttonParamsJson: JSON.stringify({
+                                                title: "اضغط لاختيار القسم 🏰",
+                                                sections
+                                            })
+                                        },
+                                        {
+                                            name: "quick_reply",
+                                            buttonParamsJson: JSON.stringify({
+                                                display_text: "كل الأوامر 📜",
+                                                id: `${prefix}allmenu`
+                                            })
+                                        },
+                                        {
+                                            name: "quick_reply",
+                                            buttonParamsJson: JSON.stringify({
+                                                display_text: "المطور 👑",
+                                                id: `${prefix}owner`
+                                            })
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                };
+
+                const userJid = sock.decodeJid(sock.user.id);
+                const interactiveMsg = generateWAMessageFromContent(
+                    chatId,
+                    msgContent,
+                    { userJid, quoted: msg }
+                );
+
+                return await sock.relayMessage(chatId, interactiveMsg.message, {
+                    messageId: interactiveMsg.key.id
+                });
+            } catch (err) {
+                return await sock.sendMessage(chatId, { text: fullBody }, { quoted: msg });
+            }
+        };
+
+        try {
+            await sendListMenu();
+        } catch (e) {
+            try {
+                await sendInteractiveMenu();
+            } catch (err) {
+                const fullBody = bodyText + `\n\n📢 *القناة:* ${settings.officialChannel}`;
+                await sock.sendMessage(chatId, { text: fullBody }, { quoted: msg });
+            }
         }
 
     } catch (error) {

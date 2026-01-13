@@ -89,6 +89,26 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
             console.log(`[Help] 📂 Generating interactive menu for: ${chatId}`);
             const fullBody = bodyText + `\n\n📢 *القناة:* ${settings.officialChannel}`;
             try {
+                try {
+                    await sock.sendMessage(chatId, {
+                        text: fullBody,
+                        footer: footerText,
+                        title,
+                        buttonText: "اختار من هنا 👇",
+                        sections: [
+                            {
+                                title: "الأقسام",
+                                rows: rows.map(r => ({
+                                    title: r.title,
+                                    description: r.description,
+                                    rowId: r.id
+                                }))
+                            }
+                        ]
+                    }, { quoted: msg });
+                    return;
+                } catch (e) { }
+
                 const sections = [{ title: "الأقسام", rows }];
 
                 let imageSource = thumbBuffer;
