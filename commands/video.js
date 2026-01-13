@@ -63,35 +63,45 @@ async function videoCommand(sock, chatId, msg, args, commands, userLang) {
 
         const apiList = [
             `https://yt-dl.officialhectormanuel.workers.dev/?url=${encodeURIComponent(videoUrl)}`,
+            `https://api.siputzx.my.id/api/d/ytmp4?url=${encodeURIComponent(videoUrl)}`,
+            `https://api.zenkey.my.id/api/download/ytmp4?url=${encodeURIComponent(videoUrl)}`,
             `https://api.vreden.my.id/api/ytmp4?url=${encodeURIComponent(videoUrl)}`,
             `https://deliriussapi-oficial.vercel.app/download/ytmp4?url=${encodeURIComponent(videoUrl)}`,
-            `https://api.guruapi.tech/videodownloader/ytmp4?url=${encodeURIComponent(videoUrl)}`,
             `https://widipe.com/download/ytmp4?url=${encodeURIComponent(videoUrl)}`,
-            `https://itzpire.com/download/youtube-mp4?url=${encodeURIComponent(videoUrl)}`
+            `https://itzpire.com/download/youtube-mp4?url=${encodeURIComponent(videoUrl)}`,
+            `https://api.guruapi.tech/videodownloader/ytmp4?url=${encodeURIComponent(videoUrl)}`
         ];
+
+        const https = require('https');
+        const agent = new https.Agent({ rejectUnauthorized: false });
 
         for (const url of apiList) {
             try {
                 console.log(`[video.js] Trying API: ${url.split('?')[0]}`);
-                const response = await axios.get(url, { headers: { 'Accept': 'application/json' }, timeout: 30000 });
+                const response = await axios.get(url, {
+                    headers: { 'Accept': 'application/json' },
+                    timeout: 25000,
+                    httpsAgent: url.includes('itzpire') || url.includes('officialhectormanuel') ? agent : undefined
+                });
 
-                if (response.data && response.data.status) {
-                    const data = response.data;
+                const data = response.data;
+                if (data && (data.status === true || data.status === 200 || data.success || data.result)) {
                     title = data.title || (data.result && data.result.title) || (data.data && data.data.title) || title;
-                    thumbnail = data.thumbnail || (data.result && data.result.thumbnail) || thumbnail;
+                    thumbnail = data.thumbnail || (data.result && data.result.thumbnail) || (data.data && data.data.thumbnail) || thumbnail;
 
                     if (data.videos) {
                         videoDownloadUrl = data.videos["360"] || data.videos["480"] || data.videos["720"] || Object.values(data.videos)[0];
                     } else if (data.result && data.result.download) {
                         videoDownloadUrl = data.result.download;
+                    } else if (data.result && data.result.url) {
+                        videoDownloadUrl = data.result.url;
                     } else if (data.data && data.data.download && data.data.download.url) {
                         videoDownloadUrl = data.data.download.url;
+                    } else if (data.url) {
+                        videoDownloadUrl = data.url;
                     }
 
                     if (videoDownloadUrl) break;
-                } else if (response.data && response.data.result && response.data.result.url) {
-                    videoDownloadUrl = response.data.result.url;
-                    break;
                 }
             } catch (e) {
                 console.log(`[video.js] API failed (${url.split('?')[0]}):`, e.message);
