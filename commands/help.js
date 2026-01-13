@@ -84,12 +84,12 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
             `┃ 🤖 *Ver:* ${settings.version || '2.0.0'}\n` +
             `┗━━━━━━━━━━━━━━━━━━┛\n\n`;
 
-        // Interactive Send Function (Improved for compatibility)
+        // Interactive Send Function (Improved for LID & Modern compatibility)
         const sendInteractiveMenu = async ({ bodyText, title = "Menu", rows = [], footerText = "حمزة اعمرني" }) => {
             console.log(`[Help] 📂 Generating interactive menu for: ${chatId}`);
             const fullBody = bodyText + `\n\n📢 *القناة:* ${settings.officialChannel}`;
             try {
-                const sections = [{ title, rows }];
+                const sections = [{ title: "الأقسام المتاحة", rows }];
 
                 let imageSource = thumbBuffer;
                 if (!imageSource) {
@@ -111,7 +111,7 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
                             },
                             interactiveMessage: proto.Message.InteractiveMessage.create({
                                 header: proto.Message.InteractiveMessage.Header.create({
-                                    title: "Hamza Amirni Bot",
+                                    title: "Hamza Amirni",
                                     hasMediaAttachment: !!media,
                                     ...(media || {})
                                 }),
@@ -138,19 +138,24 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
                                             })
                                         }
                                     ]
-                                })
+                                }),
+                                contextInfo: {
+                                    mentionedJid: [chatId],
+                                    isForwarded: true
+                                }
                             })
                         }
                     }
                 };
 
+                const userJid = sock.user.lid || sock.user.id;
                 const interactiveMsg = generateWAMessageFromContent(
                     chatId,
                     msgContent,
-                    { userJid: sock.decodeJid(sock.user.id), quoted: msg }
+                    { userJid, quoted: msg }
                 );
 
-                console.log(`[Help] 🚀 Relaying interactive message...`);
+                console.log(`[Help] 🚀 Relaying interactive message to ${chatId} using ${userJid}...`);
                 return await sock.relayMessage(chatId, interactiveMsg.message, {
                     messageId: interactiveMsg.key.id
                 });
