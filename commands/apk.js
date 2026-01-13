@@ -2,18 +2,30 @@ const axios = require('axios');
 const { sendWithChannelButton } = require('../lib/channelButton');
 const settings = require('../settings');
 const { t } = require('../lib/language');
+const { canDownload, incrementDownload, DAILY_LIMIT } = require('../lib/apkLimiter');
 
 async function apkCommand(sock, chatId, message, args, commands, userLang) {
     const query = args.join(' ').trim();
-    // userLang is now passed directly
+    const senderId = message.key.participant || message.key.remoteJid;
+
+    // Check daily limit FIRST
+    const limitCheck = canDownload(senderId);
+    if (!limitCheck.allowed) {
+        const limitMsg = userLang === 'ma'
+            ? `⛔ *وصلتي للحد اليومي!*\n\n📊 *الحد:* ${DAILY_LIMIT} تطبيقات في اليوم\n⏰ *جرب غداً* للحصول على ${DAILY_LIMIT} تحميلات جديدة.\n\n⚔️ ${settings.botName}`
+            : userLang === 'ar'
+                ? `⛔ *وصلت للحد اليومي!*\n\n📊 *الحد:* ${DAILY_LIMIT} تطبيقات يومياً\n⏰ *حاول غداً* للحصول على ${DAILY_LIMIT} تحميلات جديدة.\n\n⚔️ ${settings.botName}`
+                : `⛔ *Daily Limit Reached!*\n\n📊 *Limit:* ${DAILY_LIMIT} APKs per day\n⏰ *Try tomorrow* for ${DAILY_LIMIT} new downloads.\n\n⚔️ ${settings.botName}`;
+        return await sendWithChannelButton(sock, chatId, limitMsg, message);
+    }
 
 
     if (!query) {
         const helpMsg = userLang === 'ma'
-            ? `📥 *تحميل تطبيقات APK (سريع)* 📥\n\n🔹 *الاستخدام:*\n${settings.prefix}apk [اسم التطبيق]\n\n📝 *أمثلة:*\n• ${settings.prefix}apk Instagram\n• ${settings.prefix}apk WhatsApp Lite\n\n⚔️ ${settings.botName}`
+            ? `📥 *تحميل تطبيقات APK (سريع)* 📥\n\n🔹 *الاستخدام:*\n${settings.prefix}apk [اسم التطبيق]\n\n📝 *أمثلة:*\n• ${settings.prefix}apk Instagram\n• ${settings.prefix}apk WhatsApp Lite\n\n📊 *المتبقي اليوم:* ${limitCheck.remaining}/${DAILY_LIMIT}\n\n⚔️ ${settings.botName}`
             : userLang === 'ar'
-                ? `📥 *تحميل تطبيقات APK (سريع)* 📥\n\n🔹 *الاستخدام:*\n${settings.prefix}apk [اسم التطبيق]\n\n📝 *أمثلة:*\n• ${settings.prefix}apk Instagram\n\n⚔️ ${settings.botName}`
-                : `📥 *APK Downloader (Fast)* 📥\n\n🔹 *Usage:*\n${settings.prefix}apk [App Name]\n\n📝 *Examples:*\n• ${settings.prefix}apk Instagram\n\n⚔️ ${settings.botName}`;
+                ? `📥 *تحميل تطبيقات APK (سريع)* 📥\n\n🔹 *الاستخدام:*\n${settings.prefix}apk [اسم التطبيق]\n\n📝 *أمثلة:*\n• ${settings.prefix}apk Instagram\n\n📊 *المتبقي اليوم:* ${limitCheck.remaining}/${DAILY_LIMIT}\n\n⚔️ ${settings.botName}`
+                : `📥 *APK Downloader (Fast)* 📥\n\n🔹 *Usage:*\n${settings.prefix}apk [App Name]\n\n📝 *Examples:*\n• ${settings.prefix}apk Instagram\n\n📊 *Remaining Today:* ${limitCheck.remaining}/${DAILY_LIMIT}\n\n⚔️ ${settings.botName}`;
 
         return await sendWithChannelButton(sock, chatId, helpMsg, message);
     }
@@ -103,8 +115,21 @@ async function apkCommand(sock, chatId, message, args, commands, userLang) {
             }
         }, { quoted: message });
 
+        // Increment download count
+        const remaining = incrementDownload(senderId);
+
         // Final reaction
         await sock.sendMessage(chatId, { react: { text: "✅", key: message.key } });
+
+        // Show remaining downloads
+        const remainingMsg = userLang === 'ma'
+            ? `✅ *تم التحميل بنجاح!*\n📊 *المتبقي اليوم:* ${remaining}/${DAILY_LIMIT}`
+            : userLang === 'ar'
+                ? `✅ *تم التحميل بنجاح!*\n📊 *المتبقي اليوم:* ${remaining}/${DAILY_LIMIT}`
+                : `✅ *Download Successful!*\n📊 *Remaining Today:* ${remaining}/${DAILY_LIMIT}`;
+
+        await sock.sendMessage(chatId, { text: remainingMsg }, { quoted: message });
+
 
     } catch (error) {
         console.error('Error in apk command:', error);

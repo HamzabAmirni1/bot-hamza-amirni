@@ -7,6 +7,7 @@ const { promisify } = require('util');
 const pipeline = promisify(stream.pipeline);
 const { t } = require('../lib/language');
 const settings = require('../settings');
+const { canDownload, incrementDownload, DAILY_LIMIT } = require('../lib/apkLimiter');
 
 // APK storage per user
 const apkSessions = {};
@@ -98,10 +99,21 @@ async function apk2Command(sock, chatId, msg, args, commands, userLang) { // Ren
     const senderId = msg.key.participant || msg.key.remoteJid;
     const message = msg; // For compatibility
 
+    // Check daily limit FIRST
+    const limitCheck = canDownload(senderId);
+    if (!limitCheck.allowed) {
+        const limitMsg = userLang === 'ma'
+            ? `⛔ *وصلتي للحد اليومي!*\n\n📊 *الحد:* ${DAILY_LIMIT} تطبيقات في اليوم\n⏰ *جرب غداً* للحصول على ${DAILY_LIMIT} تحميلات جديدة.\n\n⚔️ ${settings.botName}`
+            : userLang === 'ar'
+                ? `⛔ *وصلت للحد اليومي!*\n\n📊 *الحد:* ${DAILY_LIMIT} تطبيقات يومياً\n⏰ *حاول غداً* للحصول على ${DAILY_LIMIT} تحميلات جديدة.\n\n⚔️ ${settings.botName}`
+                : `⛔ *Daily Limit Reached!*\n\n📊 *Limit:* ${DAILY_LIMIT} APKs per day\n⏰ *Try tomorrow* for ${DAILY_LIMIT} new downloads.\n\n⚔️ ${settings.botName}`;
+        return await sendWithChannelButton(sock, chatId, limitMsg, message);
+    }
+
     const text = args.join(' ').trim();
 
     if (!text) {
-        await sendWithChannelButton(sock, chatId, "Usage: .apk2 [query]", message);
+        await sendWithChannelButton(sock, chatId, `Usage: .apk2 [query]\n\n📊 *المتبقي اليوم:* ${limitCheck.remaining}/${DAILY_LIMIT}`, message);
         return;
     }
 
@@ -177,6 +189,18 @@ async function apk2Command(sock, chatId, msg, args, commands, userLang) { // Ren
                         }, userLang)
                     }, { quoted: message });
                     uploadSuccess = true;
+
+                    // Increment download count
+                    const remaining = incrementDownload(senderId);
+
+                    // Show remaining downloads
+                    const remainingMsg = userLang === 'ma'
+                        ? `✅ *تم التحميل بنجاح!*\n📊 *المتبقي اليوم:* ${remaining}/${DAILY_LIMIT}`
+                        : userLang === 'ar'
+                            ? `✅ *تم التحميل بنجاح!*\n📊 *المتبقي اليوم:* ${remaining}/${DAILY_LIMIT}`
+                            : `✅ *Download Successful!*\n📊 *Remaining Today:* ${remaining}/${DAILY_LIMIT}`;
+
+                    await sock.sendMessage(chatId, { text: remainingMsg }, { quoted: message });
                 } catch (uploadError) {
                     retryCount++;
                     console.error(`[APK] Upload attempt ${retryCount} failed:`, uploadError.message);
