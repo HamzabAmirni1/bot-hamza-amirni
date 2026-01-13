@@ -278,14 +278,8 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
             }
         });
 
-        // Display all commands in a compact format (3 per line)
-        let commandsText = '';
-        for (let i = 0; i < allCommands.length; i += 3) {
-            const line = allCommands.slice(i, i + 3).join('  ');
-            commandsText += line + '\n';
-        }
-
-        mainMenu += '\n' + commandsText;
+        // Display all commands vertically (one per line)
+        mainMenu += '\n' + allCommands.join('\n');
 
         mainMenu += `\n💡 *ملاحظة:* لطلب أمر أكتب النقطة (.) قبل الاسم (مثال: .ذكاء)`;
 
