@@ -166,7 +166,7 @@ async function pinterest(sock, chatId, msg, args) {
                 })
             }
         }
-    }, {});
+    }, { userJid: sock.user.id, quoted: msg });
 
     await sock.relayMessage(chatId, bot.message, { messageId: bot.key.id });
 }

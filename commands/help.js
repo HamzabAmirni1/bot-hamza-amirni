@@ -3,7 +3,7 @@ const { t } = require('../lib/language');
 const { sendWithChannelButton } = require('../lib/channelButton');
 const fs = require('fs');
 const path = require('path');
-const { prepareWAMessageMedia, generateWAMessageFromContent } = require('@whiskeysockets/baileys');
+const { prepareWAMessageMedia, generateWAMessageFromContent, proto } = require('@whiskeysockets/baileys');
 
 module.exports = async (sock, chatId, msg, args, commands, userLang) => {
     console.log(`[Help] 📥 Request for help from ${chatId}`);
@@ -84,7 +84,7 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
             `┃ 🤖 *Ver:* ${settings.version || '2.0.0'}\n` +
             `┗━━━━━━━━━━━━━━━━━━┛\n\n`;
 
-        // Interactive Send Function (Minimal Fix for LID)
+        // Interactive Send Function (Improved for compatibility)
         const sendInteractiveMenu = async ({ bodyText, title = "Menu", rows = [], footerText = "حمزة اعمرني" }) => {
             console.log(`[Help] 📂 Generating interactive menu for: ${chatId}`);
             const fullBody = bodyText + `\n\n📢 *القناة:* ${settings.officialChannel}`;
@@ -105,25 +105,33 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
                 const msgContent = {
                     viewOnceMessage: {
                         message: {
-                            interactiveMessage: {
-                                header: {
+                            messageContextInfo: {
+                                deviceListMetadata: {},
+                                deviceListMetadataVersion: 2
+                            },
+                            interactiveMessage: proto.Message.InteractiveMessage.fromObject({
+                                header: proto.Message.InteractiveMessage.Header.create({
                                     hasMediaAttachment: !!media,
-                                    imageMessage: media ? media.imageMessage : null
-                                },
-                                body: { text: fullBody },
-                                footer: { text: footerText },
-                                nativeFlowMessage: {
+                                    ...(media || {})
+                                }),
+                                body: proto.Message.InteractiveMessage.Body.create({
+                                    text: fullBody
+                                }),
+                                footer: proto.Message.InteractiveMessage.Footer.create({
+                                    text: footerText
+                                }),
+                                nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.create({
                                     buttons: [
                                         {
                                             name: "single_select",
                                             buttonParamsJson: JSON.stringify({
-                                                title,
-                                                sections
+                                                title: title,
+                                                sections: sections
                                             })
                                         }
                                     ]
-                                }
-                            }
+                                })
+                            })
                         }
                     }
                 };
@@ -134,7 +142,7 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
                     { userJid: sock.user.id, quoted: msg }
                 );
 
-                console.log(`[Help] 🚀 Relaying interactive message...`);
+                console.log(`[Help] 🚀 Relaying interactive message with improved structure...`);
                 return await sock.relayMessage(chatId, interactiveMsg.message, {
                     messageId: interactiveMsg.key.id
                 });
@@ -143,6 +151,7 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
                 return await sock.sendMessage(chatId, { text: fullBody }, { quoted: msg });
             }
         };
+
 
         // Common Send Function with Image (Old style / Fallback)
         const sendMenu = async (text, title = "✨ Hamza Amirni Bot ✨") => {
