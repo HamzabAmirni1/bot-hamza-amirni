@@ -89,7 +89,7 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
             console.log(`[Help] 📂 Generating interactive menu for: ${chatId}`);
             const fullBody = bodyText + `\n\n📢 *القناة:* ${settings.officialChannel}`;
             try {
-                const sections = [{ title: "الأقسام المتاحة", rows }];
+                const sections = [{ title: "الأقسام", rows }];
 
                 let imageSource = thumbBuffer;
                 if (!imageSource) {
@@ -103,30 +103,30 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
                 ).catch(() => null) : null;
 
                 const msgContent = {
-                    viewOnceMessage: {
+                    viewOnceMessageV2: {
                         message: {
                             messageContextInfo: {
                                 deviceListMetadata: {},
                                 deviceListMetadataVersion: 2
                             },
-                            interactiveMessage: proto.Message.InteractiveMessage.create({
-                                header: proto.Message.InteractiveMessage.Header.create({
+                            interactiveMessage: {
+                                header: {
                                     title: "Hamza Amirni",
                                     hasMediaAttachment: !!media,
                                     ...(media || {})
-                                }),
-                                body: proto.Message.InteractiveMessage.Body.create({
+                                },
+                                body: {
                                     text: fullBody
-                                }),
-                                footer: proto.Message.InteractiveMessage.Footer.create({
+                                },
+                                footer: {
                                     text: footerText
-                                }),
-                                nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.create({
+                                },
+                                nativeFlowMessage: {
                                     buttons: [
                                         {
                                             name: "single_select",
                                             buttonParamsJson: JSON.stringify({
-                                                title: "اضغط لعرض الأقسام 🏰",
+                                                title: "اضغط لاختيار القسم 🏰",
                                                 sections: sections
                                             })
                                         },
@@ -138,24 +138,20 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
                                             })
                                         }
                                     ]
-                                }),
-                                contextInfo: {
-                                    mentionedJid: [chatId],
-                                    isForwarded: true
                                 }
-                            })
+                            }
                         }
                     }
                 };
 
-                const userJid = sock.user.lid || sock.user.id;
+                const userJid = sock.decodeJid(sock.user.id);
                 const interactiveMsg = generateWAMessageFromContent(
                     chatId,
                     msgContent,
                     { userJid, quoted: msg }
                 );
 
-                console.log(`[Help] 🚀 Relaying interactive message to ${chatId} using ${userJid}...`);
+                console.log(`[Help] 🚀 Relaying interactive message (V2) to ${chatId}...`);
                 return await sock.relayMessage(chatId, interactiveMsg.message, {
                     messageId: interactiveMsg.key.id
                 });
