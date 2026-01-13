@@ -59,9 +59,88 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
             'alive': '🟢', 'ping': '⚡', 'owner': '👑', 'help': '❓'
         };
 
+
         const requested = args[0] ? args[0].toLowerCase() : null;
 
-        // ROOT FIX: Premium Text + Image Menu (100% Reliability)
+        // Arabic Aliases Map (Mapping English Command -> Arabic Alias) - MOVED OUTSIDE IF BLOCK
+        const arCmds = {
+            // AI Commands
+            'gpt': 'ذكاء', 'gpt4': 'ذكاء4', 'gpt4o': 'ذكاء-برو', 'gpt4om': 'ذكاء-ميني', 'gpt3': 'ذكاء3', 'o1': 'ذكاء-متقدم',
+            'gemini': 'جيميني', 'gemini-analyze': 'تحليل-صور', 'deepseek': 'بحث-عميق',
+            'imagine': 'تخيل', 'aiart': 'رسم', 'genai': 'توليد-صور', 'nanobanana': 'نانو', 'banana-ai': 'موز',
+            'ghibli': 'جيبلي', 'ghibli-art': 'فن-جيبلي', 'faceswap': 'تبديل-وجه',
+            'ai-enhance': 'تحسين', 'colorize': 'تلوين', 'remini': 'ريميني', 'unblur': 'توضيح',
+            'vocalremover': 'عزل-صوت', 'musicgen': 'توليد-موسيقى', 'removebg': 'حذف-خلفية',
+            'qwen': 'كوين', 'miramuse': 'ميرا', 'edit': 'تعديل',
+
+            // Islamic Commands
+            'quran': 'قرآن', 'salat': 'صلاة', 'prayertimes': 'مواقيت', 'adhan': 'أذان',
+            'hadith': 'حديث', 'ad3iya': 'أدعية', 'azkar': 'أذكار', 'qibla': 'قبلة',
+            'tafsir': 'تفسير', 'surah': 'سورة', 'ayah': 'آية', 'dua': 'دعاء',
+            'asmaa': 'أسماء-الله', 'fadlsalat': 'فضل-صلاة', 'hukm': 'حكم', 'qiyam': 'قيام',
+            'danb': 'ذنب', 'nasiha': 'نصيحة', 'tadabbur': 'تدبر', 'sahaba': 'صحابة',
+            'faida': 'فائدة', 'hasanat': 'حسنات', 'jumaa': 'جمعة', 'hajj': 'حج',
+            'sira': 'سيرة', 'mawt': 'موت', 'shirk': 'شرك', 'hub': 'حب', 'deen': 'دين',
+
+            // Download Commands
+            'facebook': 'فيسبوك', 'instagram': 'انستا', 'youtube': 'يوتيوب', 'tiktok': 'تيكتوك',
+            'mediafire': 'ميديافاير', 'play': 'شغل', 'song': 'أغنية', 'video': 'فيديو',
+            'yts': 'بحث-يوتيوب', 'ytplay': 'تشغيل', 'apk': 'تطبيق', 'apk2': 'تطبيق2', 'apk3': 'تطبيق3',
+            'github': 'جيتهاب',
+
+            // Tools Commands
+            'sticker': 'ستيكر', 'translate': 'ترجمة', 'weather': 'طقس', 'calc': 'حساب',
+            'pdf2img': 'صور-بي-دي-اف', 'ocr': 'استخراج-نص', 'tts': 'نطق', 'qrcode': 'كود-كيو-آر',
+            'screenshot': 'سكرين', 'ss': 'لقطة', 'tomp3': 'صوت', 'toimage': 'صورة',
+            'tovideo': 'فيديو', 'togif': 'جيف', 'attp': 'نص-متحرك', 'ttp': 'نص-ملون',
+            'lyrics': 'كلمات', 'upload': 'رفع', 'readviewonce': 'قراءة-مرة',
+            'img-blur': 'طمس', 'say': 'قول', 'sticker-alt': 'ستيكر2',
+
+            // Group Commands
+            'kick': 'طرد', 'promote': 'ترقية', 'demote': 'تخفيض', 'ban': 'حظر',
+            'tagall': 'منشن', 'hidetag': 'اخفاء', 'mute': 'كتم', 'unmute': 'الغاء-كتم',
+            'close': 'اغلاق', 'open': 'فتح', 'antilink': 'منع-روابط', 'warn': 'تحذير',
+            'antibadword': 'منع-شتائم', 'welcome': 'ترحيب', 'goodbye': 'وداع',
+            'groupinfo': 'معلومات-مجموعة', 'staff': 'طاقم', 'delete': 'حذف',
+            'warnings': 'تحذيرات',
+
+            // Fun Commands
+            'joke': 'نكتة', 'fact': 'حقيقة', 'quote': 'اقتباس', 'meme': 'ميم',
+            'truth': 'صراحة', 'dare': 'تحدي', 'ship': 'توافق', 'ngl': 'صراحة-مجهولة',
+            '4kwallpaper': 'خلفيات', 'character': 'شخصية', 'goodnight': 'نعاس',
+            'stupid': 'مكلخ', 'flirt': 'غزل', 'compliment': 'مدح', 'insult': 'سب',
+
+            // Game Commands
+            'menugame': 'قائمة-ألعاب', 'xo': 'اكس-او', 'tictactoe': 'اكس-او',
+            'rps': 'حجر-ورقة', 'math': 'رياضيات', 'guess': 'تخمين', 'scramble': 'خلط-كلمات',
+            'riddle': 'لغز', 'quiz': 'مسابقة', 'love': 'حب', 'hangman': 'مشنقة',
+            'trivia': 'ثقافة', 'eightball': 'كرة-سحرية', 'guesswho': 'شكون-انا',
+
+            // Economy Commands
+            'profile': 'بروفايل', 'daily': 'يومي', 'top': 'ترتيب', 'shop': 'متجر',
+            'gamble': 'قمار', 'slots': 'ماكينة', 'blackjack': 'بلاك-جاك',
+
+            // General Commands
+            'ping': 'بينغ', 'owner': 'المالك', 'help': 'مساعدة', 'alive': 'حي',
+            'system': 'نظام', 'setlang': 'لغة', 'script': 'سكريبت', 'allmenu': 'كل-الأوامر',
+
+            // Owner Commands
+            'mode': 'وضع', 'devmsg': 'بث', 'pmblocker': 'حظر-خاص', 'anticall': 'منع-مكالمات',
+            'backup': 'نسخة-احتياطية', 'unban': 'الغاء-حظر', 'block': 'بلوك', 'unblock': 'فك-بلوك',
+            'cleartmp': 'مسح-مؤقت', 'sudo': 'مشرف', 'clear': 'مسح', 'clearsession': 'مسح-جلسة',
+            'autoreminder': 'تذكير-تلقائي',
+
+            // News Commands
+            'news': 'أخبار', 'akhbar': 'أخبار', 'football': 'كرة-قدم', 'kora': 'كورة',
+            'taqes': 'طقس',
+
+            // Other Commands
+            'imdb': 'فيلم', 'resetlink': 'اعادة-رابط', 'hdvideo': 'فيديو-عالي',
+            'winkvideo': 'وينك', 'brat-vd': 'برات', 'car': 'سيارة', 'recipe': 'وصفة',
+            'currency': 'صرف', 'alloschool': 'مدرسة', 'checkimage': 'فحص-صورة',
+            'pdf': 'بي-دي-اف', 'google': 'جوجل', 'wiki': 'ويكي'
+        };
+
         // ROOT FIX: Premium Text + Image Menu (100% Reliability)
         const sendMenu = async (text, headerTitle = "Hamza Amirni Bot") => {
             const footerBranding = `\n\n🛡️ *${botName.toUpperCase()}* 🛡️\n📢 *قناتنا:* ${settings.officialChannel}`;
@@ -69,7 +148,6 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
 
             if (thumbBuffer) {
                 // Send standard Image Message (Most Reliable)
-                // We REMOVE externalAdReply from image message to prevent conflicts
                 await sock.sendMessage(chatId, {
                     image: thumbBuffer,
                     caption: fullText,
@@ -90,7 +168,7 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
                         externalAdReply: {
                             title: headerTitle,
                             body: "المطور: حمزة اعمرني",
-                            thumbnail: thumbBuffer, // If buffer exists but image send failed? just consistent logic
+                            thumbnail: thumbBuffer,
                             sourceUrl: settings.officialChannel,
                             mediaType: 1,
                             renderLargerThumbnail: true,
@@ -115,19 +193,6 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
                 'owner': 'owner', 'مطور': 'owner',
                 'group': 'group', 'مجموعات': 'group',
                 'economy': 'economy', 'اقتصاد': 'economy', 'bank': 'economy'
-            };
-
-            // Arabic Aliases Map (Mapping English Command -> Arabic Alias)
-            const arCmds = {
-                'gpt': 'ذكاء', 'gemini-analyze': 'جيميني-حلل', 'imagine': 'تخيل', 'aiart': 'رسم', 'nanobanana': 'نانو',
-                'quran': 'قرآن', 'salat': 'صلاة', 'prayertimes': 'مواقيت', 'adhan': 'أذان', 'hadith': 'حديث', 'ad3iya': 'أدعية',
-                'sticker': 'ستيكر', 'translate': 'ترجمة', 'weather': 'طقس', 'calc': 'حساب', 'pdf2img': 'صور-pdf',
-                'facebook': 'فيسبوك', 'instagram': 'انستا', 'youtube': 'يوتيوب', 'tiktok': 'تيكتوك', 'apk': 'تطبيق',
-                'kick': 'طرد', 'promote': 'ترقية', 'demote': 'تخفيض', 'ban': 'حظر', 'tagall': 'منشن', 'hidetag': 'اخفاء',
-                'play': 'شغل', 'song': 'أغنية', 'video': 'فيديو',
-                'ping': 'بينغ', 'owner': 'المالك', 'help': 'مساعدة', 'system': 'نظام',
-                'profile': 'بروفايل', 'daily': 'يومي', 'top': 'ترتيب', 'shop': 'متجر', 'gamble': 'قمار',
-                'joke': 'نكتة', 'fact': 'حقيقة', 'quote': 'اقتباس', 'game': 'لعب'
             };
 
             let selectedKey = categoryAliases[requested] || (catMap[requested] ? requested : null);
