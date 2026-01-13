@@ -239,16 +239,18 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
 
         // --- Execute Main Menu ---
         const bodyText =
-            `*┏━━❰ ⚔️ ${botName.toUpperCase()} ⚔️ ❱━━┓*\n` +
-            `┃ 🤵‍♂️ *المطور:* حمزة اعمرني\n` +
-            `┃ 📅 *التاريخ:* ${dateStr}\n` +
-            `┃ ⌚ *الوقت:* ${timeStr}\n` +
-            `┃ ⏳ *النشاط:* ${days}d ${hours}h ${minutes}m\n` +
-            `┃ 🤖 *الإصدار:* 2026.1.1\n` +
-            `*┗━━━━━━━━━━━━━━━━━━━┛*\n\n` +
-            `✨ *إليك قائمة بجميع الأوامر المتاحة:* ✨`;
+            `╔═══════════════════════════╗\n` +
+            `║   ⚔️ *${botName.toUpperCase()}* ⚔️   ║\n` +
+            `╠═══════════════════════════╣\n` +
+            `║ 👤 *المطور:* حمزة اعمرني\n` +
+            `║ 📅 *التاريخ:* ${dateStr}\n` +
+            `║ ⏰ *الوقت:* ${timeStr}\n` +
+            `║ 🔥 *النشاط:* ${days}d ${hours}h ${minutes}m\n` +
+            `║ 🤖 *الإصدار:* 2026.1.1\n` +
+            `╚═══════════════════════════╝\n\n` +
+            `✨ *━━━ قائمة الأوامر الكاملة ━━━* ✨\n\n`;
 
-        let mainMenu = bodyText + "\n";
+        let mainMenu = bodyText;
 
         const sections = [
             { key: 'new', title: '🚀 الجديد (Exclusive)' },
@@ -273,15 +275,21 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
                 cmds.forEach(cmd => {
                     const icon = cmdIcons[cmd] || '🔹';
                     const displayName = arCmds[cmd] ? arCmds[cmd] : cmd;
-                    allCommands.push(`${icon} *${displayName}*`);
+                    allCommands.push(`${icon} *.${displayName}*`);
                 });
             }
         });
 
-        // Display all commands vertically (one per line)
-        mainMenu += '\n' + allCommands.join('\n');
+        // Display all commands vertically with decorative separators
+        mainMenu += allCommands.join('\n');
 
-        mainMenu += `\n💡 *ملاحظة:* لطلب أمر أكتب النقطة (.) قبل الاسم (مثال: .ذكاء)`;
+        mainMenu += `\n\n╭─────────────────────────╮\n`;
+        mainMenu += `│ 💡 *كيفية الاستخدام:* │\n`;
+        mainMenu += `│ اكتب النقطة (.) قبل الأمر │\n`;
+        mainMenu += `│ مثال: *.ذكاء* أو *.قرآن* │\n`;
+        mainMenu += `╰─────────────────────────╯\n\n`;
+        mainMenu += `⚡ *عدد الأوامر:* ${allCommands.length} أمر\n`;
+        mainMenu += `🌟 *جميع الأوامر باللغة العربية*`;
 
         await sendMenu(mainMenu, `${botName} - القائمة الكاملة`);
 
