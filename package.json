@@ -58,6 +58,7 @@
     "node-youtube-music": "^0.8.3",
     "performance-now": "^2.1.0",
     "phin": "^3.7.1",
+    "pdf-img-convert": "^1.2.1",
     "pdfkit": "^0.15.0",
     "pino": "^8.21.0",
     "qrcode": "^1.5.4",
