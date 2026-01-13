@@ -117,6 +117,19 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
                 'economy': 'economy', 'اقتصاد': 'economy', 'bank': 'economy'
             };
 
+            // Arabic Aliases Map (Mapping English Command -> Arabic Alias)
+            const arCmds = {
+                'gpt': 'ذكاء', 'gemini-analyze': 'جيميني-حلل', 'imagine': 'تخيل', 'aiart': 'رسم', 'nanobanana': 'نانو',
+                'quran': 'قرآن', 'salat': 'صلاة', 'prayertimes': 'مواقيت', 'adhan': 'أذان', 'hadith': 'حديث', 'ad3iya': 'أدعية',
+                'sticker': 'ستيكر', 'translate': 'ترجمة', 'weather': 'طقس', 'calc': 'حساب', 'pdf2img': 'صور-pdf',
+                'facebook': 'فيسبوك', 'instagram': 'انستا', 'youtube': 'يوتيوب', 'tiktok': 'تيكتوك', 'apk': 'تطبيق',
+                'kick': 'طرد', 'promote': 'ترقية', 'demote': 'تخفيض', 'ban': 'حظر', 'tagall': 'منشن', 'hidetag': 'اخفاء',
+                'play': 'شغل', 'song': 'أغنية', 'video': 'فيديو',
+                'ping': 'بينغ', 'owner': 'المالك', 'help': 'مساعدة', 'system': 'نظام',
+                'profile': 'بروفايل', 'daily': 'يومي', 'top': 'ترتيب', 'shop': 'متجر', 'gamble': 'قمار',
+                'joke': 'نكتة', 'fact': 'حقيقة', 'quote': 'اقتباس', 'game': 'لعب'
+            };
+
             let selectedKey = categoryAliases[requested] || (catMap[requested] ? requested : null);
 
 
@@ -149,7 +162,8 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
 
                 catMap[selectedKey].forEach(cmd => {
                     const icon = cmdIcons[cmd] || '🔹';
-                    menuText += `${icon} *${prefix}${cmd}*\n`;
+                    const arAlias = arCmds[cmd] ? ` / .${arCmds[cmd]}` : '';
+                    menuText += `${icon} *${prefix}${cmd}*${arAlias}\n`;
                 });
 
                 menuText += `\n─━━━━━━━━━━━━━━─\n` + `🔙 للرجوع: *.menu*`;
