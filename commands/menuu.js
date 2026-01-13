@@ -203,15 +203,15 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
         sections.forEach(section => {
             const cmds = catMap[section.key];
             if (cmds && cmds.length > 0) {
-                mainMenu += `\n*${section.title}*\n`;
-                // mainMenu += `─━━━━━━━━━━━━━━─\n`; // Make it cleaner, removed divider line per section to save space
+                mainMenu += `\n┌─── ❰ ${section.title} ❱ ───┐\n`;
 
                 cmds.forEach(cmd => {
                     const icon = cmdIcons[cmd] || '🔹';
                     const displayName = arCmds[cmd] ? arCmds[cmd] : cmd;
-                    mainMenu += `${icon} *${displayName}*  `;
+                    // Vertical list style like allmenu with box border (optional, matching style of allmenu.js)
+                    mainMenu += `│ ${icon} *${displayName}*\n`;
                 });
-                mainMenu += `\n`;
+                mainMenu += `└──────────────────┘\n`;
             }
         });
 
