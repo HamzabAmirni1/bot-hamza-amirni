@@ -141,6 +141,44 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
             'pdf': 'بي-دي-اف', 'google': 'جوجل', 'wiki': 'ويكي'
         };
 
+        const arDescs = {
+            // AI
+            'gpt': 'للدردشة مع الذكاء الاصطناعي', 'gpt4o': 'أحدث نموذج ذكاء اصطناعي', 'imagine': 'توليد صور من النص',
+            'gemini-analyze': 'تحليل ووصف الصور بدقة', 'deepseek': 'بحث معمق ومتقدم', 'remini': 'تحسين جودة الصور القديمة',
+            'removebg': 'إزالة خلفية الصور بضغطة واحدة',
+            // Deen
+            'quran': 'قراءة القرآن الكريم', 'prayertimes': 'مواقيت الصلاة حسب مدينتك', 'azkar': 'أذكار المسلم اليومية',
+            'ad3iya': 'أدعية مختارة من الكتاب والسنة', 'hadith': 'بحث في الأحاديث النبوية',
+            // Download
+            'facebook': 'تحميل فيديوهات من فيسبوك', 'instagram': 'تحميل ستوريات وفيديوهات انستا',
+            'tiktok': 'تحميل فيديوهات تيك توك بدون علامة', 'youtube': 'تحميل من يوتيوب (صوت/فيديو)',
+            'apk': 'تحميل تطبيقات أندرويد بروابط مباشرة',
+            // Tools
+            'sticker': 'تحويل الصور/الفيديوهات لملصقات', 'translate': 'ترجمة النصوص لجميع اللغات',
+            'calc': 'آلة حاسبة ذكية', 'ocr': 'استخراج النصوص من الصور',
+            // Fun & Games
+            'joke': 'نكت مغربية مضحكة', 'xo': 'لعب لعبة اكس او الشهيرة', 'quiz': 'اختبار ذكائك ومعلوماتك',
+            // General
+            'alive': 'التأكد من أن البوت يعمل', 'ping': 'سرعة استجابة البوت', 'owner': 'التواصل مع مطور البوت',
+            // Deen Extras
+            'salat': 'تعليم كيفية الصلاة الصحيحة', 'adhan': 'سماع صوت الأذان العذب', 'asmaa': 'أسماء الله الحسنى ومعانيها',
+            'qibla': 'تحديد اتجاه القبلة بدقة', 'tafsir': 'تفسير آيات القرآن الكريم', 'ayah': 'البحث عن آية قرآنية محددة',
+            'jumaa': 'سنن وأذكار يوم الجمعة',
+            // Tools Extras
+            'weather': 'حالة الطقس اليوم وفي الأسبوع', 'lyrics': 'كلمات الأغاني المفضلة لديك', 'pdf2img': 'تحويل ملفات PDF إلى صور',
+            'screenshot': 'أخذ لقطة شاشة لموقع معين', 'tts': 'تحويل النص إلى صوت مسموع',
+            // Group
+            'kick': 'طرد عضو من المجموعة', 'promote': 'ترقية عضو لمشرف', 'demote': 'إزالة مشرف من منصبه',
+            'tagall': 'منشن لجميع أعضاء المجموعة', 'hidetag': 'منشن مخفي للجميع',
+            // Fun
+            'meme': 'صناعة ميمز مضحكة', 'truth': 'لعبة صراحة جريئة', 'dare': 'لعبة تحديات صعبة',
+            'ship': 'قياس نسبة الحب بين شخصين', '4kwallpaper': 'خلفيات عالية الجودة 4K',
+            // News
+            'news': 'آخر الأخبار العالمية والمحلية', 'football': 'نتائج ومواعيد مباريات اليوم',
+            // Owner
+            'mode': 'تغيير وضع البوت (عام/خاص)', 'ban': 'حظر مستخدم من البوت', 'pmblocker': 'تفعيل حماية الخاص'
+        };
+
         // ROOT FIX: Premium Text + Image Menu (100% Reliability)
         const sendMenu = async (text, headerTitle = "Hamza Amirni Bot") => {
             const footerBranding = `\n\n🛡️ *${botName.toUpperCase()}* 🛡️\n📢 *قناتنا:* ${settings.officialChannel}`;
@@ -267,28 +305,31 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
             { key: 'owner', title: '👑 المطور فقط' }
         ];
 
-        // Collect ALL commands with Arabic names in one simple list
-        let allCommands = [];
+        // Display commands grouped by sections (like allmenu) with brief descriptions
+        let totalCmds = 0;
         sections.forEach(section => {
             const cmds = catMap[section.key];
             if (cmds && cmds.length > 0) {
+                mainMenu += `\n┌─── ❰ ${section.title} ❱ ───┐\n`;
+
                 cmds.forEach(cmd => {
                     const icon = cmdIcons[cmd] || '🔹';
                     const displayName = arCmds[cmd] ? arCmds[cmd] : cmd;
-                    allCommands.push(`${icon} *.${displayName}*`);
+                    const desc = arDescs[cmd] ? ` - ${arDescs[cmd]}` : '';
+                    mainMenu += `│ ${icon} *.${displayName}*${desc}\n`;
+                    totalCmds++;
                 });
+
+                mainMenu += `└──────────────────┘\n`;
             }
         });
-
-        // Display all commands vertically with decorative separators
-        mainMenu += allCommands.join('\n');
 
         mainMenu += `\n\n╭─────────────────────────╮\n`;
         mainMenu += `│ 💡 *كيفية الاستخدام:* │\n`;
         mainMenu += `│ اكتب النقطة (.) قبل الأمر │\n`;
         mainMenu += `│ مثال: *.ذكاء* أو *.قرآن* │\n`;
         mainMenu += `╰─────────────────────────╯\n\n`;
-        mainMenu += `⚡ *عدد الأوامر:* ${allCommands.length} أمر\n`;
+        mainMenu += `⚡ *عدد الأوامر:* ${totalCmds} أمر\n`;
         mainMenu += `🌟 *جميع الأوامر باللغة العربية*`;
 
         await sendMenu(mainMenu, `${botName} - القائمة الكاملة`);
