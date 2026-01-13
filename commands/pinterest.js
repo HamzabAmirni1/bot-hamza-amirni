@@ -113,62 +113,17 @@ async function pinterest(sock, chatId, msg, args) {
         return reply(`⚠️ ${result.message}`);
     }
 
-    let pins = result.pins.slice(0, 10); // نأخذ أول 10 نتائج كحد أقصى
-    shuffleArray(pins); // ترتيب عشوائي للنتائج
+    let pins = result.pins.slice(0, 5); // Limit to top 5 results
+    shuffleArray(pins); // Randomize
 
-    let push = [];
-    let i = 1;
+    await reply(`🔍 *تم العثور على ${result.pins.length} نتيجة (يعرض 5).*`);
+
     for (let pin of pins) {
-        let imageUrl = pin.image;
-        push.push({
-            body: proto.Message.InteractiveMessage.Body.fromObject({
-                text: `📌 *العنوان:* ${pin.title}\n📝 *الوصف:* ${pin.description}\n👤 *الناشر:* ${pin.uploader.full_name} (@${pin.uploader.username})\n🔗 *الرابط:* ${pin.pin_url}`
-            }),
-            footer: proto.Message.InteractiveMessage.Footer.fromObject({
-                text: settings.botName || '乂 BOT HAMZA AMIRNI 🧠' // تخصيص العلامة المائية
-            }),
-            header: proto.Message.InteractiveMessage.Header.fromObject({
-                title: `الصورة ${i++}`,
-                hasMediaAttachment: true,
-                imageMessage: await createImage(imageUrl) // صورة البنترست
-            }),
-            nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
-                buttons: [
-                    {
-                        "name": "cta_url",
-                        "buttonParamsJson": `{"display_text":"عرض على Pinterest","url":"${pin.pin_url}"}`
-                    }
-                ]
-            })
-        });
+        await sock.sendMessage(chatId, {
+            image: { url: pin.image },
+            caption: `📌 *${pin.title}*\n📝 ${pin.description}\n👤 ${pin.uploader.full_name}\n🔗 ${pin.pin_url}`
+        }, { quoted: msg });
     }
-
-    const bot = generateWAMessageFromContent(chatId, {
-        viewOnceMessage: {
-            message: {
-                messageContextInfo: {
-                    deviceListMetadata: {},
-                    deviceListMetadataVersion: 2
-                },
-                interactiveMessage: proto.Message.InteractiveMessage.fromObject({
-                    body: proto.Message.InteractiveMessage.Body.create({
-                        text: "اكتملت نتائج البحث..."
-                    }),
-                    footer: proto.Message.InteractiveMessage.Footer.create({
-                        text: settings.botName || '乂 BOT HAMZA AMIRNI 🧠' // تخصيص العلامة المائية
-                    }),
-                    header: proto.Message.InteractiveMessage.Header.create({
-                        hasMediaAttachment: false
-                    }),
-                    carouselMessage: proto.Message.InteractiveMessage.CarouselMessage.fromObject({
-                        cards: [...push] // ملء الـ carousel بنتائج البحث
-                    })
-                })
-            }
-        }
-    }, { userJid: sock.user.id, quoted: msg });
-
-    await sock.relayMessage(chatId, bot.message, { messageId: bot.key.id });
 }
 
 module.exports = pinterest;

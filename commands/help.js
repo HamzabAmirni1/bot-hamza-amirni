@@ -84,118 +84,36 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
             `┃ 🤖 *Ver:* ${settings.version || '2.0.0'}\n` +
             `┗━━━━━━━━━━━━━━━━━━┛\n\n`;
 
-        // ROOT FIX: Interactive Send Function (Modern Native Flow)
-        const sendInteractiveMenu = async ({ bodyText, title = "Menu", rows = [], footerText = "حمزة اعمرني" }) => {
-            console.log(`[Help] 📂 Generating ROOT FIX menu for: ${chatId}`);
-            const fullBody = bodyText + `\n\n📢 *القناة:* ${settings.officialChannel}`;
-            try {
-                const sections = [{ title: "الأقسام المتاحة", rows }];
+        // ROOT FIX: Premium Text + Image Menu (100% Reliability)
+        const sendMenu = async (text, headerTitle = "Hamza Amirni Bot") => {
+            const footerBranding = `\n\n🛡️ *${t('common.botName', {}, userLang)}* 🛡️\n📢 *قناتنا:* ${settings.officialChannel}`;
+            const fullText = text + footerBranding;
 
-                let imageSource = thumbBuffer;
-                if (!imageSource) {
-                    const thumbPath = path.resolve(__dirname, '..', settings.botThumbnail);
-                    if (fs.existsSync(thumbPath)) imageSource = fs.readFileSync(thumbPath);
+            const contextInfo = {
+                mentionedJid: [chatId],
+                isForwarded: true,
+                forwardingScore: 999,
+                externalAdReply: {
+                    title: headerTitle,
+                    body: "المطور: حمزة اعمرني",
+                    thumbnail: thumbBuffer,
+                    sourceUrl: settings.officialChannel,
+                    mediaType: 1,
+                    renderLargerThumbnail: true,
+                    showAdAttribution: true
                 }
-
-                const media = imageSource ? await prepareWAMessageMedia(
-                    { image: imageSource },
-                    { upload: sock.waUploadToServer }
-                ).catch(() => null) : null;
-
-                const msgContent = {
-                    viewOnceMessage: {
-                        message: {
-                            messageContextInfo: {
-                                deviceListMetadata: {},
-                                deviceListMetadataVersion: 2
-                            },
-                            interactiveMessage: proto.Message.InteractiveMessage.create({
-                                body: proto.Message.InteractiveMessage.Body.create({
-                                    text: fullBody
-                                }),
-                                footer: proto.Message.InteractiveMessage.Footer.create({
-                                    text: footerText
-                                }),
-                                header: proto.Message.InteractiveMessage.Header.create({
-                                    title: "Hamza Amirni",
-                                    hasMediaAttachment: !!media,
-                                    ...(media || {})
-                                }),
-                                nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.create({
-                                    buttons: [
-                                        {
-                                            name: "single_select",
-                                            buttonParamsJson: JSON.stringify({
-                                                title: "اضغط لاختيار القسم 🏰",
-                                                sections: sections
-                                            })
-                                        },
-                                        {
-                                            name: "quick_reply",
-                                            buttonParamsJson: JSON.stringify({
-                                                display_text: "كل الأوامر 📜",
-                                                id: `${settings.prefix}allmenu`
-                                            })
-                                        }
-                                    ]
-                                }),
-                                contextInfo: {
-                                    mentionedJid: [chatId],
-                                    forwardingScore: 999,
-                                    isForwarded: true,
-                                    // Optimization for LID accounts
-                                    externalAdReply: {
-                                        title: "Hamza Amirni Bot",
-                                        body: "Bot Active ✅",
-                                        thumbnail: imageSource,
-                                        sourceUrl: settings.officialChannel,
-                                        mediaType: 1,
-                                        renderLargerThumbnail: true
-                                    }
-                                }
-                            })
-                        }
-                    }
-                };
-
-                const userJid = sock.user.id;
-                const interactiveMsg = generateWAMessageFromContent(
-                    chatId,
-                    msgContent,
-                    {
-                        userJid: userJid,
-                        quoted: msg,
-                        upload: sock.waUploadToServer
-                    }
-                );
-
-                console.log(`[Help] 🚀 Relaying ROOT FIX message to ${chatId}...`);
-                return await sock.relayMessage(chatId, interactiveMsg.message, {
-                    messageId: interactiveMsg.key.id
-                });
-            } catch (err) {
-                console.error('[Help] Root Fix Error:', err.message);
-                // Last resort text-only if everything fails
-                return await sock.sendMessage(chatId, { text: fullBody + `\n\n⚠️ فشلت الأزرار، استخدم الأوامر المباشرة.` }, { quoted: msg });
-            }
-        };
-
-
-        // Common Send Function with Image (Old style / Fallback)
-        const sendMenu = async (text, title = "✨ Hamza Amirni Bot ✨") => {
-            // Add channel link to the bottom of text
-            const fullText = text + `\n\n📢 *القناة الرسمية:*\n${settings.officialChannel}`;
+            };
 
             if (thumbBuffer) {
-                // Send as image with caption
                 await sock.sendMessage(chatId, {
                     image: thumbBuffer,
-                    caption: fullText
+                    caption: fullText,
+                    contextInfo
                 }, { quoted: msg });
             } else {
-                // Fallback to text only
                 await sock.sendMessage(chatId, {
-                    text: fullText
+                    text: fullText,
+                    contextInfo
                 }, { quoted: msg });
             }
         };
@@ -208,7 +126,6 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
                 return await allmenu(sock, chatId, msg, args, commands, userLang);
             }
 
-            // General Category fallback (if not caught by specific sub-menus)
             let selectedKey = null;
             if (catMap[requested]) selectedKey = requested;
             else if (funAliases.includes(requested)) selectedKey = 'fun';
@@ -216,133 +133,56 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
             else if (toolsAliases.includes(requested)) selectedKey = 'tools';
             else if (ownerAliases.includes(requested)) selectedKey = 'owner';
             else if (generalAliases.includes(requested)) selectedKey = 'general';
+            else if (aiAliases.includes(requested)) selectedKey = 'ai';
+            else if (islamicAliases.includes(requested)) selectedKey = 'religion';
+            else if (gameAliases.includes(requested)) selectedKey = 'games';
 
             if (selectedKey) {
                 const catName = t(`menu.categories.${selectedKey}`, {}, userLang);
-                let menuText = header + `┌─── ❰ *${catName.toUpperCase()}* ❱ ───┐\n\n`;
+                let menuText = header + `\n✨ *أوامر قسم: ${catName.toUpperCase()}* ✨\n` + `─━━━━━━━━━━━━━━─\n\n`;
 
-                // Special Note for Downloads
-                if (selectedKey === 'download') {
-                    menuText += `🚀 *ملاحظة:* البوت كيتيليشارجي تلقائياً من أي رابط (Insta, TikTok, FB, YouTube) غير صيفط الليان بوحدو!\n\n`;
-                }
-
-                const cmdRows = catMap[selectedKey].map(c => {
-                    const icon = cmdIcons[c] || '▫️';
+                catMap[selectedKey].forEach(c => {
+                    const icon = cmdIcons[c] || '🔹';
                     const desc = t(`command_desc.${c}`, {}, userLang);
-                    const descText = desc.startsWith('command_desc.') ? '' : desc;
-                    return {
-                        title: `${prefix}${c}`,
-                        description: descText,
-                        id: `${prefix}${c}`
-                    };
+                    const descText = desc.startsWith('command_desc.') ? '' : `\n   └ _${desc}_`;
+                    menuText += `${icon} *${prefix}${c}*${descText}\n\n`;
                 });
 
-                return await sendInteractiveMenu({
-                    bodyText: menuText,
-                    title: `أوامر ${catName}`,
-                    rows: cmdRows
-                });
+                menuText += `─━━━━━━━━━━━━━━─\n` + `🔙 اكتب *.menu* للرجوع للقائمة الرئيسية.`;
+                return await sendMenu(menuText, `أوامر ${catName}`);
             }
 
-            // Islamic Sub-Menu
-            if (islamicAliases.includes(requested)) {
-                let islamicMenu = header + `┌─── ❰ *الموسوعة الإسلامية* ❱ ───┐\n\n` +
-                    `📖 .quran : تلاوة القرآن\n` +
-                    `💬 .tafsir : تفسير الآيات\n` +
-                    `🕋 .prayertimes : أوقات الصلاة\n` +
-                    `🕌 .fadlsalat : فضل صلاة\n` +
-                    `📌 .hukm : حكم شرعي\n` +
-                    `🌙 .qiyam : قيام الليل\n` +
-                    `🔥 .danb : ذنب مهلك\n` +
-                    `💡 .nasiha : نصيحة دينية\n` +
-                    `✨ .sahaba : قصة صحابي\n` +
-                    `📖 .qisas : قصص الأنبياء والعبر\n` +
-                    `📚 .hadith_long : أحاديث نبوية وقصص\n` +
-                    `✨ .sahaba_long : قصص الصحابة والتابعين\n\n` +
-                    `└──────────────────────┘\n` +
-                    `🔙 اكتب *.menu* للرجوع للقائمة.`;
-                return await sendMenu(islamicMenu, "Islamic Menu");
-            }
-            // Games Sub-Menu
-            if (gameAliases.includes(requested)) {
-                let gameMenu = header + `┌─── ❰ *MEGA GAME MENU* ❱ ───┐\n\n` +
-                    `🕹️ *ألعاب فردية:*\n` +
-                    `🎲 .guess | 🤖 .rps | 🎰 .slots\n` +
-                    `🧮 .math | 🧩 .riddle | 🤔 .truefalse\n\n` +
-                    `🔥 *ألعاب جماعية:*\n` +
-                    `❌ .xo | ❓ .quiz | ❤️ .love\n\n` +
-                    `└──────────────────────┘\n` +
-                    `🔙 اكتب *.menu* للرجوع للقائمة.`;
-                return await sendMenu(gameMenu, "Game Menu");
-            }
-
-            // AI Sub-Menu
-            if (aiAliases.includes(requested)) {
-                let aiMenu = header + `┌─── ❰ *مركز الذكاء الاصطناعي* ❱ ───┐\n\n` +
-                    `🤖 *ChatGPT (GPT-Bot):*\n` +
-                    `▫️ .gpt4o : أقوى موديل (GPT-4o)\n` +
-                    `▫️ .gpt4om : النسخة السريعة (4o-mini)\n` +
-                    `▫️ .gpt4 : موديل الدقة (GPT-4)\n` +
-                    `▫️ .gpt3 : موديل (GPT-3.5)\n` +
-                    `▫️ .o1 : الموديل المفكر (O1)\n\n` +
-                    `✨ *موديلات أخرى:*\n` +
-                    `♊ .gemini : سول Gemini\n` +
-                    `🔍 .gemini-analyze : حلل الصور\n` +
-                    `🧠 .deepseek : أحدث موديل صيني\n` +
-                    `🦄 .qwen : موديل علي بابا\n\n` +
-                    `🎨 *عالم الإبداع والتوليد:*\n` +
-                    `🖼️ .imagine : تخيل معايا (رسم)\n` +
-                    `🌟 .aiart : فن واعر بالذكاء\n` +
-                    `🎭 .ghibli-art : ستايل جيبلي\n` +
-                    `📀 .hdvideo : وضح الفيديو 2K\n` +
-                    `🖼️ .removebg : حيد الخلفية\n` +
-                    `✨ .unblur : صفّي التصويرة\n` +
-                    `🎙️ .vocalremover : عزل الصوت\n\n` +
-                    `└──────────────────────┘\n` +
-                    `🔙 اكتب *.menu* للرجوع للقائمة.`;
-                return await sendMenu(aiMenu, "AI Menu");
-            }
-
-            // Individual Command Help
+            // Command Help Info
             if (commands.has(requested)) {
                 const desc = t(`command_desc.${requested}`, {}, userLang);
-                if (!desc.startsWith('command_desc.')) {
-                    return await sendMenu(
-                        `💡 *الأمر:* ${prefix}${requested}\n` +
-                        `📝 *الشرح:* ${desc}\n` +
-                        `🤖 *المطور:* ${settings.botOwner}`,
-                        `Help: ${requested}`
-                    );
-                }
+                return await sendMenu(
+                    `💡 *معلومات عن الأمر:* \`${prefix}${requested}\`\n\n` +
+                    `📝 *الشرح:* ${desc.startsWith('command_desc.') ? 'لا يوجد وصف حالياً' : desc}\n\n` +
+                    `👤 *المطور:* حمزة اعمرني`
+                );
             }
         }
 
-        // --- PRIORITY 3: General Category Display (Main Menu) ---
-        let menuText = header +
+        // --- PRIORITY 2: Main Menu Display ---
+        let mainMenu = header +
             `🏰 *مرحباً بك في إمبراطورية الأوامر* 🏰\n` +
-            `بوت شامل، ذكي، وسريع.. كلشي بين يديك! اختر القسم المناسب:\n\n`;
+            `بوت شامل ومتطور لخدمتك. تفضل باختيار القسم:\n\n` +
+            `🚀 *${prefix}menu new* : الجديد (Hot)\n` +
+            `🕌 *${prefix}menu deen* : الركن الإسلامي\n` +
+            `🤖 *${prefix}menu ai* : الذكاء الاصطناعي\n` +
+            `📥 *${prefix}menu download* : التحميلات\n` +
+            `🛠️ *${prefix}menu tools* : الأدوات والخدمات\n` +
+            `🤣 *${prefix}menu fun* : الترفيه والضحك\n` +
+            `🎮 *${prefix}menu games* : قسم الألعاب\n` +
+            `👥 *${prefix}menu group* : إدارة المجموعات\n` +
+            `📰 *${prefix}menu news* : الأخبار والرياضة\n` +
+            `💰 *${prefix}menu economy* : الاقتصاد (البنك)\n` +
+            `⚙️ *${prefix}menu general* : نظام البوت\n` +
+            `👑 *${prefix}menu owner* : قسم المطور\n` +
+            `🌟 *${prefix}allmenu* : جميع الأوامر\n\n` +
+            `💡 *نصيحة:* اكتب .menu متبوعاً باسم القسم (مثال: .menu ai)`;
 
-        const categoryRows = [
-            { title: "🚀 الأقسام الأساسية (Hot)", description: "أحدث الأوامر والإضافات", id: `${prefix}menu new` },
-            { title: "🕌 الركن الديني", description: "قرآن، أحاديث، مواقيت الصلاة", id: `${prefix}menu deen` },
-            { title: "🤖 الذكاء الاصطناعي", description: "ChatGPT, Gemini, DeepSeek", id: `${prefix}menu ai` },
-            { title: "📥 التحميلات (Downloads)", description: "فيسبوك، انستا، يوتيوب، تيكتوك", id: `${prefix}menu tahmilat` },
-            { title: "🛠️ الأدوات (Tools)", description: "ملصقات، ترجمة، OCR، تحويل", id: `${prefix}menu adawat` },
-            { title: "🤣 الترفيه (Fun)", description: "نكت، ميمز، صراحة، تحدي", id: `${prefix}menu dahik` },
-            { title: "🎮 الألعاب (Games)", description: "XO، مسابقات، ألعاب جماعية", id: `${prefix}menu game` },
-            { title: "👥 المجموعات", description: "طرد، ترقية، منشن، حماية", id: `${prefix}menu group` },
-            { title: "📰 الأخبار والرياضة", description: "أخبار، كرة قدم، طقس", id: `${prefix}menu news` },
-            { title: "💰 الاقتصاد", description: "بروفايل، يومي، متجر", id: `${prefix}menu economy` },
-            { title: "⚙️ النظام (System)", description: "بوت، بينغ، مطور، لغة", id: `${prefix}menu 3am` },
-            { title: "👑 المالك (Owner)", description: "أوامر المطور فقط", id: `${prefix}menu molchi` },
-            { title: "🌟 كل الأوامر", description: "عرض جميع أوامر البوت", id: `${prefix}menu all` }
-        ];
-
-        await sendInteractiveMenu({
-            bodyText: menuText,
-            title: "قائمة الأقسام 🏰",
-            rows: categoryRows
-        });
+        await sendMenu(mainMenu, "Hamza Amirni Bot Menu");
 
     } catch (error) {
         console.error('Error in help command:', error);

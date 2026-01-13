@@ -54,132 +54,58 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
             { title: "👑 المالك", description: "أوامر المطور فقط", id: `${prefix}menu molchi` }
         ];
 
-        const sendListMenu = async () => {
-            const fullBody = bodyText + `\n\n📢 *القناة:* ${settings.officialChannel}`;
-            const sections = [
-                {
-                    title: "الأقسام",
-                    rows: rows.map(r => ({
-                        title: r.title,
-                        description: r.description,
-                        rowId: r.id
-                    }))
+        // ROOT FIX: Premium Text + Image Menu (100% Reliability)
+        const sendMenu = async (text, headerTitle = "Hamza Amirni Bot") => {
+            const footerBranding = `\n\n🛡️ *${botName.toUpperCase()}* 🛡️\n📢 *قناتنا:* ${settings.officialChannel}`;
+            const fullText = text + footerBranding;
+
+            const contextInfo = {
+                mentionedJid: [chatId],
+                isForwarded: true,
+                forwardingScore: 999,
+                externalAdReply: {
+                    title: headerTitle,
+                    body: "المطور: حمزة اعمرني",
+                    thumbnail: thumbBuffer,
+                    sourceUrl: settings.officialChannel,
+                    mediaType: 1,
+                    renderLargerThumbnail: true,
+                    showAdAttribution: true
                 }
-            ];
+            };
 
-            return await sock.sendMessage(chatId, {
-                text: "اختار القسم من اللائحة 👇",
-                footer: "حمزة اعمرني",
-                title: botName,
-                buttonText: "اختار القسم 👇",
-                sections
-            }, { quoted: msg });
-        };
-
-        const sendButtonsFallback = async () => {
-            const fullBody = bodyText + `\n\n📢 *القناة:* ${settings.officialChannel}`;
-            return await sock.sendMessage(chatId, {
-                text: fullBody,
-                footer: "حمزة اعمرني",
-                buttons: [
-                    { buttonId: `${prefix}allmenu`, buttonText: { displayText: 'كل الأوامر 📜' }, type: 1 },
-                    { buttonId: `${prefix}menu ai`, buttonText: { displayText: '🤖 الذكاء الاصطناعي' }, type: 1 },
-                    { buttonId: `${prefix}menu deen`, buttonText: { displayText: '🕌 الركن الديني' }, type: 1 }
-                ],
-                headerType: 1
-            }, { quoted: msg });
-        };
-
-        const sendInteractiveMenu = async () => {
-            const fullBody = bodyText + `\n\n📢 *القناة:* ${settings.officialChannel}`;
-            try {
-                const sections = [{ title: "الأقسام", rows }];
-
-                const imageSource = thumbBuffer || null;
-                const media = imageSource ? await prepareWAMessageMedia(
-                    { image: imageSource },
-                    { upload: sock.waUploadToServer }
-                ).catch(() => null) : null;
-
-                const msgContent = {
-                    viewOnceMessageV2: {
-                        message: {
-                            messageContextInfo: {
-                                deviceListMetadata: {},
-                                deviceListMetadataVersion: 2
-                            },
-                            interactiveMessage: {
-                                header: {
-                                    title: botName,
-                                    hasMediaAttachment: !!media,
-                                    ...(media || {})
-                                },
-                                body: {
-                                    text: fullBody
-                                },
-                                footer: {
-                                    text: "حمزة اعمرني"
-                                },
-                                nativeFlowMessage: {
-                                    buttons: [
-                                        {
-                                            name: "single_select",
-                                            buttonParamsJson: JSON.stringify({
-                                                title: "اضغط لاختيار القسم 🏰",
-                                                sections
-                                            })
-                                        },
-                                        {
-                                            name: "quick_reply",
-                                            buttonParamsJson: JSON.stringify({
-                                                display_text: "كل الأوامر 📜",
-                                                id: `${prefix}allmenu`
-                                            })
-                                        },
-                                        {
-                                            name: "quick_reply",
-                                            buttonParamsJson: JSON.stringify({
-                                                display_text: "المطور 👑",
-                                                id: `${prefix}owner`
-                                            })
-                                        }
-                                    ]
-                                }
-                            }
-                        }
-                    }
-                };
-
-                const userJid = sock.decodeJid(sock.user.id);
-                const interactiveMsg = generateWAMessageFromContent(
-                    chatId,
-                    msgContent,
-                    { userJid, quoted: msg }
-                );
-
-                return await sock.relayMessage(chatId, interactiveMsg.message, {
-                    messageId: interactiveMsg.key.id
-                });
-            } catch (err) {
-                return await sock.sendMessage(chatId, { text: fullBody }, { quoted: msg });
+            if (thumbBuffer) {
+                await sock.sendMessage(chatId, {
+                    image: thumbBuffer,
+                    caption: fullText,
+                    contextInfo
+                }, { quoted: msg });
+            } else {
+                await sock.sendMessage(chatId, {
+                    text: fullText,
+                    contextInfo
+                }, { quoted: msg });
             }
         };
 
-        try {
-            await sendListMenu();
-        } catch (e) {
-            console.warn('[Menuu] listMessage failed:', e?.message || e);
-            try {
-                await sendButtonsFallback();
-            } catch (err) {
-                try {
-                    await sendInteractiveMenu();
-                } catch (e2) {
-                    const fullBody = bodyText + `\n\n📢 *القناة:* ${settings.officialChannel}`;
-                    await sock.sendMessage(chatId, { text: fullBody }, { quoted: msg });
-                }
-            }
-        }
+        // --- Execute Main Menu ---
+        let mainMenu = bodyText + "\n\n" +
+            `🚀 *${prefix}menu new* : الجديد (Hot)\n` +
+            `🕌 *${prefix}menu deen* : الركن الإسلامي\n` +
+            `🤖 *${prefix}menu ai* : الذكاء الاصطناعي\n` +
+            `📥 *${prefix}menu download* : التحميلات\n` +
+            `🛠️ *${prefix}menu tools* : الأدوات والخدمات\n` +
+            `🤣 *${prefix}menu fun* : الترفيه والضحك\n` +
+            `🎮 *${prefix}menu games* : قسم الألعاب\n` +
+            `👥 *${prefix}menu group* : إدارة المجموعات\n` +
+            `📰 *${prefix}menu news* : الأخبار والرياضة\n` +
+            `💰 *${prefix}menu economy* : الاقتصاد (البنك)\n` +
+            `⚙️ *${prefix}menu general* : نظام البوت\n` +
+            `👑 *${prefix}menu owner* : قسم المطور\n` +
+            `🌟 *${prefix}allmenu* : جميع الأوامر\n\n` +
+            `💡 *نصيحة:* اكتب .menu متبوعاً باسم القسم (مثال: .menu ai)`;
+
+        await sendMenu(mainMenu, `${botName} - القائمة الرئيسية`);
 
     } catch (error) {
         console.error('Error in menuu command:', error);
