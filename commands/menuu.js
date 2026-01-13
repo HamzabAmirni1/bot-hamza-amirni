@@ -200,20 +200,27 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
             { key: 'owner', title: '👑 المطور فقط' }
         ];
 
+        // Collect ALL commands with Arabic names in one simple list
+        let allCommands = [];
         sections.forEach(section => {
             const cmds = catMap[section.key];
             if (cmds && cmds.length > 0) {
-                mainMenu += `\n┌─── ❰ ${section.title} ❱ ───┐\n`;
-
                 cmds.forEach(cmd => {
                     const icon = cmdIcons[cmd] || '🔹';
                     const displayName = arCmds[cmd] ? arCmds[cmd] : cmd;
-                    // Vertical list style like allmenu with box border (optional, matching style of allmenu.js)
-                    mainMenu += `│ ${icon} *${displayName}*\n`;
+                    allCommands.push(`${icon} *${displayName}*`);
                 });
-                mainMenu += `└──────────────────┘\n`;
             }
         });
+
+        // Display all commands in a compact format (3 per line)
+        let commandsText = '';
+        for (let i = 0; i < allCommands.length; i += 3) {
+            const line = allCommands.slice(i, i + 3).join('  ');
+            commandsText += line + '\n';
+        }
+
+        mainMenu += '\n' + commandsText;
 
         mainMenu += `\n💡 *ملاحظة:* لطلب أمر أكتب النقطة (.) قبل الاسم (مثال: .ذكاء)`;
 
