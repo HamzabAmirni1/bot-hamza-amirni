@@ -84,50 +84,12 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
             `┃ 🤖 *Ver:* ${settings.version || '2.0.0'}\n` +
             `┗━━━━━━━━━━━━━━━━━━┛\n\n`;
 
-        // Interactive Send Function (Improved for LID & Modern compatibility)
+        // ROOT FIX: Interactive Send Function (Modern Native Flow)
         const sendInteractiveMenu = async ({ bodyText, title = "Menu", rows = [], footerText = "حمزة اعمرني" }) => {
-            console.log(`[Help] 📂 Generating interactive menu for: ${chatId}`);
+            console.log(`[Help] 📂 Generating ROOT FIX menu for: ${chatId}`);
             const fullBody = bodyText + `\n\n📢 *القناة:* ${settings.officialChannel}`;
             try {
-                try {
-                    await sock.sendMessage(chatId, {
-                        text: "اختر القسم من اللائحة 👇",
-                        footer: footerText,
-                        title,
-                        buttonText: "اختار من هنا 👇",
-                        sections: [
-                            {
-                                title: "الأقسام",
-                                rows: rows.map(r => ({
-                                    title: r.title,
-                                    description: r.description,
-                                    rowId: r.id
-                                }))
-                            }
-                        ]
-                    }, { quoted: msg });
-                    return;
-                } catch (e) {
-                    console.warn('[Help] listMessage failed:', e?.message || e);
-                }
-
-                try {
-                    await sock.sendMessage(chatId, {
-                        text: fullBody,
-                        footer: footerText,
-                        buttons: [
-                            { buttonId: `${settings.prefix}allmenu`, buttonText: { displayText: 'كل الأوامر 📜' }, type: 1 },
-                            { buttonId: `${settings.prefix}menu ai`, buttonText: { displayText: '🤖 الذكاء الاصطناعي' }, type: 1 },
-                            { buttonId: `${settings.prefix}menu deen`, buttonText: { displayText: '🕌 الركن الديني' }, type: 1 }
-                        ],
-                        headerType: 1
-                    }, { quoted: msg });
-                    return;
-                } catch (e) {
-                    console.warn('[Help] buttons fallback failed:', e?.message || e);
-                }
-
-                const sections = [{ title: "الأقسام", rows }];
+                const sections = [{ title: "الأقسام المتاحة", rows }];
 
                 let imageSource = thumbBuffer;
                 if (!imageSource) {
@@ -141,25 +103,25 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
                 ).catch(() => null) : null;
 
                 const msgContent = {
-                    viewOnceMessageV2: {
+                    viewOnceMessage: {
                         message: {
                             messageContextInfo: {
                                 deviceListMetadata: {},
                                 deviceListMetadataVersion: 2
                             },
-                            interactiveMessage: {
-                                header: {
+                            interactiveMessage: proto.Message.InteractiveMessage.create({
+                                body: proto.Message.InteractiveMessage.Body.create({
+                                    text: fullBody
+                                }),
+                                footer: proto.Message.InteractiveMessage.Footer.create({
+                                    text: footerText
+                                }),
+                                header: proto.Message.InteractiveMessage.Header.create({
                                     title: "Hamza Amirni",
                                     hasMediaAttachment: !!media,
                                     ...(media || {})
-                                },
-                                body: {
-                                    text: fullBody
-                                },
-                                footer: {
-                                    text: footerText
-                                },
-                                nativeFlowMessage: {
+                                }),
+                                nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.create({
                                     buttons: [
                                         {
                                             name: "single_select",
@@ -176,26 +138,45 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
                                             })
                                         }
                                     ]
+                                }),
+                                contextInfo: {
+                                    mentionedJid: [chatId],
+                                    forwardingScore: 999,
+                                    isForwarded: true,
+                                    // Optimization for LID accounts
+                                    externalAdReply: {
+                                        title: "Hamza Amirni Bot",
+                                        body: "Bot Active ✅",
+                                        thumbnail: imageSource,
+                                        sourceUrl: settings.officialChannel,
+                                        mediaType: 1,
+                                        renderLargerThumbnail: true
+                                    }
                                 }
-                            }
+                            })
                         }
                     }
                 };
 
-                const userJid = sock.decodeJid(sock.user.id);
+                const userJid = sock.user.id;
                 const interactiveMsg = generateWAMessageFromContent(
                     chatId,
                     msgContent,
-                    { userJid, quoted: msg }
+                    {
+                        userJid: userJid,
+                        quoted: msg,
+                        upload: sock.waUploadToServer
+                    }
                 );
 
-                console.log(`[Help] 🚀 Relaying interactive message (V2) to ${chatId}...`);
+                console.log(`[Help] 🚀 Relaying ROOT FIX message to ${chatId}...`);
                 return await sock.relayMessage(chatId, interactiveMsg.message, {
                     messageId: interactiveMsg.key.id
                 });
             } catch (err) {
-                console.error('[Help] Relay Error:', err.message);
-                return await sock.sendMessage(chatId, { text: fullBody }, { quoted: msg });
+                console.error('[Help] Root Fix Error:', err.message);
+                // Last resort text-only if everything fails
+                return await sock.sendMessage(chatId, { text: fullBody + `\n\n⚠️ فشلت الأزرار، استخدم الأوامر المباشرة.` }, { quoted: msg });
             }
         };
 
