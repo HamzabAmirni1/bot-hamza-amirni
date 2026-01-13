@@ -109,8 +109,9 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
                                 deviceListMetadata: {},
                                 deviceListMetadataVersion: 2
                             },
-                            interactiveMessage: proto.Message.InteractiveMessage.fromObject({
+                            interactiveMessage: proto.Message.InteractiveMessage.create({
                                 header: proto.Message.InteractiveMessage.Header.create({
+                                    title: "Hamza Amirni Bot",
                                     hasMediaAttachment: !!media,
                                     ...(media || {})
                                 }),
@@ -125,8 +126,15 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
                                         {
                                             name: "single_select",
                                             buttonParamsJson: JSON.stringify({
-                                                title: title,
+                                                title: "اضغط لعرض الأقسام 🏰",
                                                 sections: sections
+                                            })
+                                        },
+                                        {
+                                            name: "quick_reply",
+                                            buttonParamsJson: JSON.stringify({
+                                                display_text: "كل الأوامر 📜",
+                                                id: `${settings.prefix}allmenu`
                                             })
                                         }
                                     ]
@@ -139,10 +147,10 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
                 const interactiveMsg = generateWAMessageFromContent(
                     chatId,
                     msgContent,
-                    { userJid: sock.user.id, quoted: msg }
+                    { userJid: sock.decodeJid(sock.user.id), quoted: msg }
                 );
 
-                console.log(`[Help] 🚀 Relaying interactive message with improved structure...`);
+                console.log(`[Help] 🚀 Relaying interactive message...`);
                 return await sock.relayMessage(chatId, interactiveMsg.message, {
                     messageId: interactiveMsg.key.id
                 });
