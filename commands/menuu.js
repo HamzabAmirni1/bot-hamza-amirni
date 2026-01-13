@@ -313,8 +313,9 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
                 mainMenu += `\n┌─── ❰ ${section.title} ❱ ───┐\n`;
 
                 cmds.forEach(cmd => {
+                    if (!arCmds[cmd]) return; // ONLY show Arabic commands
                     const icon = cmdIcons[cmd] || '🔹';
-                    const displayName = arCmds[cmd] ? arCmds[cmd] : cmd;
+                    const displayName = arCmds[cmd];
                     const desc = arDescs[cmd] ? ` - ${arDescs[cmd]}` : '';
                     mainMenu += `│ ${icon} *.${displayName}*${desc}\n`;
                     totalCmds++;
