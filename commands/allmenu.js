@@ -39,12 +39,12 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
             `┗━━━━━━━━━━━━━━━━━━┛\n\n`;
 
         const catMap = {
-            'new': ['brat-vd', 'hdvideo', 'winkvideo', 'musicgen', 'removebg', 'unblur', 'upload', 'readviewonce', 'edit', 'genai', 'banana-ai', 'ghibli', 'tomp3', 'apk', 'hidetag', 'imdb'],
-            'religion': ['quran', 'salat', 'prayertimes', 'adhan', 'hadith', 'asmaa', 'azkar', 'qibla', 'ad3iya', 'dua', 'tafsir', 'surah', 'ayah', 'fadlsalat', 'hukm', 'qiyam', 'danb', 'nasiha', 'tadabbur', 'sahaba', 'faida', 'hasanat', 'jumaa', 'hajj', 'sira', 'mawt', 'shirk', 'hub', 'deen'],
+            'new': ['brat-vd', 'hdvideo', 'winkvideo', 'musicgen', 'unblur', 'upload', 'readviewonce', 'edit', 'genai', 'banana-ai', 'ghibli', 'tomp3', 'apk', 'hidetag', 'imdb'],
+            'religion': ['quran', 'salat', 'prayertimes', 'adan', 'hadith', 'asmaa', 'adkar', 'qibla', 'ad3iya', 'dua', 'tafsir', 'surah', 'ayah', 'fadlsalat', 'hukm', 'qiyam', 'danb', 'nasiha', 'tadabbur', 'sahaba', 'faida', 'hasanat', 'jumaa', 'hajj', 'sira', 'mawt', 'shirk', 'hub', 'deen'],
             'download': ['facebook', 'instagram', 'tiktok', 'youtube', 'mediafire', 'github', 'play', 'song', 'video', 'ytplay', 'yts'],
-            'ai': ['musicgen', 'gpt', 'gemini', 'deepseek', 'imagine', 'aiart', 'miramuse', 'ghibli-art', 'faceswap', 'ai-enhance', 'colorize', 'remini', 'unblur', 'vocalremover'],
+            'ai': ['musicgen', 'gpt', 'gemini', 'deepseek', 'imagine', 'aiart', 'miramuse', 'ghibli-art', 'faceswap', 'ai-enhance', 'colorize', 'unblur', 'vocalremover'],
             'group': ['kick', 'promote', 'demote', 'tagall', 'hidetag', 'mute', 'unmute', 'close', 'open', 'delete', 'staff', 'groupinfo', 'welcome', 'goodbye', 'warn', 'warnings', 'antibadword', 'antilink'],
-            'tools': ['pdf2img', 'stt', 'removebg', 'upload', 'readviewonce', 'sticker', 'sticker-alt', 'attp', 'ttp', 'ocr', 'tts', 'say', 'toimage', 'tovideo', 'togif', 'qrcode', 'ss', 'lyrics', 'calc', 'img-blur', 'translate'],
+            'tools': ['pdf2img', 'stt', 'upload', 'readviewonce', 'sticker', 'sticker-alt', 'attp', 'ttp', 'ocr', 'tts', 'say', 'toimage', 'tovideo', 'togif', 'qrcode', 'ss', 'lyrics', 'calc', 'img-blur', 'translate'],
             'news': ['news', 'akhbar', 'football', 'kora', 'weather', 'taqes'],
             'fun': ['joke', 'fact', 'quote', 'meme', 'character', 'truth', 'dare', 'ship', 'ngl', '4kwallpaper'],
             'games': ['menugame', 'xo', 'rps', 'math', 'guess', 'scramble', 'riddle', 'quiz', 'love', 'hangman', 'trivia'],
