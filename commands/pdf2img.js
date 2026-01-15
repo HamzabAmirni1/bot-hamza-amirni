@@ -7,6 +7,8 @@ const { downloadMediaMessage } = require("@whiskeysockets/baileys");
 const fs = require('fs');
 const path = require('path');
 const AdmZip = require('adm-zip');
+const { t } = require('../lib/language');
+const settings = require('../settings');
 
 // Check for local conversion library
 let pdf2img;
@@ -16,7 +18,7 @@ try {
     pdf2img = null;
 }
 
-async function handler(sock, chatId, msg, args) {
+async function handler(sock, chatId, msg, args, commands, userLang) {
     const quoted = msg.message?.extendedTextMessage?.contextInfo?.quotedMessage;
     const isQuotedDoc = quoted?.documentMessage;
     const isDirectDoc = msg.message?.documentMessage;
@@ -24,24 +26,24 @@ async function handler(sock, chatId, msg, args) {
     // Check dependency first
     if (!pdf2img) {
         return await sock.sendMessage(chatId, {
-            text: '❌ *مكتبة التحويل المحلي غير مثبتة!*\n\n⚠️ المرجو من صاحب البوت كتابة هذا الأمر في التيرمينال:\n`npm install pdf-img-convert`\n\nثم أعد تشغيل البوت.'
+            text: t('pdf2img.error_lib', {}, userLang)
         }, { quoted: msg });
     }
 
     if (!isQuotedDoc && !isDirectDoc) {
         return await sock.sendMessage(chatId, {
-            text: '*✨ ──────────────── ✨*\n📄 *تحويل PDF إلى صور (محلي)* 📄\n\n📌 *يرجى الرد على ملف PDF بـ:*\n.pdf2img\n*✨ ──────────────── ✨*'
+            text: t('pdf2img.help', { prefix: settings.prefix }, userLang)
         }, { quoted: msg });
     }
 
     const docMsg = isDirectDoc ? msg.message.documentMessage : quoted.documentMessage;
     if (docMsg.mimetype !== 'application/pdf') {
-        return await sock.sendMessage(chatId, { text: '❌ يرجى اختيار ملف بصيغة PDF فقط.' }, { quoted: msg });
+        return await sock.sendMessage(chatId, { text: t('pdf2img.not_pdf', {}, userLang) }, { quoted: msg });
     }
 
     try {
         await sock.sendMessage(chatId, { react: { text: "⏳", key: msg.key } });
-        const waitMsg = await sock.sendMessage(chatId, { text: "🔄 جاري تحميل الملف وتحويله محلياً... (قد يستغرق وقتاً)" }, { quoted: msg });
+        const waitMsg = await sock.sendMessage(chatId, { text: t('pdf2img.downloading', {}, userLang) }, { quoted: msg });
 
         const targetMsg = isQuotedDoc ? {
             key: {
@@ -54,20 +56,19 @@ async function handler(sock, chatId, msg, args) {
 
         // Download Buffer
         const buffer = await downloadMediaMessage(targetMsg, 'buffer', {}, { logger: undefined, reuploadRequest: sock.updateMediaMessage });
-        if (!buffer) throw new Error("فشل تحميل الملف.");
+        if (!buffer) throw new Error("Could not download file.");
 
         // Convert Locally
         console.log('📄 Starting Local PDF Conversion...');
 
         // Convert to images (Returns array of Uint8Array or Buffers)
         const imageBuffers = await pdf2img.convert(buffer, {
-            width: 1200, // Good resolution
-            height: 1200,
+            width: 1500, // Good resolution
             page_numbers: [] // All pages
         });
 
         if (!imageBuffers || imageBuffers.length === 0) {
-            throw new Error("فشل استخراج الصور من الملف.");
+            throw new Error("Failed to extract images from PDF.");
         }
 
         const total = imageBuffers.length;
@@ -78,9 +79,9 @@ async function handler(sock, chatId, msg, args) {
         // Delete wait message
         try { await sock.sendMessage(chatId, { delete: waitMsg.key }); } catch (e) { }
 
-        await sock.sendMessage(chatId, { text: `✅ تم تحويل ${total} صفحة بنجاح. جاري الإرسال...` }, { quoted: msg });
+        await sock.sendMessage(chatId, { text: t('pdf2img.success_pages', { total }, userLang) }, { quoted: msg });
 
-        if (total > 10) {
+        if (total > 30) {
             // ZIP Mode
             const zip = new AdmZip();
             imageBuffers.forEach((imgBuf, i) => {
@@ -92,15 +93,23 @@ async function handler(sock, chatId, msg, args) {
                 document: zipBuffer,
                 mimetype: 'application/zip',
                 fileName: `${fileName.replace('.pdf', '')}_images.zip`,
-                caption: `📄 *تحويل محلي ناجح*\n📦 عدد الصفحات: ${total}\n✅ تم الضغط في ملف ZIP.`
+                caption: t('pdf2img.zip_caption', { total }, userLang)
             }, { quoted: msg });
+
+            // Send first 3 images as preview
+            for (let i = 0; i < Math.min(total, 3); i++) {
+                await sock.sendMessage(chatId, {
+                    image: Buffer.from(imageBuffers[i]),
+                    caption: t('pdf2img.page_caption', { current: i + 1, total }, userLang)
+                });
+            }
 
         } else {
             // Individual Mode
             for (let i = 0; i < total; i++) {
                 await sock.sendMessage(chatId, {
                     image: Buffer.from(imageBuffers[i]),
-                    caption: `📄 *الصفحة ${i + 1} من ${total}*`
+                    caption: t('pdf2img.page_caption', { current: i + 1, total }, userLang)
                 });
             }
         }
@@ -109,7 +118,7 @@ async function handler(sock, chatId, msg, args) {
 
     } catch (err) {
         console.error('Local PDF2IMG Error:', err);
-        await sock.sendMessage(chatId, { text: `❌ *خطأ في التحويل المحلي:*\n${err.message}` }, { quoted: msg });
+        await sock.sendMessage(chatId, { text: t('pdf2img.error', { error: err.message }, userLang) }, { quoted: msg });
         await sock.sendMessage(chatId, { react: { text: "❌", key: msg.key } });
     }
 }

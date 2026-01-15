@@ -106,7 +106,25 @@
         "mode": "Bot Mode",
         "backup": "Backup Files",
         "ghosttag": "Silent Tag",
-        "pdf2img": "Convert PDF to Images (All Pages) 📄"
+        "pdf2img": "Convert PDF to Images (All Pages) 📄",
+        "stt": "Audio to Text (Transcription) 🎙️"
+    },
+    "stt": {
+        "help": "🎙️ *Audio to Text Conversion*\n\nPlease reply to an audio message with:\n{prefix}stt",
+        "downloading": "⏳ Downloading and transcribing audio... Please wait.",
+        "no_audio": "❌ Please reply to an audio or voice message.",
+        "success": "🎙️ *Transcribed Text:*\n\n{text}",
+        "error": "❌ Failed to transcribe audio. Try again later."
+    },
+    "pdf2img": {
+        "help": "*✨ ──────────────── ✨*\n📄 *Convert PDF to Images* 📄\n\n📌 *Reply to a PDF file with:*\n{prefix}pdf2img\n*✨ ──────────────── ✨*",
+        "not_pdf": "❌ Please select a PDF file only.",
+        "downloading": "🔄 Downloading and converting PDF... (Please wait)",
+        "success_pages": "✅ Successfully converted {total} pages. Sending now...",
+        "zip_caption": "📄 *Local Conversion Success*\n📦 Pages: {total}\n✅ Compressed into a ZIP file.",
+        "page_caption": "📄 *Page {current} of {total}*",
+        "error_lib": "❌ *Local conversion library not installed!*\n\n⚠️ Owner needs to run:\n`npm install pdf-img-convert`",
+        "error": "❌ *Local Conversion Error:*\n{error}"
     },
     "quran": {
         "enter_number": "❌ Please enter a Surah number or name.\n\n📝 Example:\n.quran 1  (Surah Al-Fatiha)\n.quran 36 (Surah Yasin)\nOr by name:\n.quran Al-Fatiha\n.quran alfatihah",

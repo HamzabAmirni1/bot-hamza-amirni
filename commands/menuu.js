@@ -37,7 +37,7 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
             'download': ['facebook', 'instagram', 'tiktok', 'youtube', 'mediafire', 'github', 'play', 'song', 'video', 'ytplay', 'yts', 'apk'],
             'ai': ['gpt4o', 'gpt4om', 'gpt4', 'gpt3', 'o1', 'gemini-analyze', 'qwen', 'gpt', 'gemini', 'deepseek', 'imagine', 'aiart', 'miramuse', 'ghibli-art', 'faceswap', 'ai-enhance', 'colorize', 'remini', 'vocalremover', 'musicgen', 'hdvideo', 'winkvideo', 'unblur', 'removebg', 'brat-vd'],
             'group': ['kick', 'promote', 'demote', 'tagall', 'hidetag', 'mute', 'unmute', 'close', 'open', 'delete', 'staff', 'groupinfo', 'welcome', 'goodbye', 'warn', 'warnings', 'antibadword', 'antilink'],
-            'tools': ['sticker', 'sticker-alt', 'attp', 'ttp', 'ocr', 'tts', 'say', 'toimage', 'tovideo', 'togif', 'qrcode', 'ss', 'lyrics', 'calc', 'img-blur', 'translate', 'readviewonce', 'upload'],
+            'tools': ['pdf2img', 'stt', 'sticker', 'sticker-alt', 'attp', 'ttp', 'ocr', 'tts', 'say', 'toimage', 'tovideo', 'togif', 'qrcode', 'ss', 'lyrics', 'calc', 'img-blur', 'translate', 'readviewonce', 'upload'],
             'news': ['news', 'akhbar', 'football', 'kora', 'weather', 'taqes'],
             'daily': ['daily', 'top', 'shop', 'gamble', 'slots', 'profile'],
             'fun': ['joke', 'fact', 'quote', 'meme', 'character', 'truth', 'dare', 'ship', 'ngl', '4kwallpaper'],
@@ -93,7 +93,7 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
             'pdf2img': 'صور-بي-دي-اف', 'ocr': 'استخراج-نص', 'tts': 'نطق', 'qrcode': 'كود-كيو-آر',
             'screenshot': 'سكرين', 'ss': 'لقطة', 'tomp3': 'صوت', 'toimage': 'صورة',
             'tovideo': 'فيديو', 'togif': 'جيف', 'attp': 'نص-متحرك', 'ttp': 'نص-ملون',
-            'lyrics': 'كلمات', 'upload': 'رفع', 'readviewonce': 'قراءة-مرة',
+            'lyrics': 'كلمات', 'upload': 'رفع', 'readviewonce': 'قراءة-مرة', 'stt': 'كتابة-أوديو',
             'img-blur': 'طمس', 'say': 'قول', 'sticker-alt': 'ستيكر2',
 
             // Group Commands
@@ -164,7 +164,7 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
             // Tools
             'sticker': 'تحويل الصور/الفيديوهات لملصقات', 'translate': 'ترجمة النصوص لجميع اللغات',
             'calc': 'آلة حاسبة ذكية', 'ocr': 'استخراج النصوص من الصور',
-            'weather': 'حالة الطقس اليوم وفي الأسبوع', 'lyrics': 'كلمات الأغاني المفضلة لديك', 'pdf2img': 'تحويل ملفات PDF إلى صور',
+            'weather': 'حالة الطقس اليوم وفي الأسبوع', 'lyrics': 'كلمات الأغاني المفضلة لديك', 'pdf2img': 'تحويل ملفات PDF إلى صور', 'stt': 'تحويل الرسائل الصوتية لنص مكتوب',
             'screenshot': 'أخذ لقطة شاشة لموقع معين', 'tts': 'تحويل النص إلى صوت مسموع', 'readviewonce': 'قراءة رسائل العرض لمرة واحدة',
             // Group
             'kick': 'طرد عضو من المجموعة', 'promote': 'ترقية عضو لمشرف', 'demote': 'إزالة مشرف من منصبه',
