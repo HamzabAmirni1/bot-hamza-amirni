@@ -39,7 +39,7 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
             `┗━━━━━━━━━━━━━━━━━━┛\n\n`;
 
         const catMap = {
-            'new': ['brat-vd', 'hdvideo', 'winkvideo', 'musicgen', 'unblur', 'upload', 'readviewonce', 'edit', 'genai', 'banana-ai', 'ghibli', 'tomp3', 'apk', 'hidetag', 'imdb'],
+            'new': ['brat-vd', 'hdvideo', 'winkvideo', 'musicgen', 'unblur', 'upload', 'readviewonce', 'nanobanana', 'edit', 'genai', 'banana-ai', 'ghibli', 'tomp3', 'apk', 'hidetag', 'imdb'],
             'religion': ['quran', 'salat', 'prayertimes', 'adan', 'hadith', 'asmaa', 'adkar', 'qibla', 'ad3iya', 'dua', 'tafsir', 'surah', 'ayah', 'fadlsalat', 'hukm', 'qiyam', 'danb', 'nasiha', 'tadabbur', 'sahaba', 'faida', 'hasanat', 'jumaa', 'hajj', 'sira', 'mawt', 'shirk', 'hub', 'deen'],
             'download': ['facebook', 'instagram', 'tiktok', 'youtube', 'mediafire', 'github', 'play', 'song', 'video', 'ytplay', 'yts'],
             'ai': ['musicgen', 'gpt', 'gemini', 'deepseek', 'imagine', 'aiart', 'miramuse', 'ghibli-art', 'faceswap', 'ai-enhance', 'colorize', 'unblur', 'vocalremover'],
@@ -55,7 +55,7 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
 
         const cmdIcons = {
             'brat-vd': '🎬', 'hdvideo': '📀', 'winkvideo': '📹', 'musicgen': '🎵', 'removebg': '🖼️', 'unblur': '✨', 'upload': '📤', 'readviewonce': '👁️', 'pdf2img': '📄', 'stt': '🎙️',
-            'genai': '🎨', 'edit': '🪄', 'banana-ai': '🍌', 'ghibli': '🎭', 'tomp3': '🎵', 'apk': '📱', 'apk2': '🚀', 'simp': '💘',
+            'genai': '🎨', 'edit': '🪄', 'nanobanana': '🍌', 'banana-ai': '🍌', 'ghibli': '🎭', 'tomp3': '🎵', 'apk': '📱', 'apk2': '🚀', 'simp': '💘',
             'quran': '📖', 'salat': '🕌', 'prayertimes': '🕋', 'adhan': '📢', 'hadith': '📚', 'asmaa': '✨', 'azkar': '📿', 'qibla': '🧭', 'ad3iya': '🤲', 'deen': '🕌',
             'jumaa': '📆', 'hajj': '🕋', 'sira': '🕊️', 'mawt': '⏳', 'shirk': '🛡️', 'hub': '💞', 'jannah': '🌴', 'nar': '🔥', 'qabr': '⚰️', 'qiyama': '🌋',
             'facebook': '🔵', 'instagram': '📸', 'tiktok': '🎵', 'youtube': '🎬', 'mediafire': '📂', 'play': '🎧', 'song': '🎶', 'video': '🎥',
