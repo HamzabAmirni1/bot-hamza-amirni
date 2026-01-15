@@ -29,35 +29,8 @@ async function apkCommand(sock, chatId, message, args, commands, userLang) {
 
         return await sendWithChannelButton(sock, chatId, helpMsg, message);
     }
-    // Handle Aptoide URLs (for auto-download or copy-paste)
-    if (query.includes('aptoide.com')) {
-        // Extract package or app name from URL
-        // Example: https://facebook-lite.fr.aptoide.com/app -> facebook-lite
-        // Example: https://www.aptoide.com/app/com.facebook.lite -> com.facebook.lite
-        const urlParts = query.split('/');
-        let extracted = '';
-
-        if (query.includes('app/')) {
-            extracted = urlParts[urlParts.indexOf('app') + 1];
-        } else if (query.includes('.aptoide.com')) {
-            const host = new URL(query).hostname;
-            extracted = host.split('.')[0];
-        }
-
-        if (extracted) {
-            console.log(`[APK] Extracted "${extracted}" from Aptoide URL`);
-            // We continue with extracted as the query
-            const tempQuery = extracted;
-            // Note: we don't return here, we let it flow to the search/download logic
-            const aptoide = require('../lib/aptoide');
-            const app = await aptoide.downloadInfo(tempQuery);
-            if (app) {
-                // We'll jump to the download part by simulating the rest of the logic
-                // Actually, just set query to extracted and continue.
-                query = extracted;
-            }
-        }
-    } else if (query.startsWith('http')) {
+    // Handle MediaFire links specifically as they have a separate command
+    if (query.startsWith('http')) {
         if (query.includes('mediafire.com')) {
             const mfireMsg = userLang === 'ma'
                 ? `❌ *هدشي ماشي سمية د تطبيق!*\n\n⚠️ نتا صيفطتي *رابط ميديافاير*.\n💡 جرب استخدم: ${settings.prefix}mediafire [الرابط]`
@@ -65,10 +38,13 @@ async function apkCommand(sock, chatId, message, args, commands, userLang) {
             return await sendWithChannelButton(sock, chatId, mfireMsg, message);
         }
 
-        const urlMsg = userLang === 'ma'
-            ? `❌ *هاد الأمر خاص بالبحث بالسمية فقط.*\n\n⚠️ ما تصيفطش ليان (Rabit). كتب غير سمية التطبيق.\n📝 مثال: ${settings.prefix}apk whatsapp`
-            : `❌ *Invalid Input!*\n\n⚠️ Do not send URLs. Just type the app name.\n📝 Example: ${settings.prefix}apk whatsapp`;
-        return await sendWithChannelButton(sock, chatId, urlMsg, message);
+        // Other URLs (Aptoide, Uptodown) will be handled by the downloader utility below
+        if (!query.includes('aptoide.com') && !query.includes('uptodown.com')) {
+            const urlMsg = userLang === 'ma'
+                ? `❌ *هاد الأمر خاص بالبحث بالسمية أو روابط Aptoide/Uptodown.*\n\n⚠️ ما تصيفطش أي رابط (Rabit). كتب غير سمية التطبيق.\n📝 مثال: ${settings.prefix}apk whatsapp`
+                : `❌ *Invalid Input!*\n\n⚠️ Only App Names or Aptoide/Uptodown URLs are supported here.\n📝 Example: ${settings.prefix}apk whatsapp`;
+            return await sendWithChannelButton(sock, chatId, urlMsg, message);
+        }
     }
 
 
@@ -108,6 +84,28 @@ async function apkCommand(sock, chatId, message, args, commands, userLang) {
                     ? `⚠️ *حجم التطبيق كبير جداً (${sizeMB} MB). الحد الأقصى 300 ميجا.*`
                     : `⚠️ *App too large (${sizeMB} MB). Limit is 300MB.*`;
             return await sendWithChannelButton(sock, chatId, largeMsg, message);
+        }
+
+        // Check source
+        if (app.source === 'Uptodown') {
+            await sock.sendMessage(chatId, { react: { text: "🔗", key: message.key } });
+            const uptodownMsg = userLang === 'ma'
+                ? `🚀 *لقيناه فـ Uptodown!*\n\n⚠️ ما قدرناش نجيبو الملف المباشر حيت الموقع محمي، ولكن ها هو الرابط ديالو:\n\n📦 *التطبيق:* ${app.name}\n🔗 *الرابط:* ${app.downloadUrl}\n\n⚔️ ${settings.botName}`
+                : `🚀 *Found on Uptodown!*\n\n⚠️ Direct download is protected, but here is the link:\n\n📦 *App:* ${app.name}\n🔗 *Link:* ${app.downloadUrl}\n\n⚔️ ${settings.botName}`;
+
+            return await sock.sendMessage(chatId, {
+                text: uptodownMsg,
+                contextInfo: {
+                    externalAdReply: {
+                        title: app.name,
+                        body: "Click to Download from Uptodown",
+                        mediaType: 1,
+                        sourceUrl: app.downloadUrl,
+                        thumbnailUrl: app.icon ? app.icon : null,
+                        renderLargerThumbnail: true
+                    }
+                }
+            }, { quoted: message });
         }
 
         const caption = userLang === 'ma'
