@@ -20,47 +20,42 @@ async function apk3Command(sock, chatId, msg, args, commands, userLang) {
         await sock.sendMessage(chatId, { react: { text: "⬇️", key: message.key } });
 
         const searchMsg = userLang === 'ma'
-            ? `🔍 *جاري البحث عن "${query}" باستخدام أحدث API...*`
+            ? `🔍 *كنقلب على "${query}" فالسيرفر التالت...*`
             : userLang === 'ar'
-                ? `🔍 *جاري البحث عن "${query}" عبر API متطور...*`
-                : `🔍 *Searching for "${query}" via advanced API...*`;
+                ? `🔍 *جاري البحث عن "${query}" عبر السيرفر 3...*`
+                : `🔍 *Searching for "${query}" via Server 3...*`;
         await sendWithChannelButton(sock, chatId, searchMsg, message);
 
-        // BK9 API for APK
-        const apiUrl = `https://bk9.fun/download/apk?q=${encodeURIComponent(query)}`;
-        const res = await fetchJson(apiUrl);
+        const aptoide = require('../lib/aptoide');
+        const app = await aptoide.downloadInfo(query);
 
-        if (!res.status || !res.BK9) {
+        if (!app) {
             await sock.sendMessage(chatId, { react: { text: "❌", key: message.key } });
-            const notFoundMsg = userLang === 'ma'
-                ? `❌ *ما لقيناش "${query}" فهاد API.*`
-                : `❌ *Could not find "${query}" in this API.*`;
-            return await sendWithChannelButton(sock, chatId, notFoundMsg, message);
+            return await sendWithChannelButton(sock, chatId, `❌ *No results found for "${query}".*`, message);
         }
 
-        const app = res.BK9;
-        const caption = userLang === 'ma'
-            ? `🎮 *الاسم:* ${app.name}\n📦 *الحجم:* ${app.size}\n\n⏬ *هانا كنصيفطو ليك...*\n⚔️ ${settings.botName}`
-            : `🎮 *Name:* ${app.name}\n📦 *Size:* ${app.size}\n\n⏬ *Sending file...*\n⚔️ ${settings.botName}`;
+        const sizeMB = app.sizeMB;
+
+        // Large file warning (Limit 300MB)
+        if (parseFloat(sizeMB) > 300) {
+            await sock.sendMessage(chatId, { react: { text: "⚠️", key: message.key } });
+            const largeMsg = userLang === 'ma'
+                ? `⚠️ *التطبيق كبير بزاف (${sizeMB} MB). الحد هو 300MB.*`
+                : userLang === 'ar'
+                    ? `⚠️ *حجم التطبيق كبير جداً (${sizeMB} MB). الحد هو 300 ميجا.*`
+                    : `⚠️ *App too large (${sizeMB} MB). Limit is 300MB.*`;
+            return await sendWithChannelButton(sock, chatId, largeMsg, message);
+        }
+
+        const caption = `🎮 *Name:* ${app.name}\n📦 *Size:* ${sizeMB} MB\n\n⏬ *Sending file...*\n⚔️ ${settings.botName}`;
 
         await sock.sendMessage(chatId, { react: { text: "⬆️", key: message.key } });
 
         await sock.sendMessage(chatId, {
-            document: { url: app.dllink },
+            document: { url: app.downloadUrl },
             fileName: `${app.name}.apk`,
             mimetype: 'application/vnd.android.package-archive',
-            caption: caption,
-            contextInfo: {
-                externalAdReply: {
-                    title: app.name,
-                    body: `${app.size} - APK Downloader V3`,
-                    mediaType: 1,
-                    sourceUrl: app.dllink,
-                    thumbnailUrl: app.icon,
-                    renderLargerThumbnail: true,
-                    showAdAttribution: false
-                }
-            }
+            caption: caption
         }, { quoted: message });
 
         await sock.sendMessage(chatId, { react: { text: "✅", key: message.key } });
@@ -68,8 +63,7 @@ async function apk3Command(sock, chatId, msg, args, commands, userLang) {
     } catch (error) {
         console.error('Error in apk3 command:', error);
         await sock.sendMessage(chatId, { react: { text: "❌", key: message.key } });
-        const errorMsg = userLang === 'ma' ? "❌ *وقع مشكل ف API. جرب apk أو apk2.*" : "❌ *API Error. Try apk or apk2.*";
-        await sendWithChannelButton(sock, chatId, errorMsg, message);
+        await sendWithChannelButton(sock, chatId, `❌ *Error in Server 3. Try .apk or .apk2.*`, message);
     }
 }
 

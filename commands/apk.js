@@ -29,8 +29,35 @@ async function apkCommand(sock, chatId, message, args, commands, userLang) {
 
         return await sendWithChannelButton(sock, chatId, helpMsg, message);
     }
-    // Check if the user inadvertently pasted a URL
-    if (query.startsWith('http')) {
+    // Handle Aptoide URLs (for auto-download or copy-paste)
+    if (query.includes('aptoide.com')) {
+        // Extract package or app name from URL
+        // Example: https://facebook-lite.fr.aptoide.com/app -> facebook-lite
+        // Example: https://www.aptoide.com/app/com.facebook.lite -> com.facebook.lite
+        const urlParts = query.split('/');
+        let extracted = '';
+
+        if (query.includes('app/')) {
+            extracted = urlParts[urlParts.indexOf('app') + 1];
+        } else if (query.includes('.aptoide.com')) {
+            const host = new URL(query).hostname;
+            extracted = host.split('.')[0];
+        }
+
+        if (extracted) {
+            console.log(`[APK] Extracted "${extracted}" from Aptoide URL`);
+            // We continue with extracted as the query
+            const tempQuery = extracted;
+            // Note: we don't return here, we let it flow to the search/download logic
+            const aptoide = require('../lib/aptoide');
+            const app = await aptoide.downloadInfo(tempQuery);
+            if (app) {
+                // We'll jump to the download part by simulating the rest of the logic
+                // Actually, just set query to extracted and continue.
+                query = extracted;
+            }
+        }
+    } else if (query.startsWith('http')) {
         if (query.includes('mediafire.com')) {
             const mfireMsg = userLang === 'ma'
                 ? `❌ *هدشي ماشي سمية د تطبيق!*\n\n⚠️ نتا صيفطتي *رابط ميديافاير*.\n💡 جرب استخدم: ${settings.prefix}mediafire [الرابط]`
@@ -56,26 +83,23 @@ async function apkCommand(sock, chatId, message, args, commands, userLang) {
                 : `🔍 *Searching for "${query}"...*`;
         await sendWithChannelButton(sock, chatId, searchMsg, message);
 
-        // Aptoide API URL
-        const apiUrl = `http://ws75.aptoide.com/api/7/apps/search/query=${encodeURIComponent(query)}/limit=1`;
+        // Use centralized utility
+        const aptoide = require('../lib/aptoide');
+        const app = await aptoide.downloadInfo(query);
 
-        const response = await axios.get(apiUrl, { timeout: 15000 });
-        const data = response.data;
-
-        if (!data.datalist || !data.datalist.list || !data.datalist.list.length) {
+        if (!app || !app.downloadUrl) {
             await sock.sendMessage(chatId, { react: { text: "❌", key: message.key } });
             const notFoundMsg = userLang === 'ma'
-                ? `❌ *ما لقيناش "${query}".*`
+                ? `❌ *ما لقيناش "${query}". جرب كتب السمية نيشان.*`
                 : userLang === 'ar'
-                    ? `❌ *عذراً، لم يتم العثور على "${query}".*`
-                    : `❌ *No results found for "${query}".*`;
+                    ? `❌ *عذراً، لم يتم العثور على "${query}". المرجو التأكد من الاسم.*`
+                    : `❌ *No results found for "${query}". Please check the name.*`;
             return await sendWithChannelButton(sock, chatId, notFoundMsg, message);
         }
 
-        const app = data.datalist.list[0];
-        const sizeMB = (app.size / (1024 * 1024)).toFixed(2);
+        const sizeMB = app.sizeMB;
 
-        // Large file warning (WhatsApp has limits)
+        // Large file warning
         if (parseFloat(sizeMB) > 300) {
             await sock.sendMessage(chatId, { react: { text: "⚠️", key: message.key } });
             const largeMsg = userLang === 'ma'
@@ -87,63 +111,67 @@ async function apkCommand(sock, chatId, message, args, commands, userLang) {
         }
 
         const caption = userLang === 'ma'
-            ? `🎮 *اسم التطبيق:* ${app.name}\n📦 *الحزمة:* ${app.package}\n📅 *ميزاجور:* ${app.updated}\n📁 *الحجم:* ${sizeMB} MB\n\n🔗 *تابعني (Follow):*\n📸 *Insta:* ${settings.instagram}\n🎥 *YouTube:* ${settings.youtube}\n📘 *Facebook:* ${settings.facebookPage}\n\n⏬ *هانا كنصيفطو ليك...*\n⚔️ ${settings.botName}`
-            : `🎮 *App Name:* ${app.name}\n📦 *Package:* ${app.package}\n📅 *Updated:* ${app.updated}\n📁 *Size:* ${sizeMB} MB\n\n🔗 *Follow Me:*\n📸 *Insta:* ${settings.instagram}\n🎥 *YouTube:* ${settings.youtube}\n📘 *Facebook:* ${settings.facebookPage}\n\n⏬ *Sending file...*\n⚔️ ${settings.botName}`;
+            ? `🎮 *اسم التطبيق:* ${app.name}\n📦 *الحزمة:* ${app.package}\n📅 *ميزاجور:* ${app.updated}\n📁 *الحجم:* ${sizeMB} MB\n\n🔗 *تابعني (Follow):*\n📸 *Insta:* ${settings.instagram}\n🎥 *YouTube:* ${settings.youtube}\n\n⏬ *هانا كنصيفطو ليك...*\n⚔️ ${settings.botName}`
+            : `🎮 *App Name:* ${app.name}\n📦 *Package:* ${app.package}\n📅 *Updated:* ${app.updated}\n📁 *Size:* ${sizeMB} MB\n\n🔗 *Follow Me:*\n📸 *Insta:* ${settings.instagram}\n🎥 *YouTube:* ${settings.youtube}\n\n⏬ *Sending file...*\n⚔️ ${settings.botName}`;
 
         // Step 2: React with upload icon
         await sock.sendMessage(chatId, { react: { text: "⬆️", key: message.key } });
 
-        // Download link (using path_alt as in user request)
-        const downloadUrl = app.file.path_alt || app.file.path;
-
-        // Send the document
-        await sock.sendMessage(chatId, {
-            document: { url: downloadUrl },
-            fileName: `${app.name}.apk`,
-            mimetype: 'application/vnd.android.package-archive',
-            caption: caption,
-            contextInfo: {
-                externalAdReply: {
-                    title: app.name,
-                    body: `${sizeMB} MB - APK Downloader`,
-                    mediaType: 1,
-                    sourceUrl: downloadUrl,
-                    thumbnailUrl: app.icon,
-                    renderLargerThumbnail: true,
-                    showAdAttribution: false
+        // Send the document directly using URL (Baileys handles it well for small files)
+        // For larger files or if URL fails, we could use downloadToFile
+        try {
+            await sock.sendMessage(chatId, {
+                document: { url: app.downloadUrl },
+                fileName: `${app.name}.apk`,
+                mimetype: 'application/vnd.android.package-archive',
+                caption: caption,
+                contextInfo: {
+                    externalAdReply: {
+                        title: app.name,
+                        body: `${sizeMB} MB - APK Downloader`,
+                        mediaType: 1,
+                        sourceUrl: app.downloadUrl,
+                        thumbnailUrl: app.icon,
+                        renderLargerThumbnail: true,
+                        showAdAttribution: false
+                    }
                 }
-            }
-        }, { quoted: message });
+            }, { quoted: message });
 
-        // Increment download count
-        const remaining = incrementDownload(senderId);
+            // Increment download count
+            const remaining = incrementDownload(senderId);
+            await sock.sendMessage(chatId, { react: { text: "✅", key: message.key } });
 
-        // Final reaction
-        await sock.sendMessage(chatId, { react: { text: "✅", key: message.key } });
-
-        // Show remaining downloads
-        const remainingMsg = userLang === 'ma'
-            ? `✅ *تم التحميل بنجاح!*\n📊 *المتبقي اليوم:* ${remaining}/${DAILY_LIMIT}`
-            : userLang === 'ar'
+            const remainingMsg = userLang === 'ma'
                 ? `✅ *تم التحميل بنجاح!*\n📊 *المتبقي اليوم:* ${remaining}/${DAILY_LIMIT}`
                 : `✅ *Download Successful!*\n📊 *Remaining Today:* ${remaining}/${DAILY_LIMIT}`;
+            await sock.sendMessage(chatId, { text: remainingMsg }, { quoted: message });
 
-        await sock.sendMessage(chatId, { text: remainingMsg }, { quoted: message });
+        } catch (sendErr) {
+            console.log('[APK] Direct URL send failed, trying local download:', sendErr.message);
+            const tempPath = await aptoide.downloadToFile(app.downloadUrl);
 
+            await sock.sendMessage(chatId, {
+                document: { url: tempPath },
+                fileName: `${app.name}.apk`,
+                mimetype: 'application/vnd.android.package-archive',
+                caption: caption
+            }, { quoted: message });
+
+            if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
+
+            // Increment download count
+            const remaining = incrementDownload(senderId);
+            await sock.sendMessage(chatId, { react: { text: "✅", key: message.key } });
+        }
 
     } catch (error) {
         console.error('Error in apk command:', error);
         await sock.sendMessage(chatId, { react: { text: "❌", key: message.key } });
-
-        let errorMsg = userLang === 'ma' ? "❌ *وقع مشكل ف التحميل.*" : "❌ *Error downloading APK.*";
-        if (error.response && error.response.status === 404) {
-            errorMsg = userLang === 'ma' ? "❌ *التطبيق ما بقاش متوفر.*" : "❌ *App not found.*";
-        } else if (error.response && error.response.status === 400) {
-            errorMsg = userLang === 'ma' ? "❌ *البحث مخربق (Bad Request). تأكد من السمية.*" : "❌ *Bad Request. Check the app name.*";
-        }
-
+        const errorMsg = userLang === 'ma' ? "❌ *وقع مشكل ف التحميل. جرب مرة أخرى.*" : "❌ *Error downloading APK.*";
         await sendWithChannelButton(sock, chatId, errorMsg, message);
     }
+
 
 
 
