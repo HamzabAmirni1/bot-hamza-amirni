@@ -28,53 +28,16 @@ async function ytplayCommand(sock, chatId, msg, args) {
         await sock.sendMessage(chatId, { react: { text: "📥", key: msg.key } });
 
         // Multi-API Download System
-        let audioUrl = null;
-        let finalTitle = "yt-audio";
+        const { downloadYouTube } = require('../lib/ytdl');
+        const downloadResult = await downloadYouTube(videoUrl, 'mp3');
 
-        const apiList = [
-            `https://yt-dl.officialhectormanuel.workers.dev/?url=${encodeURIComponent(videoUrl)}`,
-            `https://api.siputzx.my.id/api/d/ytmp3?url=${encodeURIComponent(videoUrl)}`,
-            `https://api.zenkey.my.id/api/download/ytmp3?url=${encodeURIComponent(videoUrl)}`,
-            `https://api.vreden.my.id/api/ytmp3?url=${encodeURIComponent(videoUrl)}`,
-            `https://deliriussapi-oficial.vercel.app/download/ytmp3?url=${encodeURIComponent(videoUrl)}`,
-            `https://widipe.com/download/ytmp3?url=${encodeURIComponent(videoUrl)}`,
-            `https://itzpire.com/download/youtube-mp3?url=${encodeURIComponent(videoUrl)}`,
-            `https://api.guruapi.tech/videodownloader/ytmp3?url=${encodeURIComponent(videoUrl)}`
-        ];
-
-        const https = require('https');
-        const agent = new https.Agent({ rejectUnauthorized: false });
-
-        for (const url of apiList) {
-            try {
-                console.log(`[ytplay.js] Trying API: ${url.split('?')[0]}`);
-                const response = await axios.get(url, {
-                    timeout: 20000,
-                    httpsAgent: url.includes('itzpire') || url.includes('officialhectormanuel') ? agent : undefined
-                });
-
-                const data = response.data;
-                if (data && (data.status === true || data.status === 200 || data.success || data.result)) {
-                    if (data.audio) audioUrl = data.audio;
-                    else if (data.result && data.result.download) audioUrl = data.result.download;
-                    else if (data.result && data.result.url) audioUrl = data.result.url;
-                    else if (data.data && data.data.download && data.data.download.url) audioUrl = data.data.download.url;
-                    else if (data.url) audioUrl = data.url;
-
-                    if (audioUrl) {
-                        finalTitle = data.title || (data.result && data.result.title) || (data.data && data.data.title) || finalTitle;
-                        break;
-                    }
-                }
-            } catch (e) {
-                console.log(`[ytplay.js] API failed (${url.split('?')[0]}):`, e.message);
-            }
-        }
-
-        if (!audioUrl) {
+        if (!downloadResult) {
             await sock.sendMessage(chatId, { react: { text: "❌", key: msg.key } });
             return await sock.sendMessage(chatId, { text: "❌ فشل جلب الصوت. حاول مرة أخرى بكلمات بحث مختلفة." }, { quoted: msg });
         }
+
+        const { downloadUrl: audioUrl, title: finalTitle } = downloadResult;
+
 
         // Step 3: React while sending audio
         await sock.sendMessage(chatId, { react: { text: "🎶", key: msg.key } });
