@@ -123,17 +123,7 @@ async function playCommand(sock, chatId, msg, args, commands, userLang) {
             audio: { url: audioUrl },
             mimetype: "audio/mpeg",
             fileName: `${title}.mp3`,
-            ptt: false,
-            contextInfo: {
-                externalAdReply: {
-                    title: title,
-                    body: settings.botName,
-                    thumbnailUrl: video.thumbnail,
-                    sourceUrl: urlYt,
-                    mediaType: 1,
-                    renderLargerThumbnail: true
-                }
-            }
+            ptt: false
         }, { quoted: msg });
 
     } catch (error) {
