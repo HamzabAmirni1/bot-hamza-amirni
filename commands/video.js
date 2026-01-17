@@ -1,15 +1,60 @@
 const axios = require('axios');
 const yts = require('yt-search');
-const fs = require('fs');
-const path = require('path');
 const { t } = require('../lib/language');
 const settings = require('../settings');
+
+const AXIOS_DEFAULTS = {
+    timeout: 60000,
+    headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'application/json, text/plain, */*'
+    }
+};
+
+async function tryRequest(getter, attempts = 3) {
+    let lastError;
+    for (let attempt = 1; attempt <= attempts; attempt++) {
+        try {
+            return await getter();
+        } catch (err) {
+            lastError = err;
+            if (attempt < attempts) {
+                await new Promise(r => setTimeout(r, 1000 * attempt));
+            }
+        }
+    }
+    throw lastError;
+}
+
+async function getYupraVideoByUrl(youtubeUrl) {
+    const apiUrl = `https://api.yupra.my.id/api/downloader/ytmp4?url=${encodeURIComponent(youtubeUrl)}`;
+    const res = await tryRequest(() => axios.get(apiUrl, AXIOS_DEFAULTS));
+    if (res?.data?.success && res?.data?.data?.download_url) {
+        return {
+            download: res.data.data.download_url,
+            title: res.data.data.title,
+            thumbnail: res.data.data.thumbnail
+        };
+    }
+    throw new Error('Yupra returned no download');
+}
+
+async function getOkatsuVideoByUrl(youtubeUrl) {
+    const apiUrl = `https://okatsu-rolezapiiz.vercel.app/downloader/ytmp4?url=${encodeURIComponent(youtubeUrl)}`;
+    const res = await tryRequest(() => axios.get(apiUrl, AXIOS_DEFAULTS));
+    // shape: { status, creator, url, result: { status, title, mp4 } }
+    if (res?.data?.result?.mp4) {
+        return { download: res.data.result.mp4, title: res.data.result.title };
+    }
+    throw new Error('Okatsu ytmp4 returned no mp4');
+}
 
 async function videoCommand(sock, chatId, msg, args, commands, userLang) {
     try {
         const text = msg.message?.conversation || msg.message?.extendedTextMessage?.text;
-        const searchQuery = text?.split(' ').slice(1).join(' ').trim();
-
+        const searchQuery = text.split(' ').slice(1).join(' ').trim();
+        
+        
         if (!searchQuery) {
             const usageMsg = userLang === 'ma'
                 ? "⚠️ *كتب ليا سمية الفيديو ولا الليان.*\n📝 مثال: .video طوطو"
@@ -22,9 +67,8 @@ async function videoCommand(sock, chatId, msg, args, commands, userLang) {
 
         // Determine if input is a YouTube link
         let videoUrl = '';
-        let previewTitle = '';
-        let previewThumbnail = '';
-
+        let videoTitle = '';
+        let videoThumbnail = '';
         if (searchQuery.startsWith('http://') || searchQuery.startsWith('https://')) {
             videoUrl = searchQuery;
         } else {
@@ -35,9 +79,23 @@ async function videoCommand(sock, chatId, msg, args, commands, userLang) {
                 return;
             }
             videoUrl = videos[0].url;
-            previewTitle = videos[0].title;
-            previewThumbnail = videos[0].thumbnail;
+            videoTitle = videos[0].title;
+            videoThumbnail = videos[0].thumbnail;
         }
+
+        // Send thumbnail immediately
+        try {
+            const ytId = (videoUrl.match(/(?:youtu\.be\/|v=)([a-zA-Z0-9_-]{11})/) || [])[1];
+            const thumb = videoThumbnail || (ytId ? `https://i.ytimg.com/vi/${ytId}/sddefault.jpg` : undefined);
+            const captionTitle = videoTitle || searchQuery;
+            if (thumb) {
+                await sock.sendMessage(chatId, {
+                    image: { url: thumb },
+                    caption: `*${captionTitle}*\nDownloading...` 
+                }, { quoted: msg });
+            }
+        } catch (e) { console.error('[VIDEO] thumb error:', e?.message || e); }
+        
 
         // Validate YouTube URL
         let urls = videoUrl.match(/(?:https?:\/\/)?(?:youtu\.be\/|(?:www\.|m\.)?youtube\.com\/(?:watch\?v=|v\/|embed\/|shorts\/|playlist\?list=)?)([a-zA-Z0-9_-]{11})/gi);
@@ -46,147 +104,28 @@ async function videoCommand(sock, chatId, msg, args, commands, userLang) {
             return;
         }
 
-        // React with ⏳ and send status when starting download
-        const dlMsg = userLang === 'ma'
-            ? "⏳ *بلاتي، هانا كنتيليشارجي... صبر عشيري*"
-            : userLang === 'ar'
-                ? "⏳ *يتم تحميل الفيديو، يرجى الانتظار...*"
-                : "⏳ *Downloading, please wait...*";
-        await sock.sendMessage(chatId, { text: dlMsg }, { quoted: msg });
-        await sock.sendMessage(chatId, { react: { text: '⏳', key: msg.key } });
-
-        // Multi-API Download System
-        const { downloadYouTube } = require('../lib/ytdl');
-        const downloadResult = await downloadYouTube(videoUrl, 'mp4');
-
-        if (!downloadResult) {
-            await sock.sendMessage(chatId, { text: t('download.yt_error', {}, userLang) }, { quoted: msg });
-            await sock.sendMessage(chatId, { react: { text: '❌', key: msg.key } });
-            return;
+        // Get video: try Yupra first, then Okatsu fallback
+        let videoData;
+        try {
+            videoData = await getYupraVideoByUrl(videoUrl);
+        } catch (e1) {
+            videoData = await getOkatsuVideoByUrl(videoUrl);
         }
 
-        const { downloadUrl: videoDownloadUrl, title, thumbnail } = downloadResult;
-        let quality = "360p"; // Default label
-
-
-        const filename = `${title.replace(/[^a-zA-Z0-9-_\.]/g, '_')}.mp4`;
-
-        // Send preview before downloading
-        const prevMsg = userLang === 'ma'
-            ? `🎬 *لقيتها!* دابا غانصيفطها ليك...\n📌 *العنوان:* ${title}`
-            : userLang === 'ar'
-                ? `🎬 *تم العثور عليه!* جاري الإرسال...\n📌 *العنوان:* ${title}`
-                : `🎬 *Found it!* Sending now...\n📌 *Title:* ${title}`;
-
+        // Send video directly using the download URL
         await sock.sendMessage(chatId, {
-            image: { url: thumbnail },
-            caption: prevMsg
+            video: { url: videoData.download },
+            mimetype: 'video/mp4',
+            fileName: `${videoData.title || videoTitle || 'video'}.mp4`,
+            caption: `*${videoData.title || videoTitle || 'Video'}*\n\n> *_Downloaded by ${settings.botName}_*` 
         }, { quoted: msg });
 
-        // Try sending the video directly from the remote URL
-        try {
-            const successCap = userLang === 'ma'
-                ? `✅ *تفضل أ عشيري!* \n\n🎬 *${title}*\n⚔️ ${settings.botName}`
-                : `✅ *Here is your video!* \n\n🎬 *${title}*\n⚔️ ${settings.botName}`;
-            await sock.sendMessage(chatId, {
-                video: { url: videoDownloadUrl },
-                mimetype: 'video/mp4',
-                fileName: filename,
-                caption: successCap
-            }, { quoted: msg });
-
-            // React with ✅ when finished
-            await sock.sendMessage(chatId, { react: { text: '✅', key: msg.key } });
-            return;
-        } catch (directSendErr) {
-            console.log('[video.js] Direct send from URL failed, trying local download:', directSendErr.message);
-        }
-
-        // If direct send fails, fallback to downloading
-        const tempDir = path.join(__dirname, '../temp');
-        if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir);
-
-        // Clean up old files in temp first to free space
-        try {
-            const files = fs.readdirSync(tempDir);
-            const now = Date.now();
-            for (const file of files) {
-                const filePath = path.join(tempDir, file);
-                const stats = fs.statSync(filePath);
-                if (now - stats.mtimeMs > 10 * 60 * 1000) { // Delete files older than 10 mins
-                    fs.unlinkSync(filePath);
-                }
-            }
-        } catch (e) { }
-
-        const tempFile = path.join(tempDir, `${Date.now()}.mp4`);
-
-        try {
-            // Check size before downloading (Stability)
-            const headRes = await axios.head(videoDownloadUrl, { timeout: 15000 }).catch(() => null);
-            const contentLength = headRes ? headRes.headers['content-length'] : null;
-            if (contentLength && parseInt(contentLength) > 250 * 1024 * 1024) {
-                await sock.sendMessage(chatId, { text: t('download.yt_large', {}, userLang) }, { quoted: msg });
-                return;
-            }
-
-            // Stream download
-            const writer = fs.createWriteStream(tempFile);
-            const videoRes = await axios({
-                url: videoDownloadUrl,
-                method: 'GET',
-                responseType: 'stream'
-            });
-
-            videoRes.data.pipe(writer);
-
-            await new Promise((resolve, reject) => {
-                writer.on('finish', resolve);
-                writer.on('error', reject);
-            });
-
-            const stats = fs.statSync(tempFile);
-            const maxSize = 250 * 1024 * 1024; // Increased to 250MB
-            if (stats.size > maxSize) {
-                fs.unlinkSync(tempFile); // Delete immediately if too big
-                await sock.sendMessage(chatId, { text: t('download.yt_large', {}, userLang) }, { quoted: msg });
-                return;
-            }
-
-            await sock.sendMessage(chatId, {
-                video: { url: tempFile },
-                mimetype: 'video/mp4',
-                fileName: filename,
-                caption: t('download.yt_success', {
-                    title: title,
-                    quality: quality,
-                    botName: settings.botName
-                }, userLang)
-            }, { quoted: msg });
-
-            // React with ✅ when finished
-            await sock.sendMessage(chatId, { react: { text: '✅', key: msg.key } });
-
-        } catch (err) {
-            console.log('📹 Download or send failed:', err.message);
-            await sock.sendMessage(chatId, { text: t('download.yt_error', {}, userLang) + `: ${err.message}` }, { quoted: msg });
-            await sock.sendMessage(chatId, { react: { text: '❌', key: msg.key } });
-        } finally {
-            // Cleanup temp file
-            setTimeout(() => {
-                try {
-                    if (fs.existsSync(tempFile)) fs.unlinkSync(tempFile);
-                } catch { }
-            }, 5000);
-        }
 
     } catch (error) {
-        console.log('📹 Video Command Error:', error.message, error.stack);
+        console.error('[VIDEO] Command Error:', error?.message || error);
         await sock.sendMessage(chatId, { text: t('download.yt_error', {}, userLang) + `: ${error.message}` }, { quoted: msg });
         await sock.sendMessage(chatId, { react: { text: '❌', key: msg.key } });
     }
-
 }
 
 module.exports = videoCommand;
-
