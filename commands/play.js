@@ -1,79 +1,78 @@
 const yts = require('yt-search');
 const axios = require('axios');
 const { t } = require('../lib/language');
+const settings = require('../settings');
 
-module.exports = async (sock, chatId, msg, args, commands, userLang) => {
+async function playCommand(sock, chatId, msg, args, commands, userLang) {
     try {
-        // 1. Get Query
-        const searchQuery = args.join(' ');
+        const text = msg.message?.conversation || msg.message?.extendedTextMessage?.text;
+        const searchQuery = text.split(' ').slice(1).join(' ').trim();
+        
         if (!searchQuery) {
-            return await sock.sendMessage(chatId, {
-                text: t('play.no_query', {}, userLang)
+            const usageMsg = userLang === 'ma'
+                ? "⚠️ *كتب ليا سمية الأغنية.*\n📝 مثال: .play طوطو"
+                : userLang === 'ar'
+                    ? "⚠️ *يرجى كتابة اسم الأغنية.*\n📝 مثال: .play سورة البقرة"
+                    : "⚠️ *Please provide a song name.*\n📝 Example: .play funny cats";
+            return await sock.sendMessage(chatId, { 
+                text: usageMsg
             }, { quoted: msg });
         }
 
-        // 2. Initial React & Search Message
-        await sock.sendMessage(chatId, { react: { text: "🎧", key: msg.key } });
-
-        // Search YouTube
+        // Search for song
         const { videos } = await yts(searchQuery);
         if (!videos || videos.length === 0) {
-            return await sock.sendMessage(chatId, {
-                text: t('play.no_results', {}, userLang)
+            return await sock.sendMessage(chatId, { 
+                text: t('download.yt_no_result', {}, userLang)
             }, { quoted: msg });
         }
 
-        const video = videos[0];
-        const videoUrl = video.url;
-
-        // 3. Send "Downloading..." Message with Thumbnail (Aesthetic)
-        // Using "wait" message from translation which includes the user's requested vibe
+        // Send loading message
+        const loadingMsg = userLang === 'ma'
+            ? "⏳ *صبر، كنقلب ليك...*"
+            : userLang === 'ar'
+                ? "⏳ *يرجى الانتظار، جاري التحميل...*"
+                : "⏳ *Please wait, downloading...*";
+        
         await sock.sendMessage(chatId, {
-            image: { url: video.thumbnail },
-            caption: `🎵 *${video.title}*\n\n${t('play.wait', {}, userLang)}\n\n⏱️ _${video.timestamp}_ | 👀 _${video.views.toLocaleString()}_`
+            text: loadingMsg
         }, { quoted: msg });
 
-        // 4. Download Audio
-        // Using robust multi-API system
-        const { downloadYouTube } = require('../lib/ytdl');
-        const downloadResult = await downloadYouTube(videoUrl, 'mp3');
+        // Get first video result
+        const video = videos[0];
+        const urlYt = video.url;
 
-        if (!downloadResult) {
-            return await sock.sendMessage(chatId, {
-                text: t('play.error_api', {}, userLang)
+        // Fetch audio data from API
+        const response = await axios.get(`https://apis-keith.vercel.app/download/dlmp3?url=${urlYt}`);
+        const data = response.data;
+
+        if (!data || !data.status || !data.result || !data.result.downloadUrl) {
+            return await sock.sendMessage(chatId, { 
+                text: t('download.yt_error', {}, userLang)
             }, { quoted: msg });
         }
 
-        const { downloadUrl: audioUrl, title: finalTitle } = downloadResult;
+        const audioUrl = data.result.downloadUrl;
+        const title = data.result.title;
 
-
-        // 5. Send Audio with External Ad Reply (Premium Feel)
-        await sock.sendMessage(chatId, { react: { text: "⬆️", key: msg.key } });
-
+        // Send audio
         await sock.sendMessage(chatId, {
             audio: { url: audioUrl },
             mimetype: "audio/mpeg",
-            fileName: `${finalTitle}.mp3`,
-            contextInfo: {
-                externalAdReply: {
-                    title: finalTitle,
-                    body: video.author?.name || "Queen Riam Music",
-                    thumbnailUrl: video.thumbnail,
-                    sourceUrl: videoUrl,
-                    mediaType: 2, // 2 for Video (shows thumbnail well), 1 for Image
-                    renderLargerThumbnail: true
-                }
-            }
+            fileName: `${title}.mp3`,
+            caption: `*${title}*\n\n> *_Downloaded by ${settings.botName}_*`
         }, { quoted: msg });
-
-        await sock.sendMessage(chatId, { react: { text: "✅", key: msg.key } });
 
     } catch (error) {
         console.error('Error in play command:', error);
-        try {
-            await sock.sendMessage(chatId, {
-                text: t('play.error_generic', {}, userLang) + (error.message ? `\n\nError: ${error.message}` : '')
-            }, { quoted: msg });
-        } catch (e) { }
+        await sock.sendMessage(chatId, { 
+            text: t('download.yt_error', {}, userLang) + `: ${error.message}`
+        }, { quoted: msg });
+        await sock.sendMessage(chatId, { react: { text: '❌', key: msg.key } });
     }
-};
+}
+
+module.exports = playCommand;
+
+/*Powered by KNIGHT-BOT*
+*Credits to Keith MD*/
