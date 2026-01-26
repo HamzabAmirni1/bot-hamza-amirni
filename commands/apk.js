@@ -21,8 +21,9 @@ async function apkCommand(sock, chatId, msg, args, commands, userLang) {
 
     // --- DOWNLOAD MODE (Triggered by Button or Direct Package Name) ---
     // If query looks like a package name (no spaces)
-    if (query.match(/^[a-zA-Z0-9.]+$/) && !query.includes(' ') && query.includes('.')) {
+    if (query && !query.includes(' ') && (query.includes('.') || query.match(/^[a-z0-9_]+(\.[a-z0-9_]+)+$/i) || args.length === 1)) {
         try {
+            console.log(`[APK] 📥 Attempting Download Mode for: ${query}`);
             await sock.sendMessage(chatId, { react: { text: "⏳", key: msg.key } });
             
             // Use downloadInfo which is better for direct package identification
