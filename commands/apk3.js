@@ -28,12 +28,16 @@ async function apk3Command(sock, chatId, msg, args, commands, userLang) {
             }
         }
 
+        const L_LIB = t('apk.library_title', {}, userLang) || '🚀 *APK Server 3*';
+        const L_RESULTS = t('apk.results_for', { query }, userLang) || `Results for: *${query}*`;
+        const L_DOWNLOAD = t('apk.download_btn', {}, userLang) || 'Download Now 📥';
+
         let cards = [];
         for (let app of results.slice(0, 8)) {
             const imageMessage = await createHeaderImage(app.icon || 'https://ui-avatars.com/api/?name=APK&background=random&size=512');
             cards.push({
                 body: proto.Message.InteractiveMessage.Body.fromObject({
-                    text: `🎮 *App:* ${app.name}\n📏 *Size:* ${app.size}\n🚀 *Fast Server 3*`
+                    text: `🎮 *App:* ${app.name}\n📏 *Size:* ${app.sizeMB} MB\n🆔 *Pkg:* ${app.package}`
                 }),
                 footer: proto.Message.InteractiveMessage.Footer.fromObject({ text: `乂 ${settings.botName} 🧠` }),
                 header: proto.Message.InteractiveMessage.Header.fromObject({
@@ -42,14 +46,10 @@ async function apk3Command(sock, chatId, msg, args, commands, userLang) {
                     imageMessage
                 }),
                 nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
-                    buttons: [{ "name": "quick_reply", "buttonParamsJson": `{"display_text":"${L_DOWNLOAD}","id":".apk ${app.id}"}` }]
+                    buttons: [{ "name": "quick_reply", "buttonParamsJson": `{"display_text":"${L_DOWNLOAD}","id":".apk ${app.package}"}` }]
                 })
             });
         }
-
-        const L_LIB = t('apk.library_title', {}, userLang) || '📥 *APK Server 3*';
-        const L_RESULTS = t('apk.results_for', { query }, userLang) || `High speed downloads for: *${query}*`;
-        const L_DOWNLOAD = t('apk.download_btn', {}, userLang) || 'Download v3 ⬇️';
 
         const botMsg = generateWAMessageFromContent(chatId, {
             viewOnceMessage: {

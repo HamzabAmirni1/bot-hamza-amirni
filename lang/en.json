@@ -185,7 +185,11 @@
     },
     "yts": {
         "usage": "❌ This command is for searching YouTube.\n📝 Example:\n.yts {botName}",
-        "no_result": "❌ No results found."
+        "no_result": "❌ No results found.",
+        "library_title": "📺 *YouTube Search*",
+        "results_for": "🔍 *Search Results for:* {query}",
+        "video_btn": "Download Video 🎥",
+        "audio_btn": "Download Audio 🎵"
     },
     "fun": {
         "joke_header": "🤣 *Joke of the Day* 🤣",

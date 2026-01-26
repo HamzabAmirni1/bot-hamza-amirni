@@ -19,18 +19,29 @@ async function apkCommand(sock, chatId, msg, args, commands, userLang) {
         return await sock.sendMessage(chatId, { text: `• *Example:* .apk WhatsApp` }, { quoted: msg });
     }
 
-    // Special handling for Direct ID (Internal usage from Carousel)
+    // --- DOWNLOAD MODE (Triggered by Button or Direct Package Name) ---
+    // If query looks like a package name (no spaces)
     if (query.match(/^[a-zA-Z0-9.]+$/) && !query.includes(' ')) {
         try {
             await sock.sendMessage(chatId, { react: { text: "⏳", key: msg.key } });
-            const app = await aptoide.getLinkInfoById(query).catch(() => aptoide.downloadInfo(query));
             
-            if (!app || !app.downloadUrl) throw new Error('Not found');
+            // Search using search(query, 1) and take the first result
+            const results = await aptoide.search(query, 1);
+            const app = results[0];
+            
+            if (!app || !app.downloadUrl) {
+                // If it was a search query and not a pkg name, falling back to search mode
+                if (!query.includes('.')) throw new Error('Not a package');
+                return await sock.sendMessage(chatId, { text: `❌ App not found or download unavailable.` });
+            }
 
             const sizeMB = parseFloat(app.sizeMB || 0);
             if (sizeMB > 300) {
                  return await sock.sendMessage(chatId, { text: `⚠️ App too large (${sizeMB} MB). Limit: 300MB.` }, { quoted: msg });
             }
+
+            const L_SENDING = t('common.wait', {}, userLang) || '⏳ Sending file...';
+            await sock.sendMessage(chatId, { text: L_SENDING }, { quoted: msg });
 
             const caption = t('apk.caption', {
                 name: app.name,
@@ -51,7 +62,7 @@ async function apkCommand(sock, chatId, msg, args, commands, userLang) {
             await sock.sendMessage(chatId, { react: { text: "✅", key: msg.key } });
             return;
         } catch (e) {
-            // If ID fail, fallback to search
+            // Fallback to search if it wasn't a valid pkg or direct download failed
         }
     }
 
@@ -75,12 +86,16 @@ async function apkCommand(sock, chatId, msg, args, commands, userLang) {
             }
         }
 
+        const L_LIB = t('apk.library_title', {}, userLang) || '🚀 *Premium APK Library*';
+        const L_RESULTS = t('apk.results_for', { query }, userLang) || `Results for: *${query}*`;
+        const L_DOWNLOAD = t('apk.download_btn', {}, userLang) || 'Download Now 📥';
+
         let cards = [];
         for (let app of results.slice(0, 10)) {
             const imageMessage = await createHeaderImage(app.icon || 'https://ui-avatars.com/api/?name=APK&background=random&size=512');
             cards.push({
                 body: proto.Message.InteractiveMessage.Body.fromObject({
-                    text: `📦 *App:* ${app.name}\n📏 *Size:* ${app.size}\n🆔 *Package:* ${app.id}`
+                    text: `📦 *App:* ${app.name}\n📏 *Size:* ${app.sizeMB} MB\n🆔 *Package:* ${app.package}`
                 }),
                 footer: proto.Message.InteractiveMessage.Footer.fromObject({ text: `乂 ${settings.botName} 🧠` }),
                 header: proto.Message.InteractiveMessage.Header.fromObject({
@@ -89,14 +104,10 @@ async function apkCommand(sock, chatId, msg, args, commands, userLang) {
                     imageMessage
                 }),
                 nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
-                    buttons: [{ "name": "quick_reply", "buttonParamsJson": `{"display_text":"${L_DOWNLOAD}","id":".apk ${app.id}"}` }]
+                    buttons: [{ "name": "quick_reply", "buttonParamsJson": `{"display_text":"${L_DOWNLOAD}","id":".apk ${app.package}"}` }]
                 })
             });
         }
-
-        const L_LIB = t('apk.library_title', {}, userLang) || '🚀 *Premium APK Library*';
-        const L_RESULTS = t('apk.results_for', { query }, userLang) || `Results for: *${query}*`;
-        const L_DOWNLOAD = t('apk.download_btn', {}, userLang) || 'Download Now 📥';
 
         const botMsg = generateWAMessageFromContent(chatId, {
             viewOnceMessage: {

@@ -36,38 +36,29 @@ async function apk2Command(sock, chatId, msg, args, commands, userLang) {
             }
         }
 
+        const L_LIB = t('apk.library_title', {}, userLang) || '🚀 *APK Downloader (Server 2)*';
+        const L_RESULTS = t('apk.results_for', { query: text }, userLang) || `Results for: *${text}*`;
+        const L_DOWNLOAD = t('apk.download_btn', {}, userLang) || 'Download Now 📥';
+
         let cards = [];
-        let i = 1;
         for (let app of searchResults.slice(0, 10)) {
             const imageMessage = await createHeaderImage(app.icon || 'https://ui-avatars.com/api/?name=APK&background=random&size=512');
             
             cards.push({
                 body: proto.Message.InteractiveMessage.Body.fromObject({
-                    text: `📦 *App:* ${app.name}\n📏 *Size:* ${app.size}\n🆔 *ID:* ${app.id}`
+                    text: `📦 *App:* ${app.name}\n📏 *Size:* ${app.sizeMB} MB\n🆔 *Package:* ${app.package}`
                 }),
-                footer: proto.Message.InteractiveMessage.Footer.fromObject({
-                    text: `乂 ${settings.botName} 🧠`
-                }),
+                footer: proto.Message.InteractiveMessage.Footer.fromObject({ text: `乂 ${settings.botName} 🧠` }),
                 header: proto.Message.InteractiveMessage.Header.fromObject({
                     title: app.name,
                     hasMediaAttachment: true,
                     imageMessage
                 }),
                 nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
-                    buttons: [
-                        {
-                            "name": "quick_reply",
-                            "buttonParamsJson": `{"display_text":"${L_DOWNLOAD}","id":".apk ${app.id}"}`
-                        }
-                    ]
+                    buttons: [{ "name": "quick_reply", "buttonParamsJson": `{"display_text":"${L_DOWNLOAD}","id":".apk ${app.package}"}` }]
                 })
             });
-            i++;
         }
-
-        const L_LIB = t('apk.library_title', {}, userLang) || '🚀 *APK Downloader*';
-        const L_RESULTS = t('apk.results_for', { query: text }, userLang) || `Results for: *${text}*`;
-        const L_DOWNLOAD = t('apk.download_btn', {}, userLang) || 'Download Now 📥';
 
         const menuMsg = generateWAMessageFromContent(chatId, {
             viewOnceMessage: {
@@ -76,7 +67,6 @@ async function apk2Command(sock, chatId, msg, args, commands, userLang) {
                     interactiveMessage: proto.Message.InteractiveMessage.fromObject({
                         body: proto.Message.InteractiveMessage.Body.create({ text: `${L_LIB}\n\n${L_RESULTS}` }),
                         footer: proto.Message.InteractiveMessage.Footer.create({ text: `© ${settings.botName} 2026` }),
-                        header: proto.Message.InteractiveMessage.Header.create({ hasMediaAttachment: false }),
                         carouselMessage: proto.Message.InteractiveMessage.CarouselMessage.fromObject({ cards })
                     })
                 }
@@ -88,8 +78,7 @@ async function apk2Command(sock, chatId, msg, args, commands, userLang) {
 
     } catch (error) {
         console.error('Error in apk2 command:', error);
-        await sock.sendMessage(chatId, { text: '❌ Failed to search for apps.' }, { quoted: msg });
-        await sock.sendMessage(chatId, { react: { text: "❌", key: msg.key } });
+        await sock.sendMessage(chatId, { text: '❌ Failed to search for apps.' });
     }
 }
 
