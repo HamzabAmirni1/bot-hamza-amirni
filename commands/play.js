@@ -60,8 +60,28 @@ async function getKeithAudioByUrl(youtubeUrl) {
 
 async function playCommand(sock, chatId, msg, args, commands, userLang) {
     try {
-        const text = msg.message?.conversation || msg.message?.extendedTextMessage?.text;
-        const searchQuery = text.split(' ').slice(1).join(' ').trim();
+        // 1. Robust Input Extraction
+        let searchQuery = "";
+
+        // Priority 1: Check matches passed from handler (button IDs often come here)
+        // Check if `match` argument exists in function signature, if not, construct it
+        // The handler usually passes (sock, chatId, msg, args, commands, userLang, match)
+        // But here args 4 (commands) and 5 (userLang) might be shifted if signature varies.
+        // Let's rely on 'args' join first.
+
+        if (args && args.length > 0) {
+            searchQuery = args.join(' ');
+        } else {
+            // Fallback: extract from message body if args failed
+            const body = msg.message?.conversation || msg.message?.extendedTextMessage?.text || "";
+            // Remove command prefix and command name
+            searchQuery = body.replace(/^\S+\s+/, '').trim();
+        }
+
+        // Clean up query if it contains the command itself (rare edge case with button IDs)
+        if (searchQuery.startsWith('.play')) {
+            searchQuery = searchQuery.replace('.play', '').trim();
+        }
 
         if (!searchQuery) {
             return await sock.sendMessage(chatId, {
