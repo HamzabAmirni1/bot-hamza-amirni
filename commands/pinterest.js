@@ -1,5 +1,5 @@
+// plugin by hamza amirni
 const axios = require("axios");
-const cheerio = require('cheerio');
 const { generateWAMessageContent, generateWAMessageFromContent, proto } = require('@whiskeysockets/baileys');
 const settings = require('../settings');
 
@@ -79,18 +79,13 @@ async function searchPinterest(query) {
     }
 }
 
-async function pinterest(sock, chatId, msg, args) {
+async function handler(sock, chatId, msg, args) {
     const text = args.join(' ');
-
-    const reply = async (text) => {
-        await sock.sendMessage(chatId, { text: text }, { quoted: msg });
-    };
-
     if (!text) {
-        return reply(`• *مثال:*\n ${settings.prefix}pinterest cat`);
+        return sock.sendMessage(chatId, { text: `• *مثال:*\n ${settings.prefix}pinterest cat` }, { quoted: msg });
     }
 
-    await reply('*_`جاري التحميل`_*');
+    await sock.sendMessage(chatId, { text: '*_`جاري التحميل`_*' }, { quoted: msg });
 
     async function createImage(url) {
         const { imageMessage } = await generateWAMessageContent({
@@ -110,20 +105,65 @@ async function pinterest(sock, chatId, msg, args) {
 
     let result = await searchPinterest(text);
     if (!result.status) {
-        return reply(`⚠️ ${result.message}`);
+        return sock.sendMessage(chatId, { text: `⚠️ ${result.message}` }, { quoted: msg });
     }
 
-    let pins = result.pins.slice(0, 5); // Limit to top 5 results
-    shuffleArray(pins); // Randomize
+    let pins = result.pins.slice(0, 10); 
+    shuffleArray(pins); 
 
-    await reply(`🔍 *تم العثور على ${result.pins.length} نتيجة (يعرض 5).*`);
-
+    let push = [];
+    let i = 1;
     for (let pin of pins) {
-        await sock.sendMessage(chatId, {
-            image: { url: pin.image },
-            caption: `📌 *${pin.title}*\n📝 ${pin.description}\n👤 ${pin.uploader.full_name}\n🔗 ${pin.pin_url}`
-        }, { quoted: msg });
+        let imageUrl = pin.image;
+        push.push({
+            body: proto.Message.InteractiveMessage.Body.fromObject({
+                text: `📌 *العنوان:* ${pin.title}\n📝 *الوصف:* ${pin.description}\n👤 *الناشر:* ${pin.uploader.full_name} (@${pin.uploader.username})\n🔗 *الرابط:* ${pin.pin_url}`
+            }),
+            footer: proto.Message.InteractiveMessage.Footer.fromObject({
+                text: `乂 ${settings.botName} 🧠` 
+            }),
+            header: proto.Message.InteractiveMessage.Header.fromObject({
+                title: `الصورة ${i++}`,
+                hasMediaAttachment: true,
+                imageMessage: await createImage(imageUrl)
+            }),
+            nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
+                buttons: [
+                    {
+                        "name": "cta_url",
+                        "buttonParamsJson": `{"display_text":"عرض على Pinterest","url":"${pin.pin_url}"}`
+                    }
+                ]
+            })
+        });
     }
-}
 
-module.exports = pinterest;
+    const bot = generateWAMessageFromContent(chatId, {
+        viewOnceMessage: {
+            message: {
+                messageContextInfo: {
+                    deviceListMetadata: {},
+                    deviceListMetadataVersion: 2
+                },
+                interactiveMessage: proto.Message.InteractiveMessage.fromObject({
+                    body: proto.Message.InteractiveMessage.Body.create({
+                        text: "اكتملت نتائج البحث..."
+                    }),
+                    footer: proto.Message.InteractiveMessage.Footer.create({
+                        text: `乂 ${settings.botName} 🧠`
+                    }),
+                    header: proto.Message.InteractiveMessage.Header.create({
+                        hasMediaAttachment: false
+                    }),
+                    carouselMessage: proto.Message.InteractiveMessage.CarouselMessage.fromObject({
+                        cards: [...push]
+                    })
+                })
+            }
+        }
+    }, { quoted: msg });
+
+    await sock.relayMessage(chatId, bot.message, { messageId: bot.key.id });
+};
+
+module.exports = handler;
