@@ -162,7 +162,19 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
                     buttons: [
                         {
                             "name": "cta_url",
-                            "buttonParamsJson": `{"display_text":"قناتي الرسمية","url":"${settings.officialChannel}"}`
+                            "buttonParamsJson": JSON.stringify({ display_text: "My Channel 🔔", url: settings.officialChannel })
+                        },
+                        {
+                            "name": "cta_url",
+                            "buttonParamsJson": JSON.stringify({ display_text: "Instagram 📸", url: settings.instagram })
+                        },
+                        {
+                            "name": "cta_url",
+                            "buttonParamsJson": JSON.stringify({ display_text: "Facebook 📘", url: settings.facebookPage })
+                        },
+                        {
+                            "name": "cta_url",
+                            "buttonParamsJson": JSON.stringify({ display_text: "Developer 👑", url: `https://wa.me/${settings.ownerNumber[0]}` })
                         }
                     ]
                 })
