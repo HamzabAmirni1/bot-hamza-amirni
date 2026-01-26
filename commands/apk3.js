@@ -1,69 +1,71 @@
-const { fetchJson } = require('../lib/myfunc');
-const { sendWithChannelButton } = require('../lib/channelButton');
+const { generateWAMessageContent, generateWAMessageFromContent, proto } = require('@whiskeysockets/baileys');
 const settings = require('../settings');
+const { t } = require('../lib/language');
+const aptoide = require('../lib/aptoide');
 
 async function apk3Command(sock, chatId, msg, args, commands, userLang) {
     const query = args.join(' ').trim();
-    const message = msg;
-
     if (!query) {
-        const helpMsg = userLang === 'ma'
-            ? `📥 *تحميل تطبيقات APK (V3)* 📥\n\n🔹 *الاستخدام:*\n${settings.prefix}apk3 [اسم التطبيق]\n\n📝 *أمثلة:*\n• ${settings.prefix}apk3 Instagram\n\n⚔️ ${settings.botName}`
-            : userLang === 'ar'
-                ? `📥 *تحميل تطبيقات APK (V3)* 📥\n\n🔹 *الاستخدام:*\n${settings.prefix}apk3 [اسم التطبيق]\n\n⚔️ ${settings.botName}`
-                : `📥 *APK Downloader (V3)* 📥\n\n🔹 *Usage:*\n${settings.prefix}apk3 [App Name]\n\n⚔️ ${settings.botName}`;
-
-        return await sendWithChannelButton(sock, chatId, helpMsg, message);
+        return await sock.sendMessage(chatId, { text: `• *Example:* .apk3 Facebook` }, { quoted: msg });
     }
 
+    await sock.sendMessage(chatId, { react: { text: "🔍", key: msg.key } });
+
     try {
-        await sock.sendMessage(chatId, { react: { text: "⬇️", key: message.key } });
-
-        const searchMsg = userLang === 'ma'
-            ? `🔍 *كنقلب على "${query}" فالسيرفر التالت...*`
-            : userLang === 'ar'
-                ? `🔍 *جاري البحث عن "${query}" عبر السيرفر 3...*`
-                : `🔍 *Searching for "${query}" via Server 3...*`;
-        await sendWithChannelButton(sock, chatId, searchMsg, message);
-
-        const aptoide = require('../lib/aptoide');
-        const app = await aptoide.downloadInfo(query);
-
-        if (!app) {
-            await sock.sendMessage(chatId, { react: { text: "❌", key: message.key } });
-            return await sendWithChannelButton(sock, chatId, `❌ *No results found for "${query}".*`, message);
+        const results = await aptoide.search(query);
+        if (!results || results.length === 0) {
+            return await sock.sendMessage(chatId, { text: `❌ No apps found.` });
         }
 
-        const sizeMB = app.sizeMB;
-
-        // Large file warning (Limit 300MB)
-        if (parseFloat(sizeMB) > 300) {
-            await sock.sendMessage(chatId, { react: { text: "⚠️", key: message.key } });
-            const largeMsg = userLang === 'ma'
-                ? `⚠️ *التطبيق كبير بزاف (${sizeMB} MB). الحد هو 300MB.*`
-                : userLang === 'ar'
-                    ? `⚠️ *حجم التطبيق كبير جداً (${sizeMB} MB). الحد هو 300 ميجا.*`
-                    : `⚠️ *App too large (${sizeMB} MB). Limit is 300MB.*`;
-            return await sendWithChannelButton(sock, chatId, largeMsg, message);
+        async function createHeaderImage(url) {
+            try {
+                const { imageMessage } = await generateWAMessageContent({ image: { url } }, { upload: sock.waUploadToServer });
+                return imageMessage;
+            } catch (e) {
+                const fallback = 'https://ui-avatars.com/api/?name=APK&background=random&size=512';
+                const { imageMessage } = await generateWAMessageContent({ image: { url: fallback } }, { upload: sock.waUploadToServer });
+                return imageMessage;
+            }
         }
 
-        const caption = `🎮 *Name:* ${app.name}\n📦 *Size:* ${sizeMB} MB\n\n⏬ *Sending file...*\n⚔️ ${settings.botName}`;
+        let cards = [];
+        for (let app of results.slice(0, 8)) {
+            const imageMessage = await createHeaderImage(app.icon || 'https://ui-avatars.com/api/?name=APK&background=random&size=512');
+            cards.push({
+                body: proto.Message.InteractiveMessage.Body.fromObject({
+                    text: `🎮 *App:* ${app.name}\n📏 *Size:* ${app.size}\n🚀 *Fast Server 3*`
+                }),
+                footer: proto.Message.InteractiveMessage.Footer.fromObject({ text: `乂 ${settings.botName} 🧠` }),
+                header: proto.Message.InteractiveMessage.Header.fromObject({
+                    title: app.name,
+                    hasMediaAttachment: true,
+                    imageMessage
+                }),
+                nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
+                    buttons: [{ "name": "quick_reply", "buttonParamsJson": `{"display_text":"Download v3 ⬇️","id":".apk ${app.id}"}` }]
+                })
+            });
+        }
 
-        await sock.sendMessage(chatId, { react: { text: "⬆️", key: message.key } });
+        const botMsg = generateWAMessageFromContent(chatId, {
+            viewOnceMessage: {
+                message: {
+                    messageContextInfo: { deviceListMetadata: {}, deviceListMetadataVersion: 2 },
+                    interactiveMessage: proto.Message.InteractiveMessage.fromObject({
+                        body: proto.Message.InteractiveMessage.Body.create({ text: `📥 *APK Server 3*\n\nHigh speed downloads for: *${query}*` }),
+                        footer: proto.Message.InteractiveMessage.Footer.create({ text: `© ${settings.botName}` }),
+                        carouselMessage: proto.Message.InteractiveMessage.CarouselMessage.fromObject({ cards })
+                    })
+                }
+            }
+        }, { quoted: msg });
 
-        await sock.sendMessage(chatId, {
-            document: { url: app.downloadUrl },
-            fileName: `${app.name}.apk`,
-            mimetype: 'application/vnd.android.package-archive',
-            caption: caption
-        }, { quoted: message });
+        await sock.relayMessage(chatId, botMsg.message, { messageId: botMsg.key.id });
+        await sock.sendMessage(chatId, { react: { text: "✅", key: msg.key } });
 
-        await sock.sendMessage(chatId, { react: { text: "✅", key: message.key } });
-
-    } catch (error) {
-        console.error('Error in apk3 command:', error);
-        await sock.sendMessage(chatId, { react: { text: "❌", key: message.key } });
-        await sendWithChannelButton(sock, chatId, `❌ *Error in Server 3. Try .apk or .apk2.*`, message);
+    } catch (err) {
+        console.error('APK3 Error:', err);
+        await sock.sendMessage(chatId, { text: '❌ Server 3 Busy.' });
     }
 }
 

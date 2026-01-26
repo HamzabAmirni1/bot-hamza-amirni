@@ -1,238 +1,94 @@
-const { sendWithChannelButton } = require('../lib/channelButton');
-const axios = require('axios');
-const fs = require('fs');
-const path = require('path');
-const stream = require('stream');
-const { promisify } = require('util');
-const pipeline = promisify(stream.pipeline);
-const { t } = require('../lib/language');
+const { generateWAMessageContent, generateWAMessageFromContent, proto } = require('@whiskeysockets/baileys');
 const settings = require('../settings');
-const { canDownload, incrementDownload, DAILY_LIMIT } = require('../lib/apkLimiter');
-
-// APK storage per user
-const apkSessions = {};
-
+const { t } = require('../lib/language');
+const { canDownload, DAILY_LIMIT } = require('../lib/apkLimiter');
 const aptoide = require('../lib/aptoide');
 
-async function apk2Command(sock, chatId, msg, args, commands, userLang) { // Renamed from apkCommand
+async function apk2Command(sock, chatId, msg, args, commands, userLang) {
     const senderId = msg.key.participant || msg.key.remoteJid;
-    const message = msg; // For compatibility
-
-    // Check daily limit FIRST
-    const limitCheck = canDownload(senderId);
-    if (!limitCheck.allowed) {
-        const limitMsg = t('apk.limit_reached', { limit: DAILY_LIMIT, botName: settings.botName }, userLang);
-        return await sendWithChannelButton(sock, chatId, limitMsg, message);
-    }
-
     const text = args.join(' ').trim();
 
-    if (!text) {
-        await sendWithChannelButton(sock, chatId, `Usage: .apk2 [query]\n\n📊 *المتبقي اليوم:* ${limitCheck.remaining}/${DAILY_LIMIT}`, message);
-        return;
+    const limitCheck = canDownload(senderId);
+    if (!limitCheck.allowed) {
+        return await sock.sendMessage(chatId, { text: t('apk.limit_reached', { limit: DAILY_LIMIT }, userLang) }, { quoted: msg });
     }
 
-    // React with 🔍 at the start
-    await sock.sendMessage(chatId, { react: { text: "🔍", key: message.key } });
+    if (!text) {
+        return await sock.sendMessage(chatId, { text: `• *Example:* .apk2 WhatsApp` }, { quoted: msg });
+    }
 
-    // Check if user is selecting from previous search (Logic updated for apk2 context)
-    if (text.split('').length <= 2 && !isNaN(text) && apkSessions[senderId]) {
-        const session = apkSessions[senderId];
+    await sock.sendMessage(chatId, { react: { text: "⏳", key: msg.key } });
 
-        if (session.downloading) {
-            await sendWithChannelButton(sock, chatId, t('download.apk_downloading', {}, userLang), message);
-            return;
+    try {
+        const searchResults = await aptoide.search(text);
+        if (!searchResults || searchResults.length === 0) {
+            return await sock.sendMessage(chatId, { text: `❌ No results found for "${text}"` }, { quoted: msg });
         }
 
-        const selectedIndex = parseInt(text) - 1;
-        if (selectedIndex < 0 || selectedIndex >= session.data.length) {
-            await sendWithChannelButton(sock, chatId, t('download.apk_select_invalid', {}, userLang), message);
-            return;
+        async function createHeaderImage(url) {
+            try {
+                const { imageMessage } = await generateWAMessageContent({ image: { url } }, { upload: sock.waUploadToServer });
+                return imageMessage;
+            } catch (e) {
+                const fallback = 'https://ui-avatars.com/api/?name=APK&background=random&size=512';
+                const { imageMessage } = await generateWAMessageContent({ image: { url: fallback } }, { upload: sock.waUploadToServer });
+                return imageMessage;
+            }
         }
 
-        try {
-            session.downloading = true;
-            const selectedApp = session.data[selectedIndex];
+        let cards = [];
+        let i = 1;
+        for (let app of searchResults.slice(0, 10)) {
+            const imageMessage = await createHeaderImage(app.icon || 'https://ui-avatars.com/api/?name=APK&background=random&size=512');
+            
+            cards.push({
+                body: proto.Message.InteractiveMessage.Body.fromObject({
+                    text: `📦 *App:* ${app.name}\n📏 *Size:* ${app.size}\n🆔 *ID:* ${app.id}`
+                }),
+                footer: proto.Message.InteractiveMessage.Footer.fromObject({
+                    text: `乂 ${settings.botName} 🧠`
+                }),
+                header: proto.Message.InteractiveMessage.Header.fromObject({
+                    title: app.name,
+                    hasMediaAttachment: true,
+                    imageMessage
+                }),
+                nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
+                    buttons: [
+                        {
+                            "name": "quick_reply",
+                            "buttonParamsJson": `{"display_text":"Download Now 📥","id":".apk ${app.id}"}`
+                        }
+                    ]
+                })
+            });
+            i++;
+        }
 
-            const sizeMB = selectedApp.sizeMB;
-
-            // Hard limit 300MB
-            if (parseFloat(sizeMB) > 300) {
-                await sock.sendMessage(chatId, { react: { text: "⚠️", key: message.key } });
-                const largeMsg = t('apk.too_large', { size: sizeMB }, userLang);
-                return await sendWithChannelButton(sock, chatId, largeMsg, message);
-            }
-
-            const isLarge = parseFloat(sizeMB) > 100;
-
-            await sendWithChannelButton(sock, chatId, isLarge
-                ? t('download.apk_downloading_large', {}, userLang)
-                : t('download.apk_downloading', {}, userLang)
-                , message);
-
-            // Send app info image as preview
-            if (selectedApp.icon) {
-                const previewCaption = `${t('download.apk_uploading', {}, userLang)}\n\n📦 *App:* ${selectedApp.name}\n📏 *Size:* ${sizeMB} MB`;
-                await sock.sendMessage(chatId, {
-                    image: { url: selectedApp.icon },
-                    caption: previewCaption
-                }, { quoted: message });
-            }
-
-            const caption = t('download.apk_success_caption', {
-                name: selectedApp.name,
-                size: sizeMB + ' MB',
-                botName: settings.botName
-            }, userLang);
-
-            // Step 1: Try Direct URL (FASTEST)
-            try {
-                await sock.sendMessage(chatId, {
-                    document: { url: selectedApp.downloadUrl },
-                    fileName: `${selectedApp.name}.apk`,
-                    mimetype: 'application/vnd.android.package-archive',
-                    caption: caption
-                }, { quoted: message });
-
-                const remaining = incrementDownload(senderId);
-                const remainingMsg = t('apk.success', { remaining, limit: DAILY_LIMIT }, userLang);
-                await sock.sendMessage(chatId, { text: remainingMsg }, { quoted: message });
-                await sock.sendMessage(chatId, { react: { text: "✅", key: message.key } });
-                session.downloading = false;
-                return;
-            } catch (urlErr) {
-                console.log('[APK2] Direct URL failed, falling back to local download:', urlErr.message);
-            }
-
-            // Step 2: Local Download Fallback (SLOWER)
-            let tempPath;
-            try {
-                tempPath = await aptoide.downloadToFile(selectedApp.downloadUrl);
-
-                await sock.sendMessage(chatId, {
-                    document: { url: tempPath },
-                    fileName: `${selectedApp.name}.apk`,
-                    mimetype: 'application/vnd.android.package-archive',
-                    caption: caption
-                }, { quoted: message });
-
-                const remaining = incrementDownload(senderId);
-                const remainingMsg = t('apk.success', { remaining, limit: DAILY_LIMIT }, userLang);
-                await sock.sendMessage(chatId, { text: remainingMsg }, { quoted: message });
-                await sock.sendMessage(chatId, { react: { text: "✅", key: message.key } });
-
-                if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
-                session.downloading = false;
-            } catch (downloadError) {
-                if (tempPath && fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
-                throw downloadError;
-            }
-
-            // Clean up temp file after sending
-            if (fs.existsSync(tempPath)) {
-                fs.unlinkSync(tempPath);
-            }
-
-            session.downloading = false;
-
-        } catch (error) {
-            console.error('Error downloading APK:', error);
-
-            // Ensure cleanup even on error
-            if (tempPath && fs.existsSync(tempPath)) {
-                try {
-                    fs.unlinkSync(tempPath);
-                } catch (cleanupErr) {
-                    console.error('Failed to clean up temp file:', cleanupErr);
+        const menuMsg = generateWAMessageFromContent(chatId, {
+            viewOnceMessage: {
+                message: {
+                    messageContextInfo: { deviceListMetadata: {}, deviceListMetadataVersion: 2 },
+                    interactiveMessage: proto.Message.InteractiveMessage.fromObject({
+                        body: proto.Message.InteractiveMessage.Body.create({ text: `✨ *APK Downloader*\n\nResults for: *${text}*\nSwipe to explore apps...` }),
+                        footer: proto.Message.InteractiveMessage.Footer.create({ text: `© ${settings.botName} 2026` }),
+                        header: proto.Message.InteractiveMessage.Header.create({ hasMediaAttachment: false }),
+                        carouselMessage: proto.Message.InteractiveMessage.CarouselMessage.fromObject({ cards })
+                    })
                 }
             }
+        }, { quoted: msg });
 
-            let errorMsg = t('common.error', {}, userLang);
-            if (error.message.includes('large') || error.message.includes('150MB')) {
-                errorMsg = t('download.apk_error_large', {}, userLang);
-            } else if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
-                errorMsg = t('download.apk_error_timeout', {}, userLang);
-            }
+        await sock.relayMessage(chatId, menuMsg.message, { messageId: menuMsg.key.id });
+        await sock.sendMessage(chatId, { react: { text: "✅", key: msg.key } });
 
-            await sendWithChannelButton(sock, chatId, errorMsg, message);
-            session.downloading = false;
-        }
-
-    } else {
-        if (text.length < 2) {
-            await sock.sendMessage(chatId, { text: '❌ ' + t('common.error', {}, userLang) }, { quoted: message });
-            return;
-        }
-
-        await sendWithChannelButton(sock, chatId, t('download.apk_search_wait', {}, userLang), message);
-
-        try {
-            const searchResults = await aptoide.search(text);
-
-            if (!searchResults || searchResults.length === 0) {
-                await sock.sendMessage(chatId, {
-                    text: t('download.apk_search_no_result', { query: text }, userLang)
-                }, { quoted: message });
-                return;
-            }
-
-            // Limit to 10 results
-            const limitedResults = searchResults.slice(0, 10);
-
-            let resultText = t('download.apk_search_result_header', { query: text }, userLang);
-
-            limitedResults.forEach((app, index) => {
-                const item = t('download.apk_search_result_item', {
-                    index: index + 1,
-                    name: app.name,
-                    size: app.size,
-                    version: app.version
-                }, userLang);
-                resultText += item;
-                resultText += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
-            });
-
-            resultText += t('download.apk_search_footer', {}, userLang);
-            resultText += `\n\n⚔️ ${settings.botName}`;
-
-            await sendWithChannelButton(sock, chatId, resultText, message);
-
-            // Store session
-            apkSessions[senderId] = {
-                downloading: false,
-                data: limitedResults,
-                timestamp: Date.now()
-            };
-
-            // Auto cleanup after 1 hour
-            setTimeout(() => {
-                if (apkSessions[senderId]) delete apkSessions[senderId];
-            }, 3600000);
-
-        } catch (error) {
-            console.error('Error searching APK:', error);
-            await sendWithChannelButton(sock, chatId, t('common.error', {}, userLang), message);
-        }
+    } catch (error) {
+        console.error('Error in apk2 command:', error);
+        await sock.sendMessage(chatId, { text: '❌ Failed to search for apps.' }, { quoted: msg });
+        await sock.sendMessage(chatId, { react: { text: "❌", key: msg.key } });
     }
-}
-
-/**
- * Handles numeric selection without prefix
- */
-async function handleSession(sock, chatId, senderId, text, msg, userLang) {
-    if (!apkSessions[senderId]) return false;
-    if (isNaN(text) || text.length > 2) return false;
-
-    const selectedIndex = parseInt(text) - 1;
-    if (selectedIndex >= 0 && selectedIndex < apkSessions[senderId].data.length) {
-        // Trigger apk2Command with the number as an argument
-        await apk2Command(sock, chatId, msg, [text], null, userLang);
-        return true;
-    }
-    return false;
 }
 
 module.exports = {
-    execute: apk2Command,
-    handleSession
+    execute: apk2Command
 };
