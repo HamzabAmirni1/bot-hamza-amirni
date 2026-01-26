@@ -158,10 +158,9 @@ async function getOkatsuVideoByUrl(youtubeUrl) {
     throw new Error('Okatsu ytmp4 returned no mp4');
 }
 
-async function videoCommand(sock, chatId, msg, args, commands, userLang) {
+async function videoCommand(sock, chatId, msg, args, commands, userLang, match) {
     try {
-        const messageText = msg.text || msg.body || '';
-        const searchQuery = messageText.split(' ').slice(1).join(' ').trim();
+        const searchQuery = match || args.join(' ') || '';
 
         if (!searchQuery) {
             await sock.sendMessage(chatId, { text: t('video.usage', {}, userLang) }, { quoted: msg });

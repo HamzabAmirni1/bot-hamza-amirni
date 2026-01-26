@@ -11,18 +11,9 @@ async function instagramCommand(sock, chatId, message, args, commands, userLang)
         processedMessages.add(message.key.id);
         setTimeout(() => processedMessages.delete(message.key.id), 5 * 60 * 1000);
 
-        // ✅ Step 1: Get text from command message
-        let directText =
-            message.message?.conversation ||
-            message.message?.extendedTextMessage?.text ||
-            message.message?.imageMessage?.caption ||
-            message.message?.videoMessage?.caption ||
-            "";
-
-        // Remove ".ig" or ".instagram" prefix if command used
-        const args = directText.trim().split(" ").slice(1).join(" ");
-        let url = args.trim();
-
+        // ✅ Step 1: Use passed args
+        let url = args.join(' ').trim();
+ 
         // ✅ Step 2: If no args, fallback to quoted message text
         if (!url && message.message?.extendedTextMessage?.contextInfo?.quotedMessage) {
             const quoted = message.message.extendedTextMessage.contextInfo.quotedMessage;

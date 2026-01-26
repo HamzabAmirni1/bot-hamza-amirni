@@ -27,10 +27,8 @@ async function tiktokCommand(sock, chatId, message, args, commands, userLang) {
         processedMessages.add(message.key.id);
         setTimeout(() => processedMessages.delete(message.key.id), 5 * 60 * 1000);
 
-        // ✅ Step 1: Check direct message text (command args)
-        const directText = message.message?.conversation || message.message?.extendedTextMessage?.text || "";
-        const args = directText.trim().split(" ").slice(1).join(" "); // remove command itself
-        let url = args.trim();
+        // ✅ Step 1: Use passed args
+        let url = args.join(' ').trim();
 
         // ✅ Step 2: If no args, check quoted/replied message
         if (!url) {

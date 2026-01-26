@@ -8,8 +8,7 @@ const settings = require('../settings');
 
 async function facebookCommand(sock, chatId, msg, args, commands, userLang) {
     try {
-        const text = msg.message?.conversation || msg.message?.extendedTextMessage?.text || "";
-        const url = args && args[0] ? args[0] : text.split(' ').slice(1).join(' ').trim();
+        const url = args.join(' ').trim();
 
         if (!url) {
             return await sendWithChannelButton(sock, chatId, t('download.fb_usage', {}, userLang), msg);

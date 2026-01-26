@@ -7,7 +7,8 @@ const fs = require('fs');
 module.exports = async (sock, chatId, msg, args, commands, userLang) => {
     try {
         const botName = settings.botName || 'HAMZA AMIRNI';
-        const isArabic = userLang === 'ar' || userLang === 'ma';
+        const forcedLang = 'en'; // Force English for .menu
+        const isArabic = false;
         const prefix = settings.prefix;
 
         // 1. Define Category Mappings
@@ -81,31 +82,31 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
         };
 
         const catImages = {
-            'new': 'https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=1000&auto=format&fit=crop',
-            'religion': 'https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?q=80&w=1000&auto=format&fit=crop',
-            'download': 'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=1000&auto=format&fit=crop',
-            'ai': 'https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=1000&auto=format&fit=crop',
-            'group': 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=1000&auto=format&fit=crop',
-            'tools': 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=1000&auto=format&fit=crop',
-            'news': 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=1000&auto=format&fit=crop',
-            'daily': 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?q=80&w=1000&auto=format&fit=crop',
-            'fun': 'https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=1000&auto=format&fit=crop',
-            'games': 'https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?q=80&w=1000&auto=format&fit=crop',
-            'general': 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?q=80&w=1000&auto=format&fit=crop',
-            'owner': 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=1000&auto=format&fit=crop'
+            'new': path.join(process.cwd(), 'media/menu/bot_1.png'),
+            'religion': path.join(process.cwd(), 'media/menu/bot_2.png'),
+            'download': path.join(process.cwd(), 'media/menu/bot_3.png'),
+            'ai': path.join(process.cwd(), 'media/menu/bot_4.png'),
+            'group': path.join(process.cwd(), 'media/menu/bot_1.png'),
+            'tools': path.join(process.cwd(), 'media/menu/bot_2.png'),
+            'news': path.join(process.cwd(), 'media/menu/bot_3.png'),
+            'daily': path.join(process.cwd(), 'media/menu/bot_4.png'),
+            'fun': path.join(process.cwd(), 'media/menu/bot_1.png'),
+            'games': path.join(process.cwd(), 'media/menu/bot_2.png'),
+            'general': path.join(process.cwd(), 'media/menu/bot_3.png'),
+            'owner': path.join(process.cwd(), 'media/menu/bot_4.png')
         };
 
         const sections = ['new', 'religion', 'ai', 'download', 'tools', 'fun', 'games', 'group', 'news', 'daily', 'general', 'owner'];
 
-        async function createHeaderImage(url) {
+        async function createHeaderImage(imagePath) {
             try {
-                const { imageMessage } = await generateWAMessageContent({ image: { url } }, { upload: sock.waUploadToServer });
+                const { imageMessage } = await generateWAMessageContent({ image: fs.readFileSync(imagePath) }, { upload: sock.waUploadToServer });
                 return imageMessage;
             } catch (e) {
-                console.error(`Failed to load help image: ${url}. Error: ${e.message}`);
-                const fallbackUrl = 'https://raw.githubusercontent.com/Hamzaamirni01/bot-hamza-amirni-main/main/media/hamza.jpg';
+                console.error(`Failed to load help image: ${imagePath}. Error: ${e.message}`);
+                const fallbackPath = path.join(process.cwd(), 'media/hamza.jpg');
                 try {
-                    const { imageMessage } = await generateWAMessageContent({ image: { url: fallbackUrl } }, { upload: sock.waUploadToServer });
+                    const { imageMessage } = await generateWAMessageContent({ image: fs.readFileSync(fallbackPath) }, { upload: sock.waUploadToServer });
                     return imageMessage;
                 } catch (err) {
                     return null;
@@ -115,7 +116,7 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
 
         let cards = [];
         for (let section of sections) {
-            const title = t(`menu.categories.${section}`, {}, userLang);
+            const title = t(`menu.categories.${section}`, {}, forcedLang);
             const cmds = catMap[section];
             const icon = catIcons[section] || '🔹';
             const imageUrl = catImages[section] || 'https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=1000&auto=format&fit=crop';
