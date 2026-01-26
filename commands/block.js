@@ -34,11 +34,14 @@ async function blockCommand(sock, chatId, msg, args) {
             }, { quoted: msg });
         }
 
+        // Normalize target JID
+        const { jidNormalizedUser } = require('@whiskeysockets/baileys');
+        const targetJidNormalized = jidNormalizedUser(targetJid);
+        
         // Block the user
-        // Block the user
-        await sock.updateBlockStatus(targetJid, 'block');
+        await sock.updateBlockStatus(targetJidNormalized, 'block');
 
-        const blockedNumber = targetJid.replace('@s.whatsapp.net', '');
+        const blockedNumber = targetJidNormalized.split('@')[0];
 
         await sock.sendMessage(chatId, {
             text: t('moderation.block_success', { user: blockedNumber, botName: settings.botName })
