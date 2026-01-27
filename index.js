@@ -734,8 +734,14 @@ ${settings.portfolio}
 
                         // Block the caller ONLY if action is 'block'
                         if (isBlockMode) {
-                            await sock.updateBlockStatus(c.from, 'block');
-                            console.log(`📞 Rejected call from ${c.from}, sent warning, and blocked user`);
+                            const cleanCaller = sock.decodeJid(c.from);
+                            try {
+                                await sock.updateBlockStatus(cleanCaller, 'block');
+                                console.log(`📞 Rejected call from ${cleanCaller}, sent warning, and blocked user`);
+                            } catch (blockErr) {
+                                console.log(`⚠️ Failed to block user ${cleanCaller}: ${blockErr.message}`);
+                                // Don't crash, just log. LIDs often fail for block.
+                            }
                         } else {
                             console.log(`📞 Rejected call from ${c.from}, sent warning (No Block)`);
                         }
@@ -746,7 +752,8 @@ ${settings.portfolio}
                         try {
                             await sock.rejectCall(c.id, c.from);
                             if (state.action === 'block') {
-                                await sock.updateBlockStatus(c.from, 'block');
+                                const cleanCaller = sock.decodeJid(c.from);
+                                await sock.updateBlockStatus(cleanCaller, 'block').catch(() => { });
                             }
                         } catch (e) {
                             console.error('Failed to reject/block call:', e);
