@@ -16,7 +16,7 @@ async function qdlCommand(sock, chatId, msg, args, commands, userLang) {
     await sock.sendMessage(chatId, { react: { text: "⏳", key: msg.key } });
 
     try {
-        const response = await axios.get(`https://mp3quran.net/api/v3/reciters?language=ar&reciter=${reciterId}`, { timeout: 10000 });
+        const response = await axios.get(`https://mp3quran.net/api/v3/reciters?language=ar&reciter=${reciterId}`, { timeout: 30000 });
         const reciter = response.data.reciters[0];
 
         if (!reciter) throw new Error("Reciter not found");
