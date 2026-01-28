@@ -1,157 +1,121 @@
-const { sendWithChannelButton } = require('../lib/channelButton');
-const axios = require('axios');
-const { t } = require('../lib/language');
+const { generateWAMessageContent, generateWAMessageFromContent, proto } = require('@whiskeysockets/baileys');
 const settings = require('../settings');
-
 const { getSurahNumber } = require('../lib/quranUtils');
-const { setSession } = require('../lib/quranSession');
+const fs = require('fs');
+const path = require('path');
 
 async function quranCommand(sock, chatId, msg, args, commands, userLang) {
-    const { generateWAMessageContent, generateWAMessageFromContent, proto } = require('@whiskeysockets/baileys');
-    const fs = require('fs');
-    const path = require('path');
-
     // If user provides arguments (e.g. .quran fatiha), show format selection card
     if (args.length > 0) {
         const query = args.join(' ').trim();
         const surahId = getSurahNumber(query);
 
         if (surahId) {
+            // Show format selection card (Audio/Text/PDF)
             const { showSurahFormatCard } = require('./quranmp3');
             return showSurahFormatCard(sock, chatId, msg, surahId);
         }
     }
 
-    // --- Main Quran Carousel Menu ---
-    try {
-        const islamicImgPath = path.join(process.cwd(), 'media/menu/bot_2.png');
-        const islamicUrl = 'https://images.unsplash.com/photo-1542834759-42935210967a?q=80&w=1000&auto=format&fit=crop';
+    // Surahs List
+    const surahs = [
+        "1. الفاتحة", "2. البقرة", "3. آل عمران", "4. النساء", "5. المائدة", "6. الأنعام", "7. الأعراف", "8. الأنفال",
+        "9. التوبة", "10. يونس", "11. هود", "12. يوسف", "13. الرعد", "14. إبراهيم", "15. الحجر", "16. النحل",
+        "17. الإسراء", "18. الكهف", "19. مريم", "20. طه", "21. الأنبياء", "22. الحج", "23. المؤمنون", "24. النور",
+        "25. الفرقان", "26. الشعراء", "27. النمل", "28. القصص", "29. العنكبوت", "30. الروم", "31. لقمان", "32. السجدة",
+        "33. الأحزاب", "34. سبأ", "35. فاطر", "36. يس", "37. الصافات", "38. ص", "39. الزمر", "40. غافر",
+        "41. فصلت", "42. الشورى", "43. الزخرف", "44. الدخان", "45. الجاثية", "46. الأحقاف", "47. محمد", "48. الفتح",
+        "49. الحجرات", "50. ق", "51. الذاريات", "52. الطور", "53. النجم", "54. القمر", "55. الرحمن", "56. الواقعة",
+        "57. الحديد", "58. المجادلة", "59. الحشر", "60. الممتحنة", "61. الصف", "62. الجمعة", "63. المنافقون", "64. التغابن",
+        "65. الطلاق", "66. التحريم", "67. الملك", "68. القلم", "69. الحاقة", "70. المعارج", "71. نوح", "72. الجن",
+        "73. المزمل", "74. المدثر", "75. القيامة", "76. الإنسان", "77. المرسلات", "78. النبأ", "79. النازعات", "80. عبس",
+        "81. التكوير", "82. الانفطار", "83. المطففين", "84. الانشقاق", "85. البروج", "86. الطارق", "87. الأعلى", "88. الغاشية",
+        "89. الفجر", "90. البلد", "91. الشمس", "92. الليل", "93. الضحى", "94. الشرح", "95. التين", "96. العلق",
+        "97. القدر", "98. البينة", "99. الزلزلة", "100. العاديات", "101. القارعة", "102. التكاثر", "103. العصر", "104. الهمزة",
+        "105. الفيل", "106. قريش", "107. الماعون", "108. الكوثر", "109. الكافرون", "110. النصر", "111. المسد", "112. الإخلاص",
+        "113. الفلق", "114. الناس"
+    ];
 
+    try {
+        // Load image (Premium Mosque Photo)
         let imageMessage = null;
         try {
-            if (fs.existsSync(islamicImgPath)) {
-                const gen = await generateWAMessageContent({ image: fs.readFileSync(islamicImgPath) }, { upload: sock.waUploadToServer });
-                imageMessage = gen.imageMessage;
-            } else {
-                const gen = await generateWAMessageContent({ image: { url: islamicUrl } }, { upload: sock.waUploadToServer });
-                imageMessage = gen.imageMessage;
-            }
+            const islamicUrl = 'https://images.unsplash.com/photo-1542834759-42935210967a?q=80&w=1000&auto=format&fit=crop';
+            const gen = await generateWAMessageContent({ image: { url: islamicUrl } }, { upload: sock.waUploadToServer });
+            imageMessage = gen.imageMessage;
         } catch (e) { }
 
-        // Surahs List for the selector
-        const surahsList = [
-            "1. الفاتحة", "2. البقرة", "3. آل عمران", "4. النساء", "5. المائدة", "6. الأنعام", "7. الأعراف", "8. الأنفال",
-            "9. التوبة", "10. يونس", "11. هود", "12. يوسف", "13. الرعد", "14. إبراهيم", "15. الحجر", "16. النحل",
-            "17. الإسراء", "18. الكهف", "19. مريم", "20. طه", "21. الأنبياء", "22. الحج", "23. المؤمنون", "24. النور",
-            "25. الفرقان", "26. الشعراء", "27. النمل", "28. القصص", "29. العنكبوت", "30. الروم"
-        ];
-
+        // Prepare rows
         const createRows = (start, end) => {
-            return surahsList.slice(start, end).map((s, i) => ({
+            return surahs.slice(start, end).map((s, i) => ({
                 title: s,
                 id: `${settings.prefix}quran ${start + i + 1}`
             }));
         };
 
-        const listParams = {
-            title: "اضغط لاختيار السورة",
-            sections: [{
-                title: "أوائل السور (المجموعة الأولى)",
-                rows: createRows(0, 30)
-            }]
+        const listMessage = {
+            title: "اضغط هنا لاختيار السورة",
+            sections: [
+                {
+                    title: "من 1 إلى 30",
+                    rows: createRows(0, 30)
+                },
+                {
+                    title: "من 31 إلى 60",
+                    rows: createRows(30, 60)
+                },
+                {
+                    title: "من 61 إلى 90",
+                    rows: createRows(60, 90)
+                },
+                {
+                    title: "من 91 إلى 114",
+                    rows: createRows(90, 114)
+                }
+            ]
         };
 
-        const cards = [
-            {
-                body: proto.Message.InteractiveMessage.Body.fromObject({
-                    text: `🕌 *إختر السورة الكريمة*\n\nتصفح القرآن الكريم كاملاً وقرأ سوره العظيمة مع التلاوة.\n\n▫️ ${settings.prefix}quran [إسم السورة]`
-                }),
-                header: proto.Message.InteractiveMessage.Header.fromObject({
-                    title: "📖 تصفح القرآن",
-                    hasMediaAttachment: !!imageMessage,
-                    imageMessage: imageMessage
-                }),
-                nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
-                    buttons: [
-                        {
-                            "name": "single_select",
-                            "buttonParamsJson": JSON.stringify(listParams)
-                        },
-                        {
-                            "name": "cta_url",
-                            "buttonParamsJson": JSON.stringify({ display_text: "المطور 👑", url: `https://wa.me/${settings.ownerNumber[0]}` })
-                        }
-                    ]
-                })
-            },
-            {
-                body: proto.Message.InteractiveMessage.Body.fromObject({
-                    text: `🎧 *استماع لأفضل القراء*\n\nاستمع للقرآن الكريم بأصوات خاشعة لأشهر القراء في العالم الإسلامي.\n\n▫️ ${settings.prefix}quranmp3`
-                }),
-                header: proto.Message.InteractiveMessage.Header.fromObject({
-                    title: "🎧 أصوات القراء",
-                    hasMediaAttachment: !!imageMessage,
-                    imageMessage: imageMessage
-                }),
-                nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
-                    buttons: [
-                        {
-                            "name": "quick_reply",
-                            "buttonParamsJson": JSON.stringify({ display_text: "🕌 ذهاب للقراء", id: ".quranmp3" })
-                        },
-                        {
-                            "name": "cta_url",
-                            "buttonParamsJson": JSON.stringify({ display_text: "قناتي الرسمية 🔔", url: settings.officialChannel })
-                        }
-                    ]
-                })
-            },
-            {
-                body: proto.Message.InteractiveMessage.Body.fromObject({
-                    text: `✨ *آية اليوم*\n\nاستلهم الحكمة والسكينة مع آية مختارة عشوائياً من الذكر الحكيم.\n\n▫️ ${settings.prefix}qurancard`
-                }),
-                header: proto.Message.InteractiveMessage.Header.fromObject({
-                    title: "✨ تدبر الآية",
-                    hasMediaAttachment: !!imageMessage,
-                    imageMessage: imageMessage
-                }),
-                nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
-                    buttons: [
-                        {
-                            "name": "quick_reply",
-                            "buttonParamsJson": JSON.stringify({ display_text: "💡 آية اليوم", id: ".qurancard" })
-                        },
-                        {
-                            "name": "quick_reply",
-                            "buttonParamsJson": JSON.stringify({ display_text: "المطور 👑", id: ".owner" })
-                        }
-                    ]
-                })
-            }
-        ];
-
-        const menuMsg = generateWAMessageFromContent(chatId, {
+        const msgContent = generateWAMessageFromContent(chatId, {
             viewOnceMessage: {
                 message: {
                     messageContextInfo: { deviceListMetadata: {}, deviceListMetadataVersion: 2 },
                     interactiveMessage: proto.Message.InteractiveMessage.fromObject({
                         body: proto.Message.InteractiveMessage.Body.create({
-                            text: `👋 مرحباً بك في *قسم القرآن الكريم*\n\nاستمتع بتجربة إيمانية متكاملة تشمل القراءة والاستماع والتدبر.\n\n📌 اختر من القائمة الجانبية ما تفضل.`
+                            text: `🕌 *أهلاً بك في قسم القرآن الكريم*\n\nيرجى الضغط على الزر أسفله لاختيار السورة 👇`
                         }),
-                        footer: proto.Message.InteractiveMessage.Footer.create({ text: `乂 ${settings.botName}` }),
-                        carouselMessage: proto.Message.InteractiveMessage.CarouselMessage.fromObject({ cards })
+                        footer: proto.Message.InteractiveMessage.Footer.create({
+                            text: `乂 ${settings.botName}`
+                        }),
+                        header: proto.Message.InteractiveMessage.Header.create({
+                            title: "القرآن الكريم",
+                            subtitle: "القائمة الكاملة",
+                            hasMediaAttachment: !!imageMessage,
+                            imageMessage: imageMessage
+                        }),
+                        nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
+                            buttons: [
+                                {
+                                    "name": "single_select",
+                                    "buttonParamsJson": JSON.stringify(listMessage)
+                                },
+                                {
+                                    "name": "cta_url",
+                                    "buttonParamsJson": JSON.stringify({ display_text: "المطور 👑", url: `https://wa.me/${settings.ownerNumber[0]}` })
+                                }
+                            ]
+                        })
                     })
                 }
             }
         }, { quoted: msg });
 
-        await sock.relayMessage(chatId, menuMsg.message, { messageId: menuMsg.key.id });
-        await sock.sendMessage(chatId, { react: { text: "🕌", key: msg.key } });
+        await sock.relayMessage(chatId, msgContent.message, { messageId: msgContent.key.id });
 
     } catch (e) {
-        console.error("Error in Quran Carousel:", e);
-        await sock.sendMessage(chatId, { text: "❌ حدث خطأ في عرض القائمة." }, { quoted: msg });
+        console.error("Error sending quran list:", e);
+        await sock.sendMessage(chatId, { text: "❌ حدث خطأ في عرض القائمة." });
     }
 }
 
+quranCommand.command = ['quran', 'قرآن'];
 module.exports = quranCommand;
