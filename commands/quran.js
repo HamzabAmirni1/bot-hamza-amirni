@@ -32,8 +32,8 @@ async function quranCommand(sock, chatId, msg, args, commands, userLang) {
         "81. التكوير", "82. الانفطار", "83. المطففين", "84. الانشقاق", "85. البروج", "86. الطارق", "87. الأعلى", "88. الغاشية",
         "89. الفجر", "90. البلد", "91. الشمس", "92. الليل", "93. الضحى", "94. الشرح", "95. التين", "96. العلق",
         "97. القدر", "98. البينة", "99. الزلزلة", "100. العاديات", "101. القارعة", "102. التكاثر", "103. العصر", "104. الهمزة",
-        "105. الفيل", "106. قريش", "107. الماعون", "108. الكوثر", "109. الكافرون", "110. النصر", "111. المسد", "112. الإخلاص",
-        "113. الفلق", "114. الناس"
+        "105. الفيل", "106. قريش", "107. الماعون", "108. الكوثر", "110. النصر", "109. الكافرون",
+        "111. المسد", "112. الإخلاص", "113. الفلق", "114. الناس"
     ];
 
     try {
@@ -81,14 +81,17 @@ async function quranCommand(sock, chatId, msg, args, commands, userLang) {
                     messageContextInfo: { deviceListMetadata: {}, deviceListMetadataVersion: 2 },
                     interactiveMessage: proto.Message.InteractiveMessage.fromObject({
                         body: proto.Message.InteractiveMessage.Body.create({
-                            text: `🕌 *أهلاً بك في قسم القرآن الكريم*\n\nيرجى الضغط على الزر أسفله لاختيار السورة 👇`
+                            text: `✨ *🕌 قسم القرآن الكريم* ✨\n\n` +
+                                `مرحباً بك في تصفح القرآن الكريم.\n` +
+                                `▫️ إختر السورة من القائمة أدناه.\n` +
+                                `▫️ يمكنك الاستماع، القراءة، أو التحميل.\n\n` +
+                                `📍 اضغط على الزر لاختيار السورة 👇`
                         }),
                         footer: proto.Message.InteractiveMessage.Footer.create({
                             text: `乂 ${settings.botName}`
                         }),
                         header: proto.Message.InteractiveMessage.Header.create({
-                            title: "القرآن الكريم",
-                            subtitle: "القائمة الكاملة",
+                            title: "قائمة القرآن الكريم",
                             hasMediaAttachment: !!imageMessage,
                             imageMessage: imageMessage
                         }),
@@ -100,7 +103,19 @@ async function quranCommand(sock, chatId, msg, args, commands, userLang) {
                                 },
                                 {
                                     "name": "cta_url",
-                                    "buttonParamsJson": JSON.stringify({ display_text: "المطور 👑", url: `https://wa.me/${settings.ownerNumber[0]}` })
+                                    "buttonParamsJson": JSON.stringify({ display_text: "قناتي الرسمية 🔔", url: settings.officialChannel })
+                                },
+                                {
+                                    "name": "cta_url",
+                                    "buttonParamsJson": JSON.stringify({ display_text: "أنستغرام 📸", url: settings.instagram })
+                                },
+                                {
+                                    "name": "cta_url",
+                                    "buttonParamsJson": JSON.stringify({ display_text: "فيسبوك 📘", url: settings.facebookPage })
+                                },
+                                {
+                                    "name": "quick_reply",
+                                    "buttonParamsJson": JSON.stringify({ display_text: "المطور 👑", id: ".owner" })
                                 }
                             ]
                         })

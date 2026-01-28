@@ -1,6 +1,8 @@
+const { generateWAMessageFromContent, proto, generateWAMessageContent } = require('@whiskeysockets/baileys');
 const axios = require('axios');
+const path = require('path');
+const fs = require('fs');
 const settings = require('../settings');
-const { t } = require('../lib/language');
 
 /**
  * عرض قائمة السور لقارئ محدد
@@ -14,7 +16,6 @@ async function quranSurahCommand(sock, chatId, msg, args, commands, userLang) {
     try {
         const response = await axios.get(`https://mp3quran.net/api/v3/reciters?language=ar&reciter=${reciterId}`, { timeout: 10000 });
         const reciter = response.data.reciters[0];
-
         if (!reciter) throw new Error("Reciter not found");
 
         const surahList = reciter.moshaf[0].surah_list.split(',');
@@ -33,25 +34,57 @@ async function quranSurahCommand(sock, chatId, msg, args, commands, userLang) {
             "المسد", "الإخلاص", "الفلق", "الناس"
         ];
 
-        let text = `📖 *قائمة السور للقارئ: ${reciter.name}*\n\n`;
-        text += `💡 *للتحميل، اكتب:* .qdl ${reciterId} [رقم السورة]\n\n`;
+        // Header Image
+        let imageMessage = null;
+        try {
+            const islamicUrl = 'https://images.unsplash.com/photo-1542834759-42935210967a?q=80&w=1000&auto=format&fit=crop';
+            const gen = await generateWAMessageContent({ image: { url: islamicUrl } }, { upload: sock.waUploadToServer });
+            imageMessage = gen.imageMessage;
+        } catch (e) { }
 
-        // Create a formatted list (show 20 at a time or just tell them to use the number)
-        // For better UX, we can send a few common ones or just instructions.
+        const commonSurahIds = [1, 2, 18, 36, 55, 56, 67, 112, 113, 114];
+        const rows = commonSurahIds.filter(id => surahList.includes(id.toString())).map(id => ({
+            title: `${id}. ${surahNames[id - 1]}`,
+            id: `${settings.prefix}qdl ${reciterId} ${id.toString().padStart(3, '0')}`
+        }));
 
-        let sections = [];
-        const commonSurahs = [1, 2, 18, 36, 55, 56, 67, 112, 113, 114];
+        const listMessage = {
+            title: "اختر سورة شائعة",
+            sections: [{ title: "سور مختارة", rows }]
+        };
 
-        text += `✨ *سور شائعة:*\n`;
-        commonSurahs.forEach(id => {
-            if (surahList.includes(id.toString())) {
-                text += `• ${id}. ${surahNames[id - 1]} → \`.qdl ${reciterId} ${id}\`\n`;
+        const interactiveMsg = generateWAMessageFromContent(chatId, {
+            viewOnceMessage: {
+                message: {
+                    interactiveMessage: proto.Message.InteractiveMessage.fromObject({
+                        body: proto.Message.InteractiveMessage.Body.create({
+                            text: `✨ *🎙️ مكتبة القارئ: ${reciter.name}* ✨\n\n` +
+                                `يمكنك الاستماع وتحميل أي سورة متوفرة لهذا القارئ.\n` +
+                                `▫️ اختر من السور الشائعة أدناه.\n` +
+                                `▫️ أو اكتب: \`.qdl ${reciterId} [رقم السورة]\`\n\n` +
+                                `📍 تصفح السور المتاحة 👇`
+                        }),
+                        footer: proto.Message.InteractiveMessage.Footer.create({ text: `乂 ${settings.botName}` }),
+                        header: proto.Message.InteractiveMessage.Header.create({
+                            title: `قائمة سور ${reciter.name}`,
+                            hasMediaAttachment: !!imageMessage,
+                            imageMessage: imageMessage
+                        }),
+                        nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
+                            buttons: [
+                                { "name": "single_select", "buttonParamsJson": JSON.stringify(listMessage) },
+                                { "name": "cta_url", "buttonParamsJson": JSON.stringify({ display_text: "قناتي الرسمية 🔔", url: settings.officialChannel }) },
+                                { "name": "cta_url", "buttonParamsJson": JSON.stringify({ display_text: "أنستغرام 📸", url: settings.instagram }) },
+                                { "name": "cta_url", "buttonParamsJson": JSON.stringify({ display_text: "فيسبوك 📘", url: settings.facebookPage }) },
+                                { "name": "quick_reply", "buttonParamsJson": JSON.stringify({ display_text: "المطور 👑", id: ".owner" }) }
+                            ]
+                        })
+                    })
+                }
             }
-        });
+        }, { quoted: msg });
 
-        text += `\n🔢 *أو اختر أي سورة من 1 إلى 114*`;
-
-        await sock.sendMessage(chatId, { text }, { quoted: msg });
+        await sock.relayMessage(chatId, interactiveMsg.message, { messageId: interactiveMsg.key.id });
 
     } catch (e) {
         console.error('Error in quransurah:', e);

@@ -80,11 +80,15 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
                 message: {
                     interactiveMessage: proto.Message.InteractiveMessage.fromObject({
                         body: proto.Message.InteractiveMessage.Body.create({
-                            text: `✨ *"${text}"*\n\n🕋 *سورة:* ${surahName}\n🔢 *رقم الآية:* ${ayahNumber}\n\n📖 تدبر آيات الله وتأمل في معانيها الكريمة.`
+                            text: `✨ *📖 آية من ذكر الحكيم* ✨\n\n` +
+                                `💬 *الآية:* "${text}"\n\n` +
+                                `🕋 *سورة:* ${surahName}\n` +
+                                `🔢 *رقم الآية:* ${ayahNumber}\n\n` +
+                                `▫️ تدبر آيات الله وتأمل في معانيها الكريمة.`
                         }),
                         footer: proto.Message.InteractiveMessage.Footer.create({ text: `乂 ${settings.botName}` }),
                         header: proto.Message.InteractiveMessage.Header.create({
-                            title: `📖 آية من ذكر الحكيم`,
+                            title: `بطاقة آية اليوم`,
                             hasMediaAttachment: true,
                             imageMessage: genImage.imageMessage
                         }),
@@ -101,6 +105,14 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
                                 {
                                     "name": "cta_url",
                                     "buttonParamsJson": JSON.stringify({ display_text: "قناتي الرسمية 🔔", url: settings.officialChannel })
+                                },
+                                {
+                                    "name": "cta_url",
+                                    "buttonParamsJson": JSON.stringify({ display_text: "أنستغرام 📸", url: settings.instagram })
+                                },
+                                {
+                                    "name": "cta_url",
+                                    "buttonParamsJson": JSON.stringify({ display_text: "فيسبوك 📘", url: settings.facebookPage })
                                 },
                                 {
                                     "name": "quick_reply",

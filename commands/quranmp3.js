@@ -162,15 +162,21 @@ async function quranMp3Command(sock, chatId, msg, args, commands, userLang) {
             const buttons = [
                 ...primaryButtons,
                 { "name": "cta_url", "buttonParamsJson": JSON.stringify({ display_text: "قناتي الرسمية 🔔", url: settings.officialChannel }) },
+                { "name": "cta_url", "buttonParamsJson": JSON.stringify({ display_text: "أنستغرام 📸", url: settings.instagram }) },
+                { "name": "cta_url", "buttonParamsJson": JSON.stringify({ display_text: "فيسبوك 📘", url: settings.facebookPage }) },
                 { "name": "quick_reply", "buttonParamsJson": JSON.stringify({ display_text: "المطور 👑", id: ".owner" }) }
             ];
 
             return {
                 body: proto.Message.InteractiveMessage.Body.fromObject({
-                    text: `👤 *القارئ:* ${r.name}\n📖 *الرواية:* ${moshafName}\n🔢 *عدد السور:* ${r.moshaf[0]?.surah_total || '114'}\n\n✨ استمع الآن بأعلى جودة لمختلف القراء.`
+                    text: `✨ *🎙️ قسم القراء* ✨\n\n` +
+                        `👤 *القارئ:* ${r.name}\n` +
+                        `📖 *الرواية:* ${moshafName}\n` +
+                        `🔢 *عدد السور:* ${r.moshaf[0]?.surah_total || '114'}\n\n` +
+                        `▫️ استمتع بأجمل التلاوات الخاشعة.`
                 }),
                 header: proto.Message.InteractiveMessage.Header.fromObject({
-                    title: `🎙️ القارئ ${r.name}`,
+                    title: `قائمة ${r.name}`,
                     hasMediaAttachment: !!sharedImageMessage,
                     imageMessage: sharedImageMessage
                 }),
@@ -180,17 +186,24 @@ async function quranMp3Command(sock, chatId, msg, args, commands, userLang) {
 
         if (targetSurahId) {
             cards.push({
-                body: proto.Message.InteractiveMessage.Body.fromObject({ text: `🔍 *هل تبحث عن قارئ آخر؟*\n\nاضغط أدناه لعرض قائمة بجميع القراء المتوفرين.` }),
+                body: proto.Message.InteractiveMessage.Body.fromObject({
+                    text: `✨ *🔍 المزيد من الخيارات* ✨\n\n` +
+                        `تصفح جميع القراء المتاحين لهذه السورة.\n\n▫️ اختر القارئ المناسب لك.`
+                }),
                 header: proto.Message.InteractiveMessage.Header.fromObject({
-                    title: "🔍 المزيد من القراء",
+                    title: "قائمة البحث",
                     hasMediaAttachment: true,
                     imageMessage: sharedImageMessage
                 }),
                 nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
-                    buttons: [{
-                        "name": "quick_reply",
-                        "buttonParamsJson": JSON.stringify({ display_text: "📜 عرض كل القراء", id: `${settings.prefix}quranmp3 ${targetSurahId} --more` })
-                    }]
+                    buttons: [
+                        {
+                            "name": "quick_reply",
+                            "buttonParamsJson": JSON.stringify({ display_text: "📜 عرض كل القراء", id: `${settings.prefix}quranmp3 ${targetSurahId} --more` })
+                        },
+                        { "name": "cta_url", "buttonParamsJson": JSON.stringify({ display_text: "قناتي الرسمية 🔔", url: settings.officialChannel }) },
+                        { "name": "quick_reply", "buttonParamsJson": JSON.stringify({ display_text: "المطور 👑", id: ".owner" }) }
+                    ]
                 })
             });
         }
@@ -232,10 +245,15 @@ async function showSurahFormatCard(sock, chatId, msg, surahId) {
 
     const card = {
         body: proto.Message.InteractiveMessage.Body.fromObject({
-            text: `📖 *سورة ${sName}*\n\nيرجى اختيار الطريقة التي تود بها عرض السورة:\n\n🎧 *صوت:* استماع وتحميل\n📖 *قراءة:* نص السورة كاملاً\n📄 *ملف:* رابط مباشر للتحميل`
+            text: `✨ *🌟 سورة ${sName}* ✨\n\n` +
+                `اختر نوع العرض المناسب لك:\n` +
+                `🎧 *صوت:* استماع وتحميل بصوت القارئ.\n` +
+                `📖 *قراءة:* عرض نص السورة كاملاً.\n` +
+                `📄 *ملف:* رابط مباشر للتحميل من الموقع.\n\n` +
+                `📍 اختر من الأزرار أدناه 👇`
         }),
         header: proto.Message.InteractiveMessage.Header.fromObject({
-            title: `🌟 سورة ${sName}`,
+            title: `قائمة ${sName}`,
             hasMediaAttachment: !!imageMessage,
             imageMessage: imageMessage
         }),
@@ -245,6 +263,8 @@ async function showSurahFormatCard(sock, chatId, msg, surahId) {
                 { "name": "quick_reply", "buttonParamsJson": JSON.stringify({ display_text: "📖 قراءة (Text)", id: `${settings.prefix}quranread ${surahId}` }) },
                 { "name": "cta_url", "buttonParamsJson": JSON.stringify({ display_text: "📄 ملف (Site)", url: `https://quran.com/${surahId}` }) },
                 { "name": "cta_url", "buttonParamsJson": JSON.stringify({ display_text: "قناتي الرسمية 🔔", url: settings.officialChannel }) },
+                { "name": "cta_url", "buttonParamsJson": JSON.stringify({ display_text: "أنستغرام 📸", url: settings.instagram }) },
+                { "name": "cta_url", "buttonParamsJson": JSON.stringify({ display_text: "فيسبوك 📘", url: settings.facebookPage }) },
                 { "name": "quick_reply", "buttonParamsJson": JSON.stringify({ display_text: "المطور 👑", id: ".owner" }) }
             ]
         })
