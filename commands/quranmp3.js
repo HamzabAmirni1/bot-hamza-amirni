@@ -71,6 +71,17 @@ async function quranMp3Command(sock, chatId, msg, args, commands, userLang) {
             }
         }
 
+        // Helper for Image (Islamic Theme)
+        async function createHeaderImage() {
+            try {
+                // Use a beautiful Islamic photo instead of the robotic bot_2.png
+                const islamicUrl = 'https://images.unsplash.com/photo-1542834759-42935210967a?q=80&w=1000&auto=format&fit=crop';
+                const { imageMessage } = await generateWAMessageContent({ image: { url: islamicUrl } }, { upload: sock.waUploadToServer });
+                return imageMessage;
+            } catch (e) { return null; }
+        }
+        const sharedImageMessage = await createHeaderImage();
+
         // --- Handle List Request (Show ALL Reciters) ---
         if (isMoreRequest && targetSurahId) {
             // Sort reciters alphabetically
@@ -107,7 +118,8 @@ async function quranMp3Command(sock, chatId, msg, args, commands, userLang) {
                             header: proto.Message.InteractiveMessage.Header.create({
                                 title: "📜 قائمة القراء الكاملة",
                                 subtitle: "اختر القارئ",
-                                hasMediaAttachment: false
+                                hasMediaAttachment: !!sharedImageMessage, // Now using the Islamic photo
+                                imageMessage: sharedImageMessage
                             }),
                             listMessage: proto.Message.InteractiveMessage.ListMessage.fromObject({
                                 buttonText: "اضغط لاختيار القارئ",
@@ -142,21 +154,6 @@ async function quranMp3Command(sock, chatId, msg, args, commands, userLang) {
 
         // Limit for carousel
         const topReciters = reciters.slice(0, 10);
-
-        // Helper for Image
-        async function createHeaderImage() {
-            try {
-                const religionImagePath = path.join(process.cwd(), 'media/menu/bot_2.png');
-                if (fs.existsSync(religionImagePath)) {
-                    const { imageMessage } = await generateWAMessageContent({ image: fs.readFileSync(religionImagePath) }, { upload: sock.waUploadToServer });
-                    return imageMessage;
-                }
-                const imageUrl = 'https://images.unsplash.com/photo-1597933534024-161304f4407b?q=80&w=1000&auto=format&fit=crop';
-                const { imageMessage } = await generateWAMessageContent({ image: { url: imageUrl } }, { upload: sock.waUploadToServer });
-                return imageMessage;
-            } catch (e) { return null; }
-        }
-        const sharedImageMessage = await createHeaderImage();
 
         const cards = topReciters.map(r => {
             const moshafName = r.moshaf[0]?.name || "مصحف";
@@ -249,18 +246,12 @@ async function showSurahFormatCard(sock, chatId, msg, surahId) {
     const surahNameObj = surahList.find(s => s.number == parseInt(surahId));
     const surahName = surahNameObj ? surahNameObj.name : `Surah ${surahId}`;
 
-    // Get image from menu religion category if available
-    const religionImagePath = path.join(process.cwd(), 'media/menu/bot_2.png');
     let imageMessage = null;
     try {
-        if (fs.existsSync(religionImagePath)) {
-            const gen = await generateWAMessageContent({ image: fs.readFileSync(religionImagePath) }, { upload: sock.waUploadToServer });
-            imageMessage = gen.imageMessage;
-        } else {
-            const imageUrl = 'https://images.unsplash.com/photo-1609599006353-e629aaabfeae?q=80&w=1000&auto=format&fit=crop';
-            const gen = await generateWAMessageContent({ image: { url: imageUrl } }, { upload: sock.waUploadToServer });
-            imageMessage = gen.imageMessage;
-        }
+        // Use a beautiful Islamic photo for the format selection card
+        const islamicUrl = 'https://images.unsplash.com/photo-1542834759-42935210967a?q=80&w=1000&auto=format&fit=crop';
+        const gen = await generateWAMessageContent({ image: { url: islamicUrl } }, { upload: sock.waUploadToServer });
+        imageMessage = gen.imageMessage;
     } catch (e) { }
 
     // Single card with buttons

@@ -56,18 +56,12 @@ async function quranCommand(sock, chatId, msg, args, commands, userLang) {
     ];
 
     try {
-        // Load image (Same as menu religion icon)
-        const religionImagePath = path.join(process.cwd(), 'media/menu/bot_2.png');
         let imageMessage = null;
         try {
-            if (fs.existsSync(religionImagePath)) {
-                const gen = await generateWAMessageContent({ image: fs.readFileSync(religionImagePath) }, { upload: sock.waUploadToServer });
-                imageMessage = gen.imageMessage;
-            } else {
-                const imageUrl = 'https://images.unsplash.com/photo-1597933534024-161304f4407b?q=80&w=1000&auto=format&fit=crop';
-                const gen = await generateWAMessageContent({ image: { url: imageUrl } }, { upload: sock.waUploadToServer });
-                imageMessage = gen.imageMessage;
-            }
+            // Use a beautiful Islamic photo for the surah list header
+            const islamicUrl = 'https://images.unsplash.com/photo-1542834759-42935210967a?q=80&w=1000&auto=format&fit=crop';
+            const gen = await generateWAMessageContent({ image: { url: islamicUrl } }, { upload: sock.waUploadToServer });
+            imageMessage = gen.imageMessage;
         } catch (e) { }
 
         // Prepare rows without empty headers/descriptions
