@@ -1,5 +1,7 @@
 const { generateWAMessageFromContent, proto, generateWAMessageContent } = require('@whiskeysockets/baileys');
 const settings = require('../settings');
+const fs = require('fs');
+const path = require('path');
 
 async function quranSuraCommand(sock, chatId, msg, args, commands, userLang) {
     const surahId = args[0];
@@ -25,12 +27,18 @@ async function quranSuraCommand(sock, chatId, msg, args, commands, userLang) {
 
     const sName = surahNames[parseInt(surahId) - 1] || "سورة";
 
-    // Header Image (Unified Style)
-    const imageUrl = 'https://images.unsplash.com/photo-1609599006353-e629aaabfeae?q=80&w=1000&auto=format&fit=crop';
+    // Header Image (Unified Style - Religion Icon)
+    const religionImagePath = path.join(process.cwd(), 'media/menu/bot_2.png');
     let imageMessage = null;
     try {
-        const gen = await generateWAMessageContent({ image: { url: imageUrl } }, { upload: sock.waUploadToServer });
-        imageMessage = gen.imageMessage;
+        if (fs.existsSync(religionImagePath)) {
+            const gen = await generateWAMessageContent({ image: fs.readFileSync(religionImagePath) }, { upload: sock.waUploadToServer });
+            imageMessage = gen.imageMessage;
+        } else {
+            const imageUrl = 'https://images.unsplash.com/photo-1609599006353-e629aaabfeae?q=80&w=1000&auto=format&fit=crop';
+            const gen = await generateWAMessageContent({ image: { url: imageUrl } }, { upload: sock.waUploadToServer });
+            imageMessage = gen.imageMessage;
+        }
     } catch (e) { }
 
 

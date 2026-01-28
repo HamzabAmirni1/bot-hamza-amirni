@@ -19,7 +19,9 @@ async function quranCommand(sock, chatId, msg, args, commands, userLang) {
         }
     }
 
-    const { generateWAMessageFromContent, proto } = require('@whiskeysockets/baileys');
+    const { generateWAMessageContent, generateWAMessageFromContent, proto } = require('@whiskeysockets/baileys');
+    const fs = require('fs');
+    const path = require('path');
 
     // Surahs List
     const surahs = [
@@ -54,6 +56,20 @@ async function quranCommand(sock, chatId, msg, args, commands, userLang) {
     ];
 
     try {
+        // Load image (Same as menu religion icon)
+        const religionImagePath = path.join(process.cwd(), 'media/menu/bot_2.png');
+        let imageMessage = null;
+        try {
+            if (fs.existsSync(religionImagePath)) {
+                const gen = await generateWAMessageContent({ image: fs.readFileSync(religionImagePath) }, { upload: sock.waUploadToServer });
+                imageMessage = gen.imageMessage;
+            } else {
+                const imageUrl = 'https://images.unsplash.com/photo-1597933534024-161304f4407b?q=80&w=1000&auto=format&fit=crop';
+                const gen = await generateWAMessageContent({ image: { url: imageUrl } }, { upload: sock.waUploadToServer });
+                imageMessage = gen.imageMessage;
+            }
+        } catch (e) { }
+
         // Prepare rows without empty headers/descriptions
         const createRows = (start, end) => {
             return surahs.slice(start, end).map((s, i) => ({
@@ -107,7 +123,8 @@ async function quranCommand(sock, chatId, msg, args, commands, userLang) {
                         header: proto.Message.InteractiveMessage.Header.create({
                             title: "القرآن الكريم",
                             subtitle: "القائمة الكاملة",
-                            hasMediaAttachment: false
+                            hasMediaAttachment: !!imageMessage,
+                            imageMessage: imageMessage
                         }),
                         nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
                             buttons: [
