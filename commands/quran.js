@@ -42,48 +42,39 @@ async function quranCommand(sock, chatId, msg, args, commands, userLang) {
     ];
 
     try {
-        // Create List Sections
+        // Prepare rows without empty headers/descriptions
+        const createRows = (start, end) => {
+            return surahs.slice(start, end).map((s, i) => ({
+                title: s, // Only title is mandatory and safe
+                id: `${settings.prefix}quransura ${start + i + 1}`
+            }));
+        };
+
         const sections = [
             {
-                title: "📜 قائمة السور (1-30)",
-                rows: surahs.slice(0, 30).map((s, i) => ({
-                    header: "",
-                    title: s,
-                    description: "",
-                    id: `${settings.prefix}quransura ${i + 1}`
-                }))
+                title: "من 1 إلى 30",
+                highlight_label: "الأول",
+                rows: createRows(0, 30)
             },
             {
-                title: "📜 قائمة السور (31-60)",
-                rows: surahs.slice(30, 60).map((s, i) => ({
-                    header: "",
-                    title: s,
-                    description: "",
-                    id: `${settings.prefix}quransura ${i + 31}`
-                }))
+                title: "من 31 إلى 60",
+                highlight_label: "الثاني",
+                rows: createRows(30, 60)
             },
             {
-                title: "📜 قائمة السور (61-90)",
-                rows: surahs.slice(60, 90).map((s, i) => ({
-                    header: "",
-                    title: s,
-                    description: "",
-                    id: `${settings.prefix}quransura ${i + 61}`
-                }))
+                title: "من 61 إلى 90",
+                highlight_label: "الثالث",
+                rows: createRows(60, 90)
             },
             {
-                title: "📜 قائمة السور (91-114)",
-                rows: surahs.slice(90, 114).map((s, i) => ({
-                    header: "",
-                    title: s,
-                    description: "",
-                    id: `${settings.prefix}quransura ${i + 91}`
-                }))
+                title: "من 91 إلى 114",
+                highlight_label: "الرابع",
+                rows: createRows(90, 114)
             }
         ];
 
         const listMessage = {
-            title: "📖 *القرآن الكريم*",
+            title: "اضغط هنا لاختيار السورة",
             sections
         };
 
@@ -96,14 +87,14 @@ async function quranCommand(sock, chatId, msg, args, commands, userLang) {
                     },
                     interactiveMessage: proto.Message.InteractiveMessage.fromObject({
                         body: proto.Message.InteractiveMessage.Body.create({
-                            text: `🕌 *أهلاً بك في قسم القرآن الكريم*\n\nيرجى الضغط على الزر واختيار السورة من القائمة 👇`
+                            text: `🕌 *أهلاً بك في قسم القرآن الكريم*\n\nيرجى الضغط على الزر أسفله لاختيار السورة 👇`
                         }),
                         footer: proto.Message.InteractiveMessage.Footer.create({
                             text: `乂 ${settings.botName}`
                         }),
                         header: proto.Message.InteractiveMessage.Header.create({
                             title: "القرآن الكريم",
-                            subtitle: "قائمة السور",
+                            subtitle: "القائمة الكاملة",
                             hasMediaAttachment: false
                         }),
                         nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({

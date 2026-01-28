@@ -2,6 +2,7 @@ const axios = require('axios');
 const { generateWAMessageContent, generateWAMessageFromContent, proto } = require('@whiskeysockets/baileys');
 const settings = require('../settings');
 const { t } = require('../lib/language');
+const { getSurahNumber } = require('../lib/quranUtils');
 
 /**
  * قرآن MP3 - البحث عن القراء وعرضهم في بطاقات
@@ -16,30 +17,36 @@ async function quranMp3Command(sock, chatId, msg, args, commands, userLang) {
         const response = await axios.get('https://mp3quran.net/api/v3/reciters?language=ar', { timeout: 10000 });
         let reciters = response.data.reciters;
 
+        // Try to verify if the input is a Surah (Name or Number)
         let targetSurahId = null;
-        // Check if the first argument is a number (Surah ID passed from .quransura)
-        if (args[0] && !isNaN(args[0]) && parseInt(args[0]) > 0 && parseInt(args[0]) <= 114) {
-            targetSurahId = args[0];
-            // If query was just a number, reset it to empty so we show popular reciters 
-            // OR if user typed ".quranmp3 1 alafasy", we want to filter by "alafasy"
-            const remainingArgs = args.slice(1);
-            if (remainingArgs.length > 0) {
-                // Re-construct query without the number
-                const newQuery = remainingArgs.join(' ');
-                reciters = reciters.filter(r => r.name.toLowerCase().includes(newQuery.toLowerCase()));
-            } else {
-                // No name provided, show popular reciters
-                const popularNames = ['مشاري العفاسي', 'عبد الباسط عبد الصمد', 'ماهر المعيقلي', 'سعود الشريم', 'ياسر الدوسري', 'أحمد العجمي', 'سعد الغامدي', 'فارس عباد', 'منشاوي', 'الحصري'];
-                reciters = reciters.filter(r => popularNames.some(p => r.name.includes(p))).slice(0, 10);
+        let reciterQuery = "";
+
+        // Check if the full query resolves to a Surah ID directly (e.g. "fatiha", "1", "baqarah")
+        const directSurahId = getSurahNumber(query);
+
+        if (directSurahId) {
+            targetSurahId = directSurahId;
+            // If the whole query is a surah name, we show popular reciters (no reciter filter)
+        } else if (args.length > 1) {
+            // Maybe "quranmp3 fatiha suday" -> Surah: fatiha, Reciter: suday?
+            // Let's try first arg as surah
+            const firstArgSurahId = getSurahNumber(args[0]);
+            if (firstArgSurahId) {
+                targetSurahId = firstArgSurahId;
+                reciterQuery = args.slice(1).join(" ");
             }
+        }
+
+        // Filter Reciters
+        if (reciterQuery) {
+            reciters = reciters.filter(r => r.name.toLowerCase().includes(reciterQuery.toLowerCase()));
+        } else if (!targetSurahId && query) {
+            // If no surah found, assume the query is for a reciter
+            reciters = reciters.filter(r => r.name.toLowerCase().includes(query.toLowerCase()));
         } else {
-            if (query) {
-                reciters = reciters.filter(r => r.name.toLowerCase().includes(query.toLowerCase()));
-            } else {
-                // Show popular ones if no query
-                const popularNames = ['مشاري العفاسي', 'عبد الباسط عبد الصمد', 'ماهر المعيقلي', 'سعود الشريم', 'ياسر الدوسري', 'أحمد العجمي', 'سعد الغامدي', 'فارس عباد', 'منشاوي', 'الحصري'];
-                reciters = reciters.filter(r => popularNames.some(p => r.name.includes(p))).slice(0, 10);
-            }
+            // No reciter query (either popular list for specific surah, or generic list)
+            const popularNames = ['مشاري العفاسي', 'عبد الباسط عبد الصمد', 'ماهر المعيقلي', 'سعود الشريم', 'ياسر الدوسري', 'أحمد العجمي', 'سعد الغامدي', 'فارس عباد', 'منشاوي', 'الحصري'];
+            reciters = reciters.filter(r => popularNames.some(p => r.name.includes(p))).slice(0, 10);
         }
 
         if (!reciters || reciters.length === 0) {
