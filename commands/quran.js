@@ -7,137 +7,150 @@ const { getSurahNumber } = require('../lib/quranUtils');
 const { setSession } = require('../lib/quranSession');
 
 async function quranCommand(sock, chatId, msg, args, commands, userLang) {
+    const { generateWAMessageContent, generateWAMessageFromContent, proto } = require('@whiskeysockets/baileys');
+    const fs = require('fs');
+    const path = require('path');
+
     // If user provides arguments (e.g. .quran fatiha), show format selection card
     if (args.length > 0) {
         const query = args.join(' ').trim();
         const surahId = getSurahNumber(query);
 
         if (surahId) {
-            // Show format selection card (Audio/Text/PDF)
             const { showSurahFormatCard } = require('./quranmp3');
             return showSurahFormatCard(sock, chatId, msg, surahId);
         }
     }
 
-    const { generateWAMessageContent, generateWAMessageFromContent, proto } = require('@whiskeysockets/baileys');
-    const fs = require('fs');
-    const path = require('path');
-
-    // Surahs List
-    const surahs = [
-        "1. الفاتحة (Al-Fatiha)", "2. البقرة (Al-Baqarah)", "3. آل عمران (Al-Imran)", "4. النساء (An-Nisa)",
-        "5. المائدة (Al-Ma'idah)", "6. الأنعام (Al-An'am)", "7. الأعراف (Al-A'raf)", "8. الأنفال (Al-Anfal)",
-        "9. التوبة (At-Tawbah)", "10. يونس (Yunus)", "11. هود (Hud)", "12. يوسف (Yusuf)", "13. الرعد (Ar-Ra'd)",
-        "14. إبراهيم (Ibrahim)", "15. الحجر (Al-Hijr)", "16. النحل (An-Nahl)", "17. الإسراء (Al-Isra)",
-        "18. الكهف (Al-Kahf)", "19. مريم (Maryam)", "20. طه (Taha)", "21. الأنبياء (Al-Anbiya)",
-        "22. الحج (Al-Hajj)", "23. المؤمنون (Al-Mu'minun)", "24. النور (An-Nur)", "25. الفرقان (Al-Furqan)",
-        "26. الشعراء (Ash-Shu'ara)", "27. النمل (An-Naml)", "28. القصص (Al-Qasas)", "29. العنكبوت (Al-Ankabut)",
-        "30. الروم (Ar-Rum)", "31. لقمان (Luqman)", "32. السجدة (As-Sajdah)", "33. الأحزاب (Al-Ahzab)",
-        "34. سبأ (Saba)", "35. فاطر (Fatir)", "36. يس (Ya-Sin)", "37. الصافات (As-Saffat)", "38. ص (Sad)",
-        "39. الزمر (Az-Zumar)", "40. غافر (Ghafir)", "41. فصلت (Fussilat)", "42. الشورى (Ash-Shura)",
-        "43. الزخرف (Az-Zukhruf)", "44. الدخان (Ad-Dukhan)", "45. الجاثية (Al-Jathiya)", "46. الأحقاف (Al-Ahqaf)",
-        "47. محمد (Muhammad)", "48. الفتح (Al-Fath)", "49. الحجرات (Al-Hujurat)", "50. ق (Qaf)",
-        "51. الذاريات (Adh-Dhariyat)", "52. الطور (At-Tur)", "53. النجم (An-Najm)", "54. القمر (Al-Qamar)",
-        "55. الرحمن (Ar-Rahman)", "56. الواقعة (Al-Waqi'a)", "57. الحديد (Al-Hadid)", "58. المجادلة (Al-Mujadila)",
-        "59. الحشر (Al-Hashr)", "60. الممتحنة (Al-Mumtahana)", "61. الصف (As-Saff)", "62. الجمعة (Al-Jumu'a)",
-        "63. المنافقون (Al-Munafiqun)", "64. التغابن (At-Taghabun)", "65. الطلاق (At-Talaq)", "66. التحريم (At-Tahrim)",
-        "67. الملك (Al-Mulk)", "68. القلم (Al-Qalam)", "69. الحاقة (Al-Haqqah)", "70. المعارج (Al-Ma'arij)",
-        "71. نوح (Nuh)", "72. الجن (Al-Jinn)", "73. المزمل (Al-Muzzammil)", "74. المدثر (Al-Muddathir)",
-        "75. القيامة (Al-Qiyamah)", "76. الإنسان (Al-Insan)", "77. المرسلات (Al-Mursalat)", "78. النبأ (An-Naba')",
-        "79. النازعات (An-Nazi'at)", "80. عبس (Abasa)", "81. التكوير (At-Takwir)", "82. الانفطار (Al-Infitar)",
-        "83. المطففين (Al-Mutaffifin)", "84. الانشقاق (Al-Inshiqaq)", "85. البروج (Al-Buruj)", "86. الطارق (At-Tariq)",
-        "87. الأعلى (Al-A'la)", "88. الغاشية (Al-Ghashiyah)", "89. الفجر (Al-Fajr)", "90. البلد (Al-Balad)",
-        "91. الشمس (Ash-Shams)", "92. الليل (Al-Layl)", "93. الضحى (Ad-Duhaa)", "94. الشرح (Ash-Sharh)",
-        "95. التين (At-Tin)", "96. العلق (Al-Alaq)", "97. القدر (Al-Qadr)", "98. البينة (Al-Bayyinah)",
-        "99. الزلزلة (Az-Zalzalah)", "100. العاديات (Al-Adiyat)", "101. القارعة (Al-Qari'ah)", "102. التكاثر (At-Takathur)",
-        "103. العصر (Al-Asr)", "104. الهمزة (Al-Humazah)", "105. الفيل (Al-Fil)", "106. قريش (Quraysh)",
-        "107. الماعون (Al-Ma'un)", "108. الكوثر (Al-Kawthar)", "109. الكافرون (Al-Kafirun)", "110. النصر (An-Nasr)",
-        "111. المسد (Al-Masad)", "112. الإخلاص (Al-Ikhlas)", "113. الفلق (Al-Falaq)", "114. الناس (An-Nas)"
-    ];
-
+    // --- Main Quran Carousel Menu ---
     try {
+        const islamicImgPath = path.join(process.cwd(), 'media/menu/bot_2.png');
+        const islamicUrl = 'https://images.unsplash.com/photo-1542834759-42935210967a?q=80&w=1000&auto=format&fit=crop';
+
         let imageMessage = null;
         try {
-            // Use a beautiful Islamic photo for the surah list header
-            const islamicUrl = 'https://images.unsplash.com/photo-1542834759-42935210967a?q=80&w=1000&auto=format&fit=crop';
-            const gen = await generateWAMessageContent({ image: { url: islamicUrl } }, { upload: sock.waUploadToServer });
-            imageMessage = gen.imageMessage;
+            if (fs.existsSync(islamicImgPath)) {
+                const gen = await generateWAMessageContent({ image: fs.readFileSync(islamicImgPath) }, { upload: sock.waUploadToServer });
+                imageMessage = gen.imageMessage;
+            } else {
+                const gen = await generateWAMessageContent({ image: { url: islamicUrl } }, { upload: sock.waUploadToServer });
+                imageMessage = gen.imageMessage;
+            }
         } catch (e) { }
 
-        // Prepare rows without empty headers/descriptions
+        // Surahs List for the selector
+        const surahsList = [
+            "1. الفاتحة", "2. البقرة", "3. آل عمران", "4. النساء", "5. المائدة", "6. الأنعام", "7. الأعراف", "8. الأنفال",
+            "9. التوبة", "10. يونس", "11. هود", "12. يوسف", "13. الرعد", "14. إبراهيم", "15. الحجر", "16. النحل",
+            "17. الإسراء", "18. الكهف", "19. مريم", "20. طه", "21. الأنبياء", "22. الحج", "23. المؤمنون", "24. النور",
+            "25. الفرقان", "26. الشعراء", "27. النمل", "28. القصص", "29. العنكبوت", "30. الروم"
+        ];
+
         const createRows = (start, end) => {
-            return surahs.slice(start, end).map((s, i) => ({
-                title: s, // Only title is mandatory and safe
-                id: `${settings.prefix}quransura ${start + i + 1}`
+            return surahsList.slice(start, end).map((s, i) => ({
+                title: s,
+                id: `${settings.prefix}quran ${start + i + 1}`
             }));
         };
 
-        const sections = [
-            {
-                title: "من 1 إلى 30",
-                highlight_label: "الأول",
+        const listParams = {
+            title: "اضغط لاختيار السورة",
+            sections: [{
+                title: "أوائل السور (المجموعة الأولى)",
                 rows: createRows(0, 30)
+            }]
+        };
+
+        const cards = [
+            {
+                body: proto.Message.InteractiveMessage.Body.fromObject({
+                    text: `🕌 *إختر السورة الكريمة*\n\nتصفح القرآن الكريم كاملاً وقرأ سوره العظيمة مع التلاوة.\n\n▫️ ${settings.prefix}quran [إسم السورة]`
+                }),
+                header: proto.Message.InteractiveMessage.Header.fromObject({
+                    title: "📖 تصفح القرآن",
+                    hasMediaAttachment: !!imageMessage,
+                    imageMessage: imageMessage
+                }),
+                nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
+                    buttons: [
+                        {
+                            "name": "single_select",
+                            "buttonParamsJson": JSON.stringify(listParams)
+                        },
+                        {
+                            "name": "cta_url",
+                            "buttonParamsJson": JSON.stringify({ display_text: "المطور 👑", url: `https://wa.me/${settings.ownerNumber[0]}` })
+                        }
+                    ]
+                })
             },
             {
-                title: "من 31 إلى 60",
-                highlight_label: "الثاني",
-                rows: createRows(30, 60)
+                body: proto.Message.InteractiveMessage.Body.fromObject({
+                    text: `🎧 *استماع لأفضل القراء*\n\nاستمع للقرآن الكريم بأصوات خاشعة لأشهر القراء في العالم الإسلامي.\n\n▫️ ${settings.prefix}quranmp3`
+                }),
+                header: proto.Message.InteractiveMessage.Header.fromObject({
+                    title: "🎧 أصوات القراء",
+                    hasMediaAttachment: !!imageMessage,
+                    imageMessage: imageMessage
+                }),
+                nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
+                    buttons: [
+                        {
+                            "name": "quick_reply",
+                            "buttonParamsJson": JSON.stringify({ display_text: "🕌 ذهاب للقراء", id: ".quranmp3" })
+                        },
+                        {
+                            "name": "cta_url",
+                            "buttonParamsJson": JSON.stringify({ display_text: "قناتي الرسمية 🔔", url: settings.officialChannel })
+                        }
+                    ]
+                })
             },
             {
-                title: "من 61 إلى 90",
-                highlight_label: "الثالث",
-                rows: createRows(60, 90)
-            },
-            {
-                title: "من 91 إلى 114",
-                highlight_label: "الرابع",
-                rows: createRows(90, 114)
+                body: proto.Message.InteractiveMessage.Body.fromObject({
+                    text: `✨ *آية اليوم*\n\nاستلهم الحكمة والسكينة مع آية مختارة عشوائياً من الذكر الحكيم.\n\n▫️ ${settings.prefix}qurancard`
+                }),
+                header: proto.Message.InteractiveMessage.Header.fromObject({
+                    title: "✨ تدبر الآية",
+                    hasMediaAttachment: !!imageMessage,
+                    imageMessage: imageMessage
+                }),
+                nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
+                    buttons: [
+                        {
+                            "name": "quick_reply",
+                            "buttonParamsJson": JSON.stringify({ display_text: "💡 آية اليوم", id: ".qurancard" })
+                        },
+                        {
+                            "name": "quick_reply",
+                            "buttonParamsJson": JSON.stringify({ display_text: "المطور 👑", id: ".owner" })
+                        }
+                    ]
+                })
             }
         ];
 
-        const listMessage = {
-            title: "اضغط هنا لاختيار السورة",
-            sections
-        };
-
-        const msgContent = generateWAMessageFromContent(chatId, {
+        const menuMsg = generateWAMessageFromContent(chatId, {
             viewOnceMessage: {
                 message: {
-                    messageContextInfo: {
-                        deviceListMetadata: {},
-                        deviceListMetadataVersion: 2
-                    },
+                    messageContextInfo: { deviceListMetadata: {}, deviceListMetadataVersion: 2 },
                     interactiveMessage: proto.Message.InteractiveMessage.fromObject({
                         body: proto.Message.InteractiveMessage.Body.create({
-                            text: `🕌 *أهلاً بك في قسم القرآن الكريم*\n\nيرجى الضغط على الزر أسفله لاختيار السورة 👇`
+                            text: `👋 مرحباً بك في *قسم القرآن الكريم*\n\nاستمتع بتجربة إيمانية متكاملة تشمل القراءة والاستماع والتدبر.\n\n📌 اختر من القائمة الجانبية ما تفضل.`
                         }),
-                        footer: proto.Message.InteractiveMessage.Footer.create({
-                            text: `乂 ${settings.botName}`
-                        }),
-                        header: proto.Message.InteractiveMessage.Header.create({
-                            title: "القرآن الكريم",
-                            subtitle: "القائمة الكاملة",
-                            hasMediaAttachment: !!imageMessage,
-                            imageMessage: imageMessage
-                        }),
-                        nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
-                            buttons: [
-                                {
-                                    "name": "single_select",
-                                    "buttonParamsJson": JSON.stringify(listMessage)
-                                }
-                            ]
-                        })
+                        footer: proto.Message.InteractiveMessage.Footer.create({ text: `乂 ${settings.botName}` }),
+                        carouselMessage: proto.Message.InteractiveMessage.CarouselMessage.fromObject({ cards })
                     })
                 }
             }
         }, { quoted: msg });
 
-        await sock.relayMessage(chatId, msgContent.message, { messageId: msgContent.key.id });
+        await sock.relayMessage(chatId, menuMsg.message, { messageId: menuMsg.key.id });
+        await sock.sendMessage(chatId, { react: { text: "🕌", key: msg.key } });
 
     } catch (e) {
-        console.error("Error sending quran list:", e);
-        await sock.sendMessage(chatId, { text: "❌ حدث خطأ في عرض القائمة." });
+        console.error("Error in Quran Carousel:", e);
+        await sock.sendMessage(chatId, { text: "❌ حدث خطأ في عرض القائمة." }, { quoted: msg });
     }
 }
 
