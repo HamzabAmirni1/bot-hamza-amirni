@@ -130,10 +130,10 @@ async function quranMp3Command(sock, chatId, msg, args, commands, userLang) {
                         })
                     },
                     {
-                        "name": "quick_reply",
+                        "name": "cta_url",
                         "buttonParamsJson": JSON.stringify({
                             display_text: `📄 ملف (PDF)`,
-                            id: `${settings.prefix}quranpdf ${targetSurahId}`
+                            url: `https://quran.com/${targetSurahId}`
                         })
                     },
                     {
@@ -165,10 +165,10 @@ async function quranMp3Command(sock, chatId, msg, args, commands, userLang) {
             };
         });
 
-        const title = targetSurahId ? `🎧 *اختر القارئ لسورة ${targetSurahId}*` : "🕌 *قائمة القراء*";
         const botMsg = generateWAMessageFromContent(chatId, {
             viewOnceMessage: {
                 message: {
+                    messageContextInfo: { deviceListMetadata: {}, deviceListMetadataVersion: 2 },
                     interactiveMessage: proto.Message.InteractiveMessage.fromObject({
                         body: proto.Message.InteractiveMessage.Body.create({ text: title }),
                         footer: proto.Message.InteractiveMessage.Footer.create({ text: `乂 ${settings.botName}` }),
@@ -225,10 +225,10 @@ async function showSurahOptions(sock, chatId, msg, surahId) {
                     })
                 },
                 {
-                    "name": "quick_reply",
+                    "name": "cta_url",
                     "buttonParamsJson": JSON.stringify({
-                        display_text: "📄 ملف (File/PDF)",
-                        id: `${settings.prefix}quranpdf ${surahId}`
+                        display_text: "📄 ملف (Official Site)",
+                        url: `https://quran.com/${surahId}`
                     })
                 }
             ]
@@ -238,6 +238,7 @@ async function showSurahOptions(sock, chatId, msg, surahId) {
     const botMsg = generateWAMessageFromContent(chatId, {
         viewOnceMessage: {
             message: {
+                messageContextInfo: { deviceListMetadata: {}, deviceListMetadataVersion: 2 },
                 interactiveMessage: proto.Message.InteractiveMessage.fromObject({
                     body: proto.Message.InteractiveMessage.Body.create({ text: "✨ *خيارات العرض*" }),
                     footer: proto.Message.InteractiveMessage.Footer.create({ text: `乂 ${settings.botName}` }),

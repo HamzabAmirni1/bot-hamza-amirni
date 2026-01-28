@@ -71,10 +71,10 @@ async function quranSuraCommand(sock, chatId, msg, args, commands, userLang) {
                                 })
                             },
                             {
-                                "name": "quick_reply",
+                                "name": "cta_url",
                                 "buttonParamsJson": JSON.stringify({
-                                    display_text: "� ملف (File/PDF)",
-                                    id: `${settings.prefix}quranpdf ${surahId}`
+                                    display_text: "📄 ملف (Official Site)",
+                                    url: `https://quran.com/${surahId}`
                                 })
                             }
                         ]
