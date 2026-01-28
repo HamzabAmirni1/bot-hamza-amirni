@@ -1,5 +1,8 @@
 const axios = require('axios');
 const settings = require('../settings');
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
 
 /**
  * تحميل سورة قرآنية بصيغة MP3
@@ -46,27 +49,54 @@ async function qdlCommand(sock, chatId, msg, args, commands, userLang) {
 
         const sName = surahNames[parseInt(surahNumber) - 1] || "سورة";
 
-        // Delete loading message
+        // Download to Temp File
+        const tempDir = path.join(os.tmpdir(), 'bot-quran');
+        if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir);
+        const tempFile = path.join(tempDir, `quran_${Date.now()}.mp3`);
+
         try {
-            await sock.sendMessage(chatId, { delete: loadingMsg.key });
-        } catch (e) { }
+            const writer = fs.createWriteStream(tempFile);
+            const audioRes = await axios({
+                url: audioUrl,
+                method: 'GET',
+                responseType: 'stream',
+                timeout: 300000
+            });
 
-        await sock.sendMessage(chatId, {
-            audio: { url: audioUrl },
-            mimetype: 'audio/mpeg',
-            fileName: `${reciter.name} - ${sName}.mp3`,
-            ptt: false,
-            contextInfo: {
-                externalAdReply: {
-                    title: `📖 ${sName}`,
-                    body: `القارئ: ${reciter.name}`,
-                    mediaType: 2,
-                    thumbnailUrl: "https://telegra.ph/file/ed156b8207f2ef84fbf8d.jpg"
+            audioRes.data.pipe(writer);
+
+            await new Promise((resolve, reject) => {
+                writer.on('finish', resolve);
+                writer.on('error', reject);
+            });
+
+            // Delete loading message
+            try {
+                await sock.sendMessage(chatId, { delete: loadingMsg.key });
+            } catch (e) { }
+
+            await sock.sendMessage(chatId, {
+                audio: { url: tempFile },
+                mimetype: 'audio/mpeg',
+                fileName: `${reciter.name} - ${sName}.mp3`,
+                ptt: false,
+                contextInfo: {
+                    externalAdReply: {
+                        title: `📖 ${sName}`,
+                        body: `القارئ: ${reciter.name}`,
+                        mediaType: 2,
+                        thumbnailUrl: "https://telegra.ph/file/ed156b8207f2ef84fbf8d.jpg"
+                    }
                 }
-            }
-        }, { quoted: msg });
+            }, { quoted: msg });
 
-        await sock.sendMessage(chatId, { react: { text: "✅", key: msg.key } });
+            await sock.sendMessage(chatId, { react: { text: "✅", key: msg.key } });
+
+        } finally {
+            if (fs.existsSync(tempFile)) {
+                try { fs.unlinkSync(tempFile); } catch (e) { }
+            }
+        }
 
     } catch (e) {
         console.error('Error in qdl:', e);

@@ -146,6 +146,11 @@ async function quranMp3Command(sock, chatId, msg, args, commands, userLang) {
         // Helper for Image
         async function createHeaderImage() {
             try {
+                const religionImagePath = path.join(process.cwd(), 'media/menu/bot_2.png');
+                if (fs.existsSync(religionImagePath)) {
+                    const { imageMessage } = await generateWAMessageContent({ image: fs.readFileSync(religionImagePath) }, { upload: sock.waUploadToServer });
+                    return imageMessage;
+                }
                 const imageUrl = 'https://images.unsplash.com/photo-1597933534024-161304f4407b?q=80&w=1000&auto=format&fit=crop';
                 const { imageMessage } = await generateWAMessageContent({ image: { url: imageUrl } }, { upload: sock.waUploadToServer });
                 return imageMessage;
@@ -160,14 +165,14 @@ async function quranMp3Command(sock, chatId, msg, args, commands, userLang) {
                     {
                         "name": "quick_reply",
                         "buttonParamsJson": JSON.stringify({
-                            display_text: `🎧 تحميل MP3`,
+                            display_text: `🎧 استماع (MP3)`,
                             id: `${settings.prefix}qdl ${r.id} ${targetSurahId}`
                         })
                     },
                     {
                         "name": "cta_url",
                         "buttonParamsJson": JSON.stringify({
-                            display_text: `📄 ملف (PDF)`,
+                            display_text: `📖 قراءة (Site)`,
                             url: `https://quran.com/${targetSurahId}`
                         })
                     }
@@ -244,20 +249,27 @@ async function showSurahFormatCard(sock, chatId, msg, surahId) {
     const surahNameObj = surahList.find(s => s.number == parseInt(surahId));
     const surahName = surahNameObj ? surahNameObj.name : `Surah ${surahId}`;
 
-    const imageUrl = 'https://images.unsplash.com/photo-1609599006353-e629aaabfeae?q=80&w=1000&auto=format&fit=crop';
+    // Get image from menu religion category if available
+    const religionImagePath = path.join(process.cwd(), 'media/menu/bot_2.png');
     let imageMessage = null;
     try {
-        const gen = await generateWAMessageContent({ image: { url: imageUrl } }, { upload: sock.waUploadToServer });
-        imageMessage = gen.imageMessage;
+        if (fs.existsSync(religionImagePath)) {
+            const gen = await generateWAMessageContent({ image: fs.readFileSync(religionImagePath) }, { upload: sock.waUploadToServer });
+            imageMessage = gen.imageMessage;
+        } else {
+            const imageUrl = 'https://images.unsplash.com/photo-1609599006353-e629aaabfeae?q=80&w=1000&auto=format&fit=crop';
+            const gen = await generateWAMessageContent({ image: { url: imageUrl } }, { upload: sock.waUploadToServer });
+            imageMessage = gen.imageMessage;
+        }
     } catch (e) { }
 
-    // Single card with 3 buttons
+    // Single card with buttons
     const card = {
         body: proto.Message.InteractiveMessage.Body.fromObject({
-            text: `📖 *سورة ${surahName}*\n\nكيف تريد عرض هذه السورة؟\n\n🎧 *صوت:* استماع وتحميل (MP3)\n📖 *قراءة:* نص مكتوب\n📄 *ملف:* تحميل كملف (Document)`
+            text: `📖 *سورة ${surahName}*\n\nيرجى اختيار الطريقة التي تود بها عرض السورة:\n\n🎧 *صوت:* استماع وتحميل بصوت القارئ الذي تفضله\n📖 *قراءة:* عرض نص السورة كاملاً للقراءة\n📄 *ملف:* رابط مباشر للسورة من الموقع الرسمي`
         }),
         header: proto.Message.InteractiveMessage.Header.fromObject({
-            title: `سورة ${surahName}`,
+            title: `🌟 سورة ${surahName}`,
             hasMediaAttachment: !!imageMessage,
             imageMessage: imageMessage
         }),
@@ -283,6 +295,20 @@ async function showSurahFormatCard(sock, chatId, msg, surahId) {
                         display_text: "📄 ملف (Official Site)",
                         url: `https://quran.com/${surahId}`
                     })
+                },
+                {
+                    "name": "cta_url",
+                    "buttonParamsJson": JSON.stringify({
+                        display_text: "قناتي الرسمية 🔔",
+                        url: settings.officialChannel
+                    })
+                },
+                {
+                    "name": "quick_reply",
+                    "buttonParamsJson": JSON.stringify({
+                        display_text: "المطور 👑",
+                        id: ".owner"
+                    })
                 }
             ]
         })
@@ -293,7 +319,7 @@ async function showSurahFormatCard(sock, chatId, msg, surahId) {
             message: {
                 messageContextInfo: { deviceListMetadata: {}, deviceListMetadataVersion: 2 },
                 interactiveMessage: proto.Message.InteractiveMessage.fromObject({
-                    body: proto.Message.InteractiveMessage.Body.create({ text: "✨ *خيارات العرض*" }),
+                    body: proto.Message.InteractiveMessage.Body.create({ text: `🕌 *قسم القرآن الكريم*\n\nسورة ${surahName}` }),
                     footer: proto.Message.InteractiveMessage.Footer.create({ text: `乂 ${settings.botName}` }),
                     carouselMessage: proto.Message.InteractiveMessage.CarouselMessage.fromObject({ cards: [card] })
                 })
@@ -302,7 +328,7 @@ async function showSurahFormatCard(sock, chatId, msg, surahId) {
     }, { quoted: msg });
 
     await sock.relayMessage(chatId, botMsg.message, { messageId: botMsg.key.id });
-    await sock.sendMessage(chatId, { react: { text: "✨", key: msg.key } });
+    await sock.sendMessage(chatId, { react: { text: "❤️", key: msg.key } });
 }
 
 quranMp3Command.command = ['quranmp3', 'القرآن', 'قراء'];
