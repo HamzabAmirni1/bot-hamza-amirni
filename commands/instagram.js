@@ -3,8 +3,59 @@ const axios = require('axios');
 const { t } = require('../lib/language');
 const settings = require('../settings');
 
+const cheerio = require('cheerio');
+const { sendWithChannelButton } = require('../lib/channelButton');
+
 // Store processed message IDs to prevent duplicates
 const processedMessages = new Set();
+
+// 🆕 SnapDownloader Helper (User Suggested)
+const snapDownloader = async (u) => {
+    try {
+        let { data } = await axios.get(
+            `https://snapdownloader.com/tools/instagram-downloader/download?url=${u}`,
+            { timeout: 10000, headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' } }
+        );
+        let $ = cheerio.load(data);
+
+        const result = {
+            status: true,
+            data: []
+        };
+
+        // Check for video content
+        const videoItems = $(".download-item").filter((i, el) => {
+            return $(el).find(".type").text().trim().toLowerCase() === "video";
+        });
+
+        if (videoItems.length > 0) {
+            videoItems.find(".btn-download").each((i, el) => {
+                const url = $(el).attr("href");
+                if (url) result.data.push({ url, type: 'video' });
+            });
+        }
+
+        // Check for photo content
+        const photoLink = $(".profile-info .btn-download").attr("href");
+        if (photoLink) {
+            result.data.push({ url: photoLink, type: 'image' });
+        }
+
+        // General Fallback
+        if (result.data.length === 0) {
+            const anyDownloadLink = $("a.btn-download").attr("href");
+            if (anyDownloadLink) {
+                result.data.push({ url: anyDownloadLink, type: 'video' }); // Assume video/media
+            }
+        }
+
+        if (result.data.length === 0) return { status: false, msg: "No content found" };
+
+        return result;
+    } catch (e) {
+        return { status: false, msg: e.message };
+    }
+};
 
 const instagramDownload = async (url) => {
     return new Promise(async (resolve) => {
@@ -154,23 +205,33 @@ async function instagramCommand(sock, chatId, message, args, commands, userLang)
         } else {
             console.log("⚠️ Publer failed:", publerResult.msg);
 
-            // Fallback 1: ruhend-scraper
-            console.log("Trying ruhend-scraper...");
-            const ruhendData = await igdl(url).catch(() => null);
-            if (ruhendData?.data?.length) {
-                downloadData = ruhendData;
-                console.log("✅ ruhend-scraper Success");
+            // 🆕 Fallback 0.5: SnapDownloader (User Suggested)
+            console.log("Trying SnapDownloader...");
+            const snapData = await snapDownloader(url);
+            if (snapData.status && snapData.data.length > 0) {
+                downloadData = { data: snapData.data };
+                console.log("✅ SnapDownloader Success");
             } else {
-                // Fallback 2: Vreden API
-                console.log("Trying Vreden fallback...");
-                try {
-                    const vredenRes = await axios.get(`https://api.vreden.web.id/api/igdl?url=${encodeURIComponent(url)}`);
-                    if (vredenRes.data?.status && vredenRes.data.result?.length) {
-                        downloadData = { data: vredenRes.data.result.map(u => ({ url: u, type: u.includes('.mp4') ? 'video' : 'image' })) };
-                        console.log("✅ Vreden Success");
+                console.log("⚠️ SnapDownloader failed:", snapData.msg);
+
+                // Fallback 1: ruhend-scraper
+                console.log("Trying ruhend-scraper...");
+                const ruhendData = await igdl(url).catch(() => null);
+                if (ruhendData?.data?.length) {
+                    downloadData = ruhendData;
+                    console.log("✅ ruhend-scraper Success");
+                } else {
+                    // Fallback 2: Vreden API
+                    console.log("Trying Vreden fallback...");
+                    try {
+                        const vredenRes = await axios.get(`https://api.vreden.web.id/api/igdl?url=${encodeURIComponent(url)}`);
+                        if (vredenRes.data?.status && vredenRes.data.result?.length) {
+                            downloadData = { data: vredenRes.data.result.map(u => ({ url: u, type: u.includes('.mp4') ? 'video' : 'image' })) };
+                            console.log("✅ Vreden Success");
+                        }
+                    } catch (e) {
+                        console.error("Vreden fallback failed:", e.message);
                     }
-                } catch (e) {
-                    console.error("Vreden fallback failed:", e.message);
                 }
             }
         }
@@ -205,6 +266,7 @@ async function instagramCommand(sock, chatId, message, args, commands, userLang)
         }
 
         await sock.sendMessage(chatId, { react: { text: "✅", key: message.key } });
+
     } catch (error) {
         console.error("Error in Instagram command:", error);
         await sock.sendMessage(

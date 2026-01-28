@@ -67,6 +67,38 @@ async function getVideoFromFlyDev(url) {
     }
 }
 
+// 🆕 FSaver Helper (Another User Suggestion)
+async function getVideoFromFsaver(url) {
+    try {
+        const fetchUrl = `https://fsaver.net/download/?url=${url}`;
+        const headers = {
+            "Upgrade-Insecure-Requests": "1",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
+            "sec-ch-ua": '"Chromium";v="130", "Google Chrome";v="130", "Not?A_Brand";v="99"',
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": '"Windows"'
+        };
+
+        const response = await axios.get(fetchUrl, { headers, timeout: 10000 });
+        const html = response.data;
+
+        const $ = cheerio.load(html);
+        const videoSrc = $('.video__item').attr('src');
+
+        if (!videoSrc) return null;
+
+        // Ensure full URL
+        const finalUrl = videoSrc.startsWith('http') ? videoSrc : `https://fsaver.net${videoSrc}`;
+
+        return {
+            video: finalUrl,
+            title: "Facebook Video"
+        };
+    } catch (e) {
+        return null;
+    }
+}
+
 async function facebookCommand(sock, chatId, msg, args, commands, userLang) {
     try {
         const url = args.join(' ').trim();
@@ -96,6 +128,18 @@ async function facebookCommand(sock, chatId, msg, args, commands, userLang) {
             }
         } catch (e) {
             console.log('⚠️ FlyDev API failed, trying fallback...');
+        }
+
+        // 0.5 🆕 Try FSaver (User's secondary suggestion)
+        try {
+            const fsaverResult = await getVideoFromFsaver(url);
+            if (fsaverResult && fsaverResult.video) {
+                console.log('✅ Found video using FSaver');
+                await sendVideo(sock, chatId, fsaverResult.video, "FSaver", msg, userLang);
+                return;
+            }
+        } catch (e) {
+            console.log('⚠️ FSaver failed, trying fallback...');
         }
 
         // 1. Try InstaTiktok API (User Provided)
