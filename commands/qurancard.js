@@ -79,44 +79,31 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
             viewOnceMessage: {
                 message: {
                     interactiveMessage: proto.Message.InteractiveMessage.fromObject({
-                        body: proto.Message.InteractiveMessage.Body.create({
-                            text: `✨ *📖 آية من ذكر الحكيم* ✨\n\n` +
-                                `💬 *الآية:* "${text}"\n\n` +
-                                `🕋 *سورة:* ${surahName}\n` +
-                                `🔢 *رقم الآية:* ${ayahNumber}\n\n` +
-                                `▫️ تدبر آيات الله وتأمل في معانيها الكريمة.`
-                        }),
-                        footer: proto.Message.InteractiveMessage.Footer.create({ text: `乂 ${settings.botName}` }),
-                        header: proto.Message.InteractiveMessage.Header.create({
-                            title: `بطاقة آية اليوم`,
-                            hasMediaAttachment: true,
-                            imageMessage: genImage.imageMessage
-                        }),
+                        body: proto.Message.InteractiveMessage.Body.create({ text: `✨ *"${text}"*\n\n🕋 *سورة:* ${surahName}\n🔢 *الآية:* ${ayahNumber}` }),
+                        footer: proto.Message.InteractiveMessage.Footer.create({ text: `乂 ${settings.botName} | آية اليوم` }),
+                        header: proto.Message.InteractiveMessage.Header.create({ title: `📖 آية من ذكر الحكيم`, hasMediaAttachment: true, imageMessage: genImage.imageMessage }),
                         nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
                             buttons: [
                                 {
                                     "name": "quick_reply",
-                                    "buttonParamsJson": JSON.stringify({ display_text: "💡 آية أخرى", id: ".qurancard" })
-                                },
-                                {
-                                    "name": "cta_url",
-                                    "buttonParamsJson": JSON.stringify({ display_text: "📖 قراءة السورة", url: `https://quran.com/${data.surah.number}` })
-                                },
-                                {
-                                    "name": "cta_url",
-                                    "buttonParamsJson": JSON.stringify({ display_text: "قناتي الرسمية 🔔", url: settings.officialChannel })
-                                },
-                                {
-                                    "name": "cta_url",
-                                    "buttonParamsJson": JSON.stringify({ display_text: "أنستغرام 📸", url: settings.instagram })
-                                },
-                                {
-                                    "name": "cta_url",
-                                    "buttonParamsJson": JSON.stringify({ display_text: "فيسبوك 📘", url: settings.facebookPage })
+                                    "buttonParamsJson": JSON.stringify({
+                                        display_text: "💡 آية أخرى",
+                                        id: ".qurancard"
+                                    })
                                 },
                                 {
                                     "name": "quick_reply",
-                                    "buttonParamsJson": JSON.stringify({ display_text: "المطور 👑", id: ".owner" })
+                                    "buttonParamsJson": JSON.stringify({
+                                        display_text: "🕌 قائمة القراء",
+                                        id: ".quranmp3"
+                                    })
+                                },
+                                {
+                                    "name": "cta_url",
+                                    "buttonParamsJson": JSON.stringify({
+                                        display_text: "📖 قراءة السورة كاملة",
+                                        url: `https://quran.com/${data.surah.number}`
+                                    })
                                 }
                             ]
                         })

@@ -1,7 +1,5 @@
 const { generateWAMessageFromContent, proto, generateWAMessageContent } = require('@whiskeysockets/baileys');
 const settings = require('../settings');
-const fs = require('fs');
-const path = require('path');
 
 async function quranSuraCommand(sock, chatId, msg, args, commands, userLang) {
     const surahId = args[0];
@@ -27,11 +25,11 @@ async function quranSuraCommand(sock, chatId, msg, args, commands, userLang) {
 
     const sName = surahNames[parseInt(surahId) - 1] || "سورة";
 
-    // Header Image (Islamic Theme)
+    // Header Image (Unified Style)
+    const imageUrl = 'https://images.unsplash.com/photo-1609599006353-e629aaabfeae?q=80&w=1000&auto=format&fit=crop';
     let imageMessage = null;
     try {
-        const islamicUrl = 'https://images.unsplash.com/photo-1542834759-42935210967a?q=80&w=1000&auto=format&fit=crop';
-        const gen = await generateWAMessageContent({ image: { url: islamicUrl } }, { upload: sock.waUploadToServer });
+        const gen = await generateWAMessageContent({ image: { url: imageUrl } }, { upload: sock.waUploadToServer });
         imageMessage = gen.imageMessage;
     } catch (e) { }
 
@@ -39,30 +37,46 @@ async function quranSuraCommand(sock, chatId, msg, args, commands, userLang) {
     const msgContent = generateWAMessageFromContent(chatId, {
         viewOnceMessage: {
             message: {
+                messageContextInfo: {
+                    deviceListMetadata: {},
+                    deviceListMetadataVersion: 2
+                },
                 interactiveMessage: proto.Message.InteractiveMessage.fromObject({
                     body: proto.Message.InteractiveMessage.Body.create({
-                        text: `✨ *🌟 سورة ${sName}* ✨\n\n` +
-                            `اختر نوع العرض المناسب لك:\n` +
-                            `🎧 *صوت:* استماع وتحميل بصوت القارئ.\n` +
-                            `📖 *قراءة:* عرض نص السورة كاملاً.\n` +
-                            `📄 *ملف:* رابط مباشر للتحميل من الموقع.\n\n` +
-                            `📍 اختر من الأزرار أدناه 👇`
+                        text: `📖 *سورة ${sName}*\n\nكيف تريد عرض هذه السورة؟\n\n🎧 *صوت:* استماع وتحميل (MP3)\n📖 *قراءة:* نص مكتوب\n📄 *ملف:* تحميل كملف (Document)`
                     }),
-                    footer: proto.Message.InteractiveMessage.Footer.create({ text: `乂 ${settings.botName}` }),
+                    footer: proto.Message.InteractiveMessage.Footer.create({
+                        text: `乂 ${settings.botName}`
+                    }),
                     header: proto.Message.InteractiveMessage.Header.create({
-                        title: `قائمة ${sName}`,
+                        title: `📖 سورة ${sName}`,
+                        subtitle: "اختر نوع العرض",
                         hasMediaAttachment: !!imageMessage,
                         imageMessage: imageMessage
                     }),
                     nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
                         buttons: [
-                            { "name": "quick_reply", "buttonParamsJson": JSON.stringify({ display_text: "🎧 استماع (Audio)", id: `${settings.prefix}quranmp3 ${surahId} --audio` }) },
-                            { "name": "quick_reply", "buttonParamsJson": JSON.stringify({ display_text: "📖 قراءة (Text)", id: `${settings.prefix}quranread ${surahId}` }) },
-                            { "name": "cta_url", "buttonParamsJson": JSON.stringify({ display_text: "📄 ملف (Site)", url: `https://quran.com/${surahId}` }) },
-                            { "name": "cta_url", "buttonParamsJson": JSON.stringify({ display_text: "قناتي الرسمية 🔔", url: settings.officialChannel }) },
-                            { "name": "cta_url", "buttonParamsJson": JSON.stringify({ display_text: "أنستغرام 📸", url: settings.instagram }) },
-                            { "name": "cta_url", "buttonParamsJson": JSON.stringify({ display_text: "فيسبوك 📘", url: settings.facebookPage }) },
-                            { "name": "quick_reply", "buttonParamsJson": JSON.stringify({ display_text: "المطور 👑", id: ".owner" }) }
+                            {
+                                "name": "quick_reply",
+                                "buttonParamsJson": JSON.stringify({
+                                    display_text: "🎧 استماع (Audio)",
+                                    id: `${settings.prefix}quranmp3 ${surahId} --audio`
+                                })
+                            },
+                            {
+                                "name": "quick_reply",
+                                "buttonParamsJson": JSON.stringify({
+                                    display_text: "📖 قراءة (Text)",
+                                    id: `${settings.prefix}quranread ${surahId}`
+                                })
+                            },
+                            {
+                                "name": "cta_url",
+                                "buttonParamsJson": JSON.stringify({
+                                    display_text: "📄 ملف (Official Site)",
+                                    url: `https://quran.com/${surahId}`
+                                })
+                            }
                         ]
                     })
                 })
