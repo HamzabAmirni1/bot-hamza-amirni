@@ -98,6 +98,51 @@ async function facebookCommand(sock, chatId, msg, args, commands, userLang) {
             console.log('⚠️ GuruAPI failed...');
         }
 
+        // 4. Fallback: SnapSave API
+        try {
+            const apiUrl = `https://api.snapsave.app/v1/facebook?url=${encodeURIComponent(url)}`;
+            const response = await axios.get(apiUrl, {
+                timeout: 15000,
+                headers: { 'User-Agent': 'Mozilla/5.0' }
+            });
+
+            const data = response.data;
+            if (data && data.data) {
+                const fbvid = data.data.hd || data.data.sd || data.data.url;
+                if (fbvid) {
+                    console.log('✅ Found video using SnapSave API');
+                    await sendVideo(sock, chatId, fbvid, "SnapSave", msg, userLang);
+                    return;
+                }
+            }
+        } catch (e) {
+            console.log('⚠️ SnapSave API failed...');
+        }
+
+        // 5. Fallback: SaveFrom.net API
+        try {
+            const apiUrl = `https://api.savefrom.net/api/facebook?url=${encodeURIComponent(url)}`;
+            const response = await axios.get(apiUrl, {
+                timeout: 15000,
+                headers: {
+                    'User-Agent': 'Mozilla/5.0',
+                    'Accept': 'application/json'
+                }
+            });
+
+            const data = response.data;
+            if (data && data.url) {
+                const fbvid = Array.isArray(data.url) ? data.url[0]?.url || data.url[0] : data.url;
+                if (fbvid) {
+                    console.log('✅ Found video using SaveFrom API');
+                    await sendVideo(sock, chatId, fbvid, "SaveFrom", msg, userLang);
+                    return;
+                }
+            }
+        } catch (e) {
+            console.log('⚠️ SaveFrom API failed...');
+        }
+
         throw new Error('All APIs failed to fetch video');
 
     } catch (error) {
