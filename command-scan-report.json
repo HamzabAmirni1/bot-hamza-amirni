@@ -1,0 +1,1509 @@
+{
+  "working": [
+    {
+      "name": "fun\\compliment",
+      "file": "fun\\compliment.js",
+      "type": "function",
+      "size": 4098
+    },
+    {
+      "name": "fun\\fact",
+      "file": "fun\\fact.js",
+      "type": "function",
+      "size": 2524
+    },
+    {
+      "name": "fun\\insult",
+      "file": "fun\\insult.js",
+      "type": "function",
+      "size": 2755
+    },
+    {
+      "name": "fun\\quote",
+      "file": "fun\\quote.js",
+      "type": "function",
+      "size": 2238
+    },
+    {
+      "name": "fun\\ship",
+      "file": "fun\\ship.js",
+      "type": "function",
+      "size": 1207
+    },
+    {
+      "name": "fun\\topmembers",
+      "file": "fun\\topmembers.js",
+      "type": "function",
+      "size": 2104
+    },
+    {
+      "name": "group\\staff",
+      "file": "group\\staff.js",
+      "type": "function",
+      "size": 1653
+    },
+    {
+      "name": "group\\warnings",
+      "file": "group\\warnings.js",
+      "type": "function",
+      "size": 853
+    },
+    {
+      "name": "info\\reportbug",
+      "file": "info\\reportbug.js",
+      "type": "function",
+      "size": 1384
+    },
+    {
+      "name": "tools\\hazf-sawt",
+      "file": "tools\\hazf-sawt.js",
+      "type": "function",
+      "size": 93
+    },
+    {
+      "name": "tools\\readviewonce",
+      "file": "tools\\readviewonce.js",
+      "type": "function",
+      "size": 974
+    },
+    {
+      "name": "tools\\vocalremover",
+      "file": "tools\\vocalremover.js",
+      "type": "function",
+      "size": 3653
+    }
+  ],
+  "broken": [
+    {
+      "name": "ai\\ai-enhance",
+      "file": "ai\\ai-enhance.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\ai\\ai-enhance.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "ai\\ai-image",
+      "file": "ai\\ai-image.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\ai\\ai-image.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "ai\\ai-img-edit",
+      "file": "ai\\ai-img-edit.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\ai\\ai-img-edit.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "ai\\ai",
+      "file": "ai\\ai.js",
+      "reason": "Cannot find module '../settings'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\ai\\ai.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "ai\\aiart",
+      "file": "ai\\aiart.js",
+      "reason": "Cannot find module '@whiskeysockets/baileys'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\ai\\aiart.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "ai\\aicheck",
+      "file": "ai\\aicheck.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\ai\\aicheck.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "ai\\banana-ai",
+      "file": "ai\\banana-ai.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\ai\\banana-ai.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "ai\\banana",
+      "file": "ai\\banana.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\ai\\banana-ai.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\ai\\banana.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "ai\\brat-vd",
+      "file": "ai\\brat-vd.js",
+      "reason": "Cannot find module '../lib/language'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\ai\\brat-vd.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "ai\\character",
+      "file": "ai\\character.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\ai\\character.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "ai\\continue",
+      "file": "ai\\continue.js",
+      "reason": "Cannot find module '../lib/quranSession'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\ai\\continue.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "ai\\deepseek",
+      "file": "ai\\deepseek.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\ai\\deepseek.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "ai\\gemini-analyze",
+      "file": "ai\\gemini-analyze.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\ai\\gemini-analyze.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "ai\\gemini",
+      "file": "ai\\gemini.js",
+      "reason": "Cannot find module '../settings'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\ai\\gemini.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "ai\\genai",
+      "file": "ai\\genai.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\ai\\genai.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "ai\\ghibli-art",
+      "file": "ai\\ghibli-art.js",
+      "reason": "Cannot find module './ghibli'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\ai\\ghibli-art.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "ai\\gpt",
+      "file": "ai\\gpt.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\ai\\gpt.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "ai\\imagine",
+      "file": "ai\\imagine.js",
+      "reason": "Cannot find module '../settings'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\ai\\imagine.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "ai\\img2video",
+      "file": "ai\\img2video.js",
+      "reason": "Cannot find module '@whiskeysockets/baileys'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\ai\\img2video.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "ai\\miramuse",
+      "file": "ai\\miramuse.js",
+      "reason": "Cannot find module '../lib/miraMuseAI'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\ai\\miramuse.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "ai\\musicgen",
+      "file": "ai\\musicgen.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\ai\\musicgen.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "ai\\nanobanana",
+      "file": "ai\\nanobanana.js",
+      "reason": "Cannot find module '@whiskeysockets/baileys'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\ai\\nanobanana.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "ai\\qwen",
+      "file": "ai\\qwen.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\ai\\qwen.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "ai\\veo-prompt",
+      "file": "ai\\veo-prompt.js",
+      "reason": "Cannot find module '../lib/geminiService'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\ai\\veo3-prompt.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\ai\\veo-prompt.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "ai\\veo3-prompt",
+      "file": "ai\\veo3-prompt.js",
+      "reason": "Cannot find module '../lib/geminiService'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\ai\\veo3-prompt.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "ai\\waterai",
+      "file": "ai\\waterai.js",
+      "reason": "Cannot find module '../lib/waterBot'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\ai\\waterbot.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\ai\\waterai.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "ai\\waterbot",
+      "file": "ai\\waterbot.js",
+      "reason": "Cannot find module '../lib/waterBot'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\ai\\waterbot.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "ai\\winkvideo",
+      "file": "ai\\winkvideo.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\ai\\winkvideo.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "fun\\4kwallpaper",
+      "file": "fun\\4kwallpaper.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\fun\\4kwallpaper.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "fun\\areact",
+      "file": "fun\\areact.js",
+      "reason": "Cannot find module '../lib/reactions'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\fun\\areact.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "fun\\cat",
+      "file": "fun\\cat.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\fun\\cat.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "fun\\dog",
+      "file": "fun\\dog.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\fun\\dog.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "fun\\eightball",
+      "file": "fun\\eightball.js",
+      "reason": "Cannot find module '../settings'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\fun\\eightball.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "fun\\flirt",
+      "file": "fun\\flirt.js",
+      "reason": "Cannot find module '../settings'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\fun\\flirt.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "fun\\ghibli",
+      "file": "fun\\ghibli.js",
+      "reason": "Cannot find module '../lib/dailyApi'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\fun\\ghibli.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "fun\\goodnight",
+      "file": "fun\\goodnight.js",
+      "reason": "Cannot find module 'node-fetch'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\fun\\goodnight.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "fun\\joke",
+      "file": "fun\\joke.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\fun\\joke.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "fun\\love",
+      "file": "fun\\love.js",
+      "reason": "Cannot find module '../settings'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\fun\\love.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "fun\\meme",
+      "file": "fun\\meme.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\fun\\meme.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "fun\\ngl",
+      "file": "fun\\ngl.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\fun\\ngl.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "fun\\rate",
+      "file": "fun\\rate.js",
+      "reason": "Cannot find module '../settings'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\fun\\rate.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "fun\\simp",
+      "file": "fun\\simp.js",
+      "reason": "Cannot find module 'node-fetch'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\fun\\simp.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "fun\\stupid",
+      "file": "fun\\stupid.js",
+      "reason": "Cannot find module 'jimp'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\fun\\stupid.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "fun\\top",
+      "file": "fun\\top.js",
+      "reason": "Cannot find module '../lib/leveling'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\fun\\top.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "fun\\wasted",
+      "file": "fun\\wasted.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\fun\\wasted.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "game\\blackjack",
+      "file": "game\\blackjack.js",
+      "reason": "Cannot find module '../lib/leveling'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\game\\blackjack.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "game\\daily",
+      "file": "game\\daily.js",
+      "reason": "Cannot find module '../lib/leveling'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\game\\daily.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "game\\dare",
+      "file": "game\\dare.js",
+      "reason": "Cannot find module 'node-fetch'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\game\\dare.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "game\\emojigame",
+      "file": "game\\emojigame.js",
+      "reason": "Cannot find module '../settings'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\game\\emojigame.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "game\\emojimix",
+      "file": "game\\emojimix.js",
+      "reason": "Cannot find module 'node-fetch'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\game\\emojimix.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "game\\football",
+      "file": "game\\football.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\game\\football.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "game\\gamble",
+      "file": "game\\gamble.js",
+      "reason": "Cannot find module '../lib/leveling'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\game\\gamble.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "game\\guess",
+      "file": "game\\guess.js",
+      "reason": "Cannot find module '../settings'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\game\\guess.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "game\\guesswho",
+      "file": "game\\guesswho.js",
+      "reason": "Cannot find module '../settings'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\game\\guesswho.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "game\\hangman",
+      "file": "game\\hangman.js",
+      "reason": "Cannot find module '../settings'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\game\\hangman.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "game\\kalimat",
+      "file": "game\\kalimat.js",
+      "reason": "Cannot find module './lyrics'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\game\\kalimat.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "game\\math",
+      "file": "game\\math.js",
+      "reason": "Cannot find module '../settings'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\game\\math.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "game\\menugame",
+      "file": "game\\menugame.js",
+      "reason": "Cannot find module '../settings'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\game\\menugame.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "game\\quiz",
+      "file": "game\\quiz.js",
+      "reason": "Cannot find module '../settings'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\game\\quiz.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "game\\riddle",
+      "file": "game\\riddle.js",
+      "reason": "Cannot find module '../settings'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\game\\riddle.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "game\\rps",
+      "file": "game\\rps.js",
+      "reason": "Cannot find module '../settings'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\game\\rps.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "game\\scramble",
+      "file": "game\\scramble.js",
+      "reason": "Cannot find module '../settings'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\game\\scramble.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "game\\shop",
+      "file": "game\\shop.js",
+      "reason": "Cannot find module '../lib/leveling'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\game\\shop.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "game\\slots",
+      "file": "game\\slots.js",
+      "reason": "Cannot find module '../lib/leveling'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\game\\slots.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "game\\tictactoe",
+      "file": "game\\tictactoe.js",
+      "reason": "Cannot find module '../lib/tictactoe'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\game\\tictactoe.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "game\\trivia",
+      "file": "game\\trivia.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\game\\trivia.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "game\\truefalse",
+      "file": "game\\truefalse.js",
+      "reason": "Cannot find module '../settings'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\game\\truefalse.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "game\\truth",
+      "file": "game\\truth.js",
+      "reason": "Cannot find module 'node-fetch'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\game\\truth.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "game\\werewolf",
+      "file": "game\\werewolf.js",
+      "reason": "Cannot find module '../lib/werewolf'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\game\\werewolf.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "group\\admin",
+      "file": "group\\admin.js",
+      "reason": "Cannot find module '../lib/botAdmins'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\group\\admin.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "group\\antibadword",
+      "file": "group\\antibadword.js",
+      "reason": "Cannot find module '../lib/antibadword'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\group\\antibadword.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "group\\anticall",
+      "file": "group\\anticall.js",
+      "reason": "Cannot find module '../lib/channelButton'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\group\\anticall.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "group\\antidelete",
+      "file": "group\\antidelete.js",
+      "reason": "Cannot find module '@whiskeysockets/baileys'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\group\\antidelete.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "group\\antigroupcall",
+      "file": "group\\antigroupcall.js",
+      "reason": "Cannot find module '../lib/antiGroupCall'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\group\\antigroupcall.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "group\\antilink",
+      "file": "group\\antilink.js",
+      "reason": "Cannot find module '../lib/index'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\group\\antilink.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "group\\autoread",
+      "file": "group\\autoread.js",
+      "reason": "Cannot find module '../settings'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\group\\autoread.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "group\\autoreminder",
+      "file": "group\\autoreminder.js",
+      "reason": "Cannot find module '../lib/channelButton'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\group\\autoreminder.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "group\\autostatus",
+      "file": "group\\autostatus.js",
+      "reason": "Cannot find module '../settings.js'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\group\\autostatus.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "group\\autowelcome",
+      "file": "group\\autowelcome.js",
+      "reason": "Cannot find module '../lib/channelButton'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\group\\autowelcome.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "group\\close",
+      "file": "group\\close.js",
+      "reason": "Cannot find module '../lib/isAdmin'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\group\\close.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "group\\delete",
+      "file": "group\\delete.js",
+      "reason": "Cannot find module '../lib/isAdmin'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\group\\delete.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "group\\demote",
+      "file": "group\\demote.js",
+      "reason": "Cannot find module '../lib/isAdmin'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\group\\demote.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "group\\ghosttag",
+      "file": "group\\ghosttag.js",
+      "reason": "Cannot find module '@whiskeysockets/baileys'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\group\\ghosttag.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "group\\goodbye",
+      "file": "group\\goodbye.js",
+      "reason": "Cannot find module '../lib/welcome'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\group\\goodbye.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "group\\groupinfo",
+      "file": "group\\groupinfo.js",
+      "reason": "Cannot find module '../lib/language'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\group\\groupinfo.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "group\\hidetag",
+      "file": "group\\hidetag.js",
+      "reason": "Cannot find module '../lib/language'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\group\\hidetag.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "group\\kick",
+      "file": "group\\kick.js",
+      "reason": "Cannot find module '../lib/isAdmin'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\group\\kick.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "group\\listadmin",
+      "file": "group\\listadmin.js",
+      "reason": "Cannot find module '../lib/sudoers'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\group\\listadmin.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "group\\mute",
+      "file": "group\\mute.js",
+      "reason": "Cannot find module '../lib/isAdmin'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\group\\mute.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "group\\open",
+      "file": "group\\open.js",
+      "reason": "Cannot find module '../lib/isAdmin'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\group\\open.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "group\\pmblocker",
+      "file": "group\\pmblocker.js",
+      "reason": "Cannot find module '../lib/channelButton'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\group\\pmblocker.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "group\\promote",
+      "file": "group\\promote.js",
+      "reason": "Cannot find module '../lib/isAdmin'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\group\\promote.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "group\\schedule",
+      "file": "group\\schedule.js",
+      "reason": "Cannot find module '../lib/groupScheduler'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\group\\schedule.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "group\\setpp",
+      "file": "group\\setpp.js",
+      "reason": "Cannot find module '@whiskeysockets/baileys'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\group\\setpp.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "group\\tag",
+      "file": "group\\tag.js",
+      "reason": "Cannot find module '../lib/isAdmin'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\group\\tag.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "group\\tagall",
+      "file": "group\\tagall.js",
+      "reason": "Cannot find module '../lib/language'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\group\\tagall.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "group\\unmute",
+      "file": "group\\unmute.js",
+      "reason": "Cannot find module '../lib/language'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\group\\unmute.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "group\\warn",
+      "file": "group\\warn.js",
+      "reason": "Cannot find module '../lib/isAdmin'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\group\\warn.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "group\\welcome",
+      "file": "group\\welcome.js",
+      "reason": "Cannot find module '../lib/welcome'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\group\\welcome.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "info\\akhbar",
+      "file": "info\\akhbar.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\info\\news.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\info\\akhbar.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "info\\alive",
+      "file": "info\\alive.js",
+      "reason": "Cannot find module '../settings'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\info\\alive.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "info\\allmenu",
+      "file": "info\\allmenu.js",
+      "reason": "Cannot find module '../settings'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\info\\allmenu.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "info\\book",
+      "file": "info\\book.js",
+      "reason": "Cannot find module '../lib/channelButton'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\info\\book.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "info\\car",
+      "file": "info\\car.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\info\\car.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "info\\currency",
+      "file": "info\\currency.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\info\\currency.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "info\\devmsg",
+      "file": "info\\devmsg.js",
+      "reason": "Cannot find module '../lib/channelButton'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\info\\devmsg.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "info\\film",
+      "file": "info\\film.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\info\\movie.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\info\\film.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "info\\help",
+      "file": "info\\help.js",
+      "reason": "Cannot find module '../settings'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\info\\help.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "info\\imdb",
+      "file": "info\\imdb.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\info\\imdb.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "info\\kora",
+      "file": "info\\kora.js",
+      "reason": "Cannot find module './football'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\info\\kora.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "info\\menuu",
+      "file": "info\\menuu.js",
+      "reason": "Cannot find module '../lib/language'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\info\\menuu.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "info\\mnews",
+      "file": "info\\mnews.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\info\\mnews.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "info\\movie",
+      "file": "info\\movie.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\info\\movie.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "info\\mubashir",
+      "file": "info\\mubashir.js",
+      "reason": "Cannot find module './live'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\info\\mubashir.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "info\\newmenu",
+      "file": "info\\newmenu.js",
+      "reason": "Cannot find module '../lib/language'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\info\\newmenu.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "info\\news",
+      "file": "info\\news.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\info\\news.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "info\\owner",
+      "file": "info\\owner.js",
+      "reason": "Cannot find module '../lib/channelButton'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\info\\owner.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "info\\profile",
+      "file": "info\\profile.js",
+      "reason": "Cannot find module '../lib/leveling'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\info\\profile.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "info\\recipe",
+      "file": "info\\recipe.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\info\\recipe.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "info\\sarf",
+      "file": "info\\sarf.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\info\\currency.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\info\\sarf.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "info\\sayara",
+      "file": "info\\sayara.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\info\\car.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\info\\sayara.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "info\\script",
+      "file": "info\\script.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\info\\script.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "info\\taqes",
+      "file": "info\\taqes.js",
+      "reason": "Cannot find module './weather'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\info\\taqes.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "info\\wasfa",
+      "file": "info\\wasfa.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\info\\recipe.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\info\\wasfa.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "islamic\\ad3iya",
+      "file": "islamic\\ad3iya.js",
+      "reason": "Cannot find module '../lib/channelButton'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\islamic\\ad3iya.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "islamic\\adhan",
+      "file": "islamic\\adhan.js",
+      "reason": "Cannot find module '../lib/channelButton'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\islamic\\adhan.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "islamic\\asmaa",
+      "file": "islamic\\asmaa.js",
+      "reason": "Cannot find module '../lib/channelButton'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\islamic\\asmaa.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "islamic\\athan",
+      "file": "islamic\\athan.js",
+      "reason": "Cannot find module '../lib/channelButton'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\islamic\\adhan.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\islamic\\athan.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "islamic\\ayah",
+      "file": "islamic\\ayah.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\islamic\\ayah.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "islamic\\azkar",
+      "file": "islamic\\azkar.js",
+      "reason": "Cannot find module '../lib/channelButton'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\islamic\\azkar.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "islamic\\deen",
+      "file": "islamic\\deen.js",
+      "reason": "Cannot find module '../lib/channelButton'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\islamic\\deen.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "islamic\\deenquiz",
+      "file": "islamic\\deenquiz.js",
+      "reason": "Cannot find module '../settings'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\islamic\\deenquiz.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "islamic\\dua",
+      "file": "islamic\\dua.js",
+      "reason": "Cannot find module '../lib/channelButton'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\islamic\\dua.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "islamic\\hadith",
+      "file": "islamic\\hadith.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\islamic\\hadith.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "islamic\\kitab",
+      "file": "islamic\\kitab.js",
+      "reason": "Cannot find module './book'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\islamic\\kitab.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "islamic\\prayertimes",
+      "file": "islamic\\prayertimes.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\islamic\\prayertimes.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "islamic\\qibla",
+      "file": "islamic\\qibla.js",
+      "reason": "Cannot find module '../lib/channelButton'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\islamic\\qibla.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "islamic\\quran",
+      "file": "islamic\\quran.js",
+      "reason": "Cannot find module '../lib/channelButton'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\islamic\\quran.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "islamic\\qurancard",
+      "file": "islamic\\qurancard.js",
+      "reason": "Cannot find module '@whiskeysockets/baileys'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\islamic\\qurancard.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "islamic\\quranmp3",
+      "file": "islamic\\quranmp3.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\islamic\\quranmp3.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "islamic\\quranpdf",
+      "file": "islamic\\quranpdf.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\islamic\\quranpdf.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "islamic\\quranread",
+      "file": "islamic\\quranread.js",
+      "reason": "Cannot find module '../lib/channelButton'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\islamic\\quranread.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "islamic\\quransura",
+      "file": "islamic\\quransura.js",
+      "reason": "Cannot find module '@whiskeysockets/baileys'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\islamic\\quransura.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "islamic\\quransurah",
+      "file": "islamic\\quransurah.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\islamic\\quransurah.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "islamic\\salat",
+      "file": "islamic\\salat.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\islamic\\salat.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "islamic\\surah",
+      "file": "islamic\\surah.js",
+      "reason": "Cannot find module '../lib/channelButton'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\islamic\\quran.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\islamic\\surah.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "islamic\\tafsir",
+      "file": "islamic\\tafsir.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\islamic\\tafsir.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "islamic\\tahlil-soura",
+      "file": "islamic\\tahlil-soura.js",
+      "reason": "Cannot find module './checkimage'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\islamic\\tahlil-soura.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "owner\\addsudo",
+      "file": "owner\\addsudo.js",
+      "reason": "Cannot find module '../lib/sudoers'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\owner\\addsudo.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "owner\\backup",
+      "file": "owner\\backup.js",
+      "reason": "Cannot find module 'adm-zip'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\owner\\backup.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "owner\\ban",
+      "file": "owner\\ban.js",
+      "reason": "Cannot find module '../lib/messageConfig'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\owner\\ban.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "owner\\block",
+      "file": "owner\\block.js",
+      "reason": "Cannot find module '../lib/channelButton'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\owner\\block.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "owner\\clear",
+      "file": "owner\\clear.js",
+      "reason": "Cannot find module '../lib/language'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\owner\\clear.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "owner\\clearsession",
+      "file": "owner\\clearsession.js",
+      "reason": "Cannot find module '../settings'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\owner\\clearsession.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "owner\\cleartmp",
+      "file": "owner\\cleartmp.js",
+      "reason": "Cannot find module '../lib/language'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\owner\\cleartmp.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "owner\\delsudo",
+      "file": "owner\\delsudo.js",
+      "reason": "Cannot find module '../lib/sudoers'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\owner\\delsudo.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "owner\\mode",
+      "file": "owner\\mode.js",
+      "reason": "Cannot find module '../settings'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\owner\\mode.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "owner\\resetlink",
+      "file": "owner\\resetlink.js",
+      "reason": "Cannot find module '../lib/language'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\owner\\resetlink.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "owner\\setlang",
+      "file": "owner\\setlang.js",
+      "reason": "Cannot find module '../lib/language'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\owner\\setlang.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "owner\\sudo",
+      "file": "owner\\sudo.js",
+      "reason": "Cannot find module '../settings'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\owner\\sudo.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "owner\\system",
+      "file": "owner\\system.js",
+      "reason": "Cannot find module '../settings'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\owner\\system.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "owner\\unban",
+      "file": "owner\\unban.js",
+      "reason": "Cannot find module '../lib/messageConfig'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\owner\\unban.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "owner\\unblock",
+      "file": "owner\\unblock.js",
+      "reason": "Cannot find module '../lib/channelButton'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\owner\\unblock.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "owner\\upswgc",
+      "file": "owner\\upswgc.js",
+      "reason": "Cannot find module '@whiskeysockets/baileys'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\owner\\upswgc.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "thmil\\apk",
+      "file": "thmil\\apk.js",
+      "reason": "Cannot find module '@whiskeysockets/baileys'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\thmil\\apk.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "thmil\\apk2",
+      "file": "thmil\\apk2.js",
+      "reason": "Cannot find module '@whiskeysockets/baileys'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\thmil\\apk2.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "thmil\\apk3",
+      "file": "thmil\\apk3.js",
+      "reason": "Cannot find module '@whiskeysockets/baileys'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\thmil\\apk3.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "thmil\\capcut",
+      "file": "thmil\\capcut.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\thmil\\capcut.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "thmil\\f-droid",
+      "file": "thmil\\f-droid.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\thmil\\f-droid.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "thmil\\facebook",
+      "file": "thmil\\facebook.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\thmil\\facebook.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "thmil\\github",
+      "file": "thmil\\github.js",
+      "reason": "Cannot find module 'moment-timezone'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\thmil\\github.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "thmil\\instagram",
+      "file": "thmil\\instagram.js",
+      "reason": "Cannot find module 'ruhend-scraper'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\thmil\\instagram.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "thmil\\likee",
+      "file": "thmil\\likee.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\thmil\\likee.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "thmil\\live",
+      "file": "thmil\\live.js",
+      "reason": "Cannot find module '../lib/channelButton'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\thmil\\live.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "thmil\\mediafire",
+      "file": "thmil\\mediafire.js",
+      "reason": "Cannot find module '../lib/channelButton'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\thmil\\mediafire.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "thmil\\pinterest",
+      "file": "thmil\\pinterest.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\thmil\\pinterest.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "thmil\\pinterestdl",
+      "file": "thmil\\pinterestdl.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\thmil\\pinterestdl.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "thmil\\play",
+      "file": "thmil\\play.js",
+      "reason": "Cannot find module 'yt-search'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\thmil\\play.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "thmil\\play2",
+      "file": "thmil\\play2.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\thmil\\play2.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "thmil\\qdl",
+      "file": "thmil\\qdl.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\thmil\\qdl.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "thmil\\reddit",
+      "file": "thmil\\reddit.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\thmil\\reddit.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "thmil\\snapchat",
+      "file": "thmil\\snapchat.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\thmil\\snapchat.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "thmil\\song",
+      "file": "thmil\\song.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\thmil\\song.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "thmil\\song2",
+      "file": "thmil\\song2.js",
+      "reason": "Cannot find module 'yt-search'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\thmil\\song2.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "thmil\\spotify",
+      "file": "thmil\\spotify.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\thmil\\spotify.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "thmil\\tahmil-app",
+      "file": "thmil\\tahmil-app.js",
+      "reason": "Cannot find module '@whiskeysockets/baileys'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\thmil\\apk2.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\thmil\\tahmil-app.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "thmil\\tiktok",
+      "file": "thmil\\tiktok.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\thmil\\tiktok.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "thmil\\twitter",
+      "file": "thmil\\twitter.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\thmil\\twitter.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "thmil\\video",
+      "file": "thmil\\video.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\thmil\\video.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "thmil\\ytdl",
+      "file": "thmil\\ytdl.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\thmil\\ytdl.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "thmil\\ytmp4",
+      "file": "thmil\\ytmp4.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\thmil\\ytmp4.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "thmil\\ytmp4v2",
+      "file": "thmil\\ytmp4v2.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\thmil\\ytmp4v2.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "thmil\\ytplay",
+      "file": "thmil\\ytplay.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\thmil\\ytplay.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "thmil\\yts",
+      "file": "thmil\\yts.js",
+      "reason": "Cannot find module 'yt-search'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\thmil\\yts.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "thmil\\yts2",
+      "file": "thmil\\yts2.js",
+      "reason": "Cannot find module 'yt-search'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\thmil\\yts2.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "tools\\alloschool",
+      "file": "tools\\alloschool.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\tools\\alloschool.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "tools\\attp",
+      "file": "tools\\attp.js",
+      "reason": "Cannot find module 'sharp'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\tools\\attp.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "tools\\calc",
+      "file": "tools\\calc.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\tools\\calc.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "tools\\carbon",
+      "file": "tools\\carbon.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\tools\\carbon.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "tools\\carbonguide",
+      "file": "tools\\carbonguide.js",
+      "reason": "Cannot find module '../lib/channelButton'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\tools\\carbonguide.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "tools\\checkimage",
+      "file": "tools\\checkimage.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\tools\\checkimage.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "tools\\colorize",
+      "file": "tools\\colorize.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\tools\\colorize.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "tools\\faceswap",
+      "file": "tools\\faceswap.js",
+      "reason": "Cannot find module '../lib/dailyApi'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\tools\\faceswap.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "tools\\gif",
+      "file": "tools\\gif.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\tools\\gif.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "tools\\google",
+      "file": "tools\\google.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\tools\\google.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "tools\\hdvideo",
+      "file": "tools\\hdvideo.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\tools\\hdvideo.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "tools\\img-blur",
+      "file": "tools\\img-blur.js",
+      "reason": "Cannot find module '@whiskeysockets/baileys'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\tools\\img-blur.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "tools\\lyrics",
+      "file": "tools\\lyrics.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\tools\\lyrics.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "tools\\ocr",
+      "file": "tools\\ocr.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\tools\\ocr.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "tools\\pdf",
+      "file": "tools\\pdf.js",
+      "reason": "Cannot find module '../lib/channelButton'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\tools\\pdf.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "tools\\pdf2img",
+      "file": "tools\\pdf2img.js",
+      "reason": "Cannot find module '@whiskeysockets/baileys'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\tools\\pdf2img.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "tools\\ping",
+      "file": "tools\\ping.js",
+      "reason": "Cannot find module '../settings.js'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\tools\\ping.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "tools\\qrcode",
+      "file": "tools\\qrcode.js",
+      "reason": "Cannot find module '../settings'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\tools\\qrcode.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "tools\\remind",
+      "file": "tools\\remind.js",
+      "reason": "Cannot find module '../settings'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\tools\\remind.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "tools\\remini",
+      "file": "tools\\remini.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\tools\\remini.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "tools\\removebg",
+      "file": "tools\\removebg.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\tools\\removebg.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "tools\\save",
+      "file": "tools\\save.js",
+      "reason": "Cannot find module '@whiskeysockets/baileys'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\tools\\save.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "tools\\say",
+      "file": "tools\\say.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\tools\\say.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "tools\\screenshot",
+      "file": "tools\\screenshot.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\tools\\screenshot.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "tools\\simage-alt",
+      "file": "tools\\simage-alt.js",
+      "reason": "Cannot find module '@whiskeysockets/baileys'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\tools\\simage-alt.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "tools\\simage",
+      "file": "tools\\simage.js",
+      "reason": "Cannot find module 'sharp'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\tools\\simage.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "tools\\ss",
+      "file": "tools\\ss.js",
+      "reason": "Cannot find module 'node-fetch'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\tools\\ss.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "tools\\sticker-alt",
+      "file": "tools\\sticker-alt.js",
+      "reason": "Cannot find module '@whiskeysockets/baileys'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\tools\\sticker-alt.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "tools\\sticker",
+      "file": "tools\\sticker.js",
+      "reason": "Cannot find module '@whiskeysockets/baileys'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\tools\\sticker.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "tools\\stickertelegram",
+      "file": "tools\\stickertelegram.js",
+      "reason": "Cannot find module 'node-fetch'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\tools\\stickertelegram.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "tools\\stt",
+      "file": "tools\\stt.js",
+      "reason": "Cannot find module '@whiskeysockets/baileys'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\tools\\stt.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "tools\\take",
+      "file": "tools\\take.js",
+      "reason": "Cannot find module '@whiskeysockets/baileys'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\tools\\take.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "tools\\textmaker",
+      "file": "tools\\textmaker.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\tools\\textmaker.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "tools\\tomp3",
+      "file": "tools\\tomp3.js",
+      "reason": "Cannot find module '@whiskeysockets/baileys'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\tools\\tomp3.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "tools\\translate",
+      "file": "tools\\translate.js",
+      "reason": "Cannot find module 'node-fetch'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\tools\\translate.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "tools\\trim",
+      "file": "tools\\trim.js",
+      "reason": "Cannot find module 'fluent-ffmpeg'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\tools\\trim.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "tools\\tts",
+      "file": "tools\\tts.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\tools\\tts.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "tools\\unblur",
+      "file": "tools\\unblur.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\tools\\unblur.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "tools\\upload",
+      "file": "tools\\upload.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\tools\\upload.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "tools\\viewonce",
+      "file": "tools\\viewonce.js",
+      "reason": "Cannot find module '@whiskeysockets/baileys'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\tools\\viewonce.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "tools\\viewonce2",
+      "file": "tools\\viewonce2.js",
+      "reason": "Cannot find module '@whiskeysockets/baileys'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\tools\\viewonce2.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "tools\\weather",
+      "file": "tools\\weather.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\tools\\weather.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    },
+    {
+      "name": "tools\\wiki",
+      "file": "tools\\wiki.js",
+      "reason": "Cannot find module 'axios'\nRequire stack:\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\commands\\tools\\wiki.js\n- C:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main\\scan-commands.js",
+      "error": "MODULE_NOT_FOUND"
+    }
+  ],
+  "disabled": [],
+  "unused": [],
+  "total": 250
+}

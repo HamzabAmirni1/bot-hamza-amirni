@@ -1,0 +1,585 @@
+[Skip to content](https://github.com/noureddineouafy/silana-lite-ofc#start-of-content)
+
+## Navigation Menu
+
+[Sign in](https://github.com/login?return_to=https%3A%2F%2Fgithub.com%2Fnoureddineouafy%2Fsilana-lite-ofc)
+- PlatformAI CODE CREATION[GitHub CopilotWrite better code with AI](https://github.com/features/copilot)[GitHub SparkBuild and deploy intelligent apps](https://github.com/features/spark)[GitHub ModelsManage and compare prompts](https://github.com/features/models)[MCP RegistryNewIntegrate external tools](https://github.com/mcp)DEVELOPER WORKFLOWS[ActionsAutomate any workflow](https://github.com/features/actions)[CodespacesInstant dev environments](https://github.com/features/codespaces)[IssuesPlan and track work](https://github.com/features/issues)[Code ReviewManage code changes](https://github.com/features/code-review)APPLICATION SECURITY[GitHub Advanced SecurityFind and fix vulnerabilities](https://github.com/security/advanced-security)[Code securitySecure your code as you build](https://github.com/security/advanced-security/code-security)[Secret protectionStop leaks before they start](https://github.com/security/advanced-security/secret-protection)EXPLORE[Why GitHub](https://github.com/why-github)[Documentation](https://docs.github.com)[Blog](https://github.blog)[Changelog](https://github.blog/changelog)[Marketplace](https://github.com/marketplace)[View all features](https://github.com/features)
+- AI CODE CREATION[GitHub CopilotWrite better code with AI](https://github.com/features/copilot)[GitHub SparkBuild and deploy intelligent apps](https://github.com/features/spark)[GitHub ModelsManage and compare prompts](https://github.com/features/models)[MCP RegistryNewIntegrate external tools](https://github.com/mcp)
+- [GitHub CopilotWrite better code with AI](https://github.com/features/copilot)
+- [GitHub SparkBuild and deploy intelligent apps](https://github.com/features/spark)
+- [GitHub ModelsManage and compare prompts](https://github.com/features/models)
+- [MCP RegistryNewIntegrate external tools](https://github.com/mcp)
+- DEVELOPER WORKFLOWS[ActionsAutomate any workflow](https://github.com/features/actions)[CodespacesInstant dev environments](https://github.com/features/codespaces)[IssuesPlan and track work](https://github.com/features/issues)[Code ReviewManage code changes](https://github.com/features/code-review)
+- [ActionsAutomate any workflow](https://github.com/features/actions)
+- [CodespacesInstant dev environments](https://github.com/features/codespaces)
+- [IssuesPlan and track work](https://github.com/features/issues)
+- [Code ReviewManage code changes](https://github.com/features/code-review)
+- APPLICATION SECURITY[GitHub Advanced SecurityFind and fix vulnerabilities](https://github.com/security/advanced-security)[Code securitySecure your code as you build](https://github.com/security/advanced-security/code-security)[Secret protectionStop leaks before they start](https://github.com/security/advanced-security/secret-protection)
+- [GitHub Advanced SecurityFind and fix vulnerabilities](https://github.com/security/advanced-security)
+- [Code securitySecure your code as you build](https://github.com/security/advanced-security/code-security)
+- [Secret protectionStop leaks before they start](https://github.com/security/advanced-security/secret-protection)
+- EXPLORE[Why GitHub](https://github.com/why-github)[Documentation](https://docs.github.com)[Blog](https://github.blog)[Changelog](https://github.blog/changelog)[Marketplace](https://github.com/marketplace)
+- [Why GitHub](https://github.com/why-github)
+- [Documentation](https://docs.github.com)
+- [Blog](https://github.blog)
+- [Changelog](https://github.blog/changelog)
+- [Marketplace](https://github.com/marketplace)
+
+## Navigation Menu
+
+- SolutionsBY COMPANY SIZE[Enterprises](https://github.com/enterprise)[Small and medium teams](https://github.com/team)[Startups](https://github.com/enterprise/startups)[Nonprofits](https://github.com/solutions/industry/nonprofits)BY USE CASE[App Modernization](https://github.com/solutions/use-case/app-modernization)[DevSecOps](https://github.com/solutions/use-case/devsecops)[DevOps](https://github.com/solutions/use-case/devops)[CI/CD](https://github.com/solutions/use-case/ci-cd)[View all use cases](https://github.com/solutions/use-case)BY INDUSTRY[Healthcare](https://github.com/solutions/industry/healthcare)[Financial services](https://github.com/solutions/industry/financial-services)[Manufacturing](https://github.com/solutions/industry/manufacturing)[Government](https://github.com/solutions/industry/government)[View all industries](https://github.com/solutions/industry)[View all solutions](https://github.com/solutions)
+- BY COMPANY SIZE[Enterprises](https://github.com/enterprise)[Small and medium teams](https://github.com/team)[Startups](https://github.com/enterprise/startups)[Nonprofits](https://github.com/solutions/industry/nonprofits)
+- [Enterprises](https://github.com/enterprise)
+- [Small and medium teams](https://github.com/team)
+- [Startups](https://github.com/enterprise/startups)
+- [Nonprofits](https://github.com/solutions/industry/nonprofits)
+- BY USE CASE[App Modernization](https://github.com/solutions/use-case/app-modernization)[DevSecOps](https://github.com/solutions/use-case/devsecops)[DevOps](https://github.com/solutions/use-case/devops)[CI/CD](https://github.com/solutions/use-case/ci-cd)[View all use cases](https://github.com/solutions/use-case)
+- [App Modernization](https://github.com/solutions/use-case/app-modernization)
+- [DevSecOps](https://github.com/solutions/use-case/devsecops)
+- [DevOps](https://github.com/solutions/use-case/devops)
+- [CI/CD](https://github.com/solutions/use-case/ci-cd)
+- [View all use cases](https://github.com/solutions/use-case)
+- BY INDUSTRY[Healthcare](https://github.com/solutions/industry/healthcare)[Financial services](https://github.com/solutions/industry/financial-services)[Manufacturing](https://github.com/solutions/industry/manufacturing)[Government](https://github.com/solutions/industry/government)[View all industries](https://github.com/solutions/industry)
+- [Healthcare](https://github.com/solutions/industry/healthcare)
+- [Financial services](https://github.com/solutions/industry/financial-services)
+- [Manufacturing](https://github.com/solutions/industry/manufacturing)
+- [Government](https://github.com/solutions/industry/government)
+- [View all industries](https://github.com/solutions/industry)
+- ResourcesEXPLORE BY TOPIC[AI](https://github.com/resources/articles?topic=ai)[Software Development](https://github.com/resources/articles?topic=software-development)[DevOps](https://github.com/resources/articles?topic=devops)[Security](https://github.com/resources/articles?topic=security)[View all topics](https://github.com/resources/articles)EXPLORE BY TYPE[Customer stories](https://github.com/customer-stories)[Events & webinars](https://github.com/resources/events)[Ebooks & reports](https://github.com/resources/whitepapers)[Business insights](https://github.com/solutions/executive-insights)[GitHub Skills](https://skills.github.com)SUPPORT & SERVICES[Documentation](https://docs.github.com)[Customer support](https://support.github.com)[Community forum](https://github.com/orgs/community/discussions)[Trust center](https://github.com/trust-center)[Partners](https://github.com/partners)
+- EXPLORE BY TOPIC[AI](https://github.com/resources/articles?topic=ai)[Software Development](https://github.com/resources/articles?topic=software-development)[DevOps](https://github.com/resources/articles?topic=devops)[Security](https://github.com/resources/articles?topic=security)[View all topics](https://github.com/resources/articles)
+- [AI](https://github.com/resources/articles?topic=ai)
+- [Software Development](https://github.com/resources/articles?topic=software-development)
+- [DevOps](https://github.com/resources/articles?topic=devops)
+- [Security](https://github.com/resources/articles?topic=security)
+- [View all topics](https://github.com/resources/articles)
+
+## Navigation Menu
+
+- EXPLORE BY TYPE[Customer stories](https://github.com/customer-stories)[Events & webinars](https://github.com/resources/events)[Ebooks & reports](https://github.com/resources/whitepapers)[Business insights](https://github.com/solutions/executive-insights)[GitHub Skills](https://skills.github.com)
+- [Customer stories](https://github.com/customer-stories)
+- [Events & webinars](https://github.com/resources/events)
+- [Ebooks & reports](https://github.com/resources/whitepapers)
+- [Business insights](https://github.com/solutions/executive-insights)
+- [GitHub Skills](https://skills.github.com)
+- SUPPORT & SERVICES[Documentation](https://docs.github.com)[Customer support](https://support.github.com)[Community forum](https://github.com/orgs/community/discussions)[Trust center](https://github.com/trust-center)[Partners](https://github.com/partners)
+- [Documentation](https://docs.github.com)
+- [Customer support](https://support.github.com)
+- [Community forum](https://github.com/orgs/community/discussions)
+- [Trust center](https://github.com/trust-center)
+- [Partners](https://github.com/partners)
+- Open SourceCOMMUNITY[GitHub SponsorsFund open source developers](https://github.com/sponsors)PROGRAMS[Security Lab](https://securitylab.github.com)[Maintainer Community](https://maintainers.github.com)[Accelerator](https://github.com/accelerator)[Archive Program](https://archiveprogram.github.com)REPOSITORIES[Topics](https://github.com/topics)[Trending](https://github.com/trending)[Collections](https://github.com/collections)
+- COMMUNITY[GitHub SponsorsFund open source developers](https://github.com/sponsors)
+- [GitHub SponsorsFund open source developers](https://github.com/sponsors)
+- PROGRAMS[Security Lab](https://securitylab.github.com)[Maintainer Community](https://maintainers.github.com)[Accelerator](https://github.com/accelerator)[Archive Program](https://archiveprogram.github.com)
+- [Security Lab](https://securitylab.github.com)
+- [Maintainer Community](https://maintainers.github.com)
+- [Accelerator](https://github.com/accelerator)
+- [Archive Program](https://archiveprogram.github.com)
+- REPOSITORIES[Topics](https://github.com/topics)[Trending](https://github.com/trending)[Collections](https://github.com/collections)
+- [Topics](https://github.com/topics)
+- [Trending](https://github.com/trending)
+- [Collections](https://github.com/collections)
+- EnterpriseENTERPRISE SOLUTIONS[Enterprise platformAI-powered developer platform](https://github.com/enterprise)AVAILABLE ADD-ONS[GitHub Advanced SecurityEnterprise-grade security features](https://github.com/security/advanced-security)[Copilot for BusinessEnterprise-grade AI features](https://github.com/features/copilot/copilot-business)[Premium SupportEnterprise-grade 24/7 support](https://github.com/premium-support)
+- ENTERPRISE SOLUTIONS[Enterprise platformAI-powered developer platform](https://github.com/enterprise)
+- [Enterprise platformAI-powered developer platform](https://github.com/enterprise)
+- AVAILABLE ADD-ONS[GitHub Advanced SecurityEnterprise-grade security features](https://github.com/security/advanced-security)[Copilot for BusinessEnterprise-grade AI features](https://github.com/features/copilot/copilot-business)[Premium SupportEnterprise-grade 24/7 support](https://github.com/premium-support)
+- [GitHub Advanced SecurityEnterprise-grade security features](https://github.com/security/advanced-security)
+- [Copilot for BusinessEnterprise-grade AI features](https://github.com/features/copilot/copilot-business)
+- [Premium SupportEnterprise-grade 24/7 support](https://github.com/premium-support)
+- [Pricing](https://github.com/pricing)
+- AI CODE CREATION[GitHub CopilotWrite better code with AI](https://github.com/features/copilot)[GitHub SparkBuild and deploy intelligent apps](https://github.com/features/spark)[GitHub ModelsManage and compare prompts](https://github.com/features/models)[MCP RegistryNewIntegrate external tools](https://github.com/mcp)
+- [GitHub CopilotWrite better code with AI](https://github.com/features/copilot)
+- [GitHub SparkBuild and deploy intelligent apps](https://github.com/features/spark)
+- [GitHub ModelsManage and compare prompts](https://github.com/features/models)
+- [MCP RegistryNewIntegrate external tools](https://github.com/mcp)
+
+## Navigation Menu
+
+- DEVELOPER WORKFLOWS[ActionsAutomate any workflow](https://github.com/features/actions)[CodespacesInstant dev environments](https://github.com/features/codespaces)[IssuesPlan and track work](https://github.com/features/issues)[Code ReviewManage code changes](https://github.com/features/code-review)
+- [ActionsAutomate any workflow](https://github.com/features/actions)
+- [CodespacesInstant dev environments](https://github.com/features/codespaces)
+- [IssuesPlan and track work](https://github.com/features/issues)
+- [Code ReviewManage code changes](https://github.com/features/code-review)
+- APPLICATION SECURITY[GitHub Advanced SecurityFind and fix vulnerabilities](https://github.com/security/advanced-security)[Code securitySecure your code as you build](https://github.com/security/advanced-security/code-security)[Secret protectionStop leaks before they start](https://github.com/security/advanced-security/secret-protection)
+- [GitHub Advanced SecurityFind and fix vulnerabilities](https://github.com/security/advanced-security)
+- [Code securitySecure your code as you build](https://github.com/security/advanced-security/code-security)
+- [Secret protectionStop leaks before they start](https://github.com/security/advanced-security/secret-protection)
+- EXPLORE[Why GitHub](https://github.com/why-github)[Documentation](https://docs.github.com)[Blog](https://github.blog)[Changelog](https://github.blog/changelog)[Marketplace](https://github.com/marketplace)
+- [Why GitHub](https://github.com/why-github)
+- [Documentation](https://docs.github.com)
+- [Blog](https://github.blog)
+- [Changelog](https://github.blog/changelog)
+- [Marketplace](https://github.com/marketplace)
+- [GitHub CopilotWrite better code with AI](https://github.com/features/copilot)
+- [GitHub SparkBuild and deploy intelligent apps](https://github.com/features/spark)
+- [GitHub ModelsManage and compare prompts](https://github.com/features/models)
+- [MCP RegistryNewIntegrate external tools](https://github.com/mcp)
+[GitHub CopilotWrite better code with AI](https://github.com/features/copilot)
+[GitHub SparkBuild and deploy intelligent apps](https://github.com/features/spark)
+[GitHub ModelsManage and compare prompts](https://github.com/features/models)
+[MCP RegistryNewIntegrate external tools](https://github.com/mcp)
+- [ActionsAutomate any workflow](https://github.com/features/actions)
+- [CodespacesInstant dev environments](https://github.com/features/codespaces)
+- [IssuesPlan and track work](https://github.com/features/issues)
+- [Code ReviewManage code changes](https://github.com/features/code-review)
+[ActionsAutomate any workflow](https://github.com/features/actions)
+[CodespacesInstant dev environments](https://github.com/features/codespaces)
+[IssuesPlan and track work](https://github.com/features/issues)
+[Code ReviewManage code changes](https://github.com/features/code-review)
+- [GitHub Advanced SecurityFind and fix vulnerabilities](https://github.com/security/advanced-security)
+- [Code securitySecure your code as you build](https://github.com/security/advanced-security/code-security)
+- [Secret protectionStop leaks before they start](https://github.com/security/advanced-security/secret-protection)
+[GitHub Advanced SecurityFind and fix vulnerabilities](https://github.com/security/advanced-security)
+[Code securitySecure your code as you build](https://github.com/security/advanced-security/code-security)
+[Secret protectionStop leaks before they start](https://github.com/security/advanced-security/secret-protection)
+- [Why GitHub](https://github.com/why-github)
+- [Documentation](https://docs.github.com)
+- [Blog](https://github.blog)
+- [Changelog](https://github.blog/changelog)
+- [Marketplace](https://github.com/marketplace)
+[Why GitHub](https://github.com/why-github)
+[Documentation](https://docs.github.com)
+[Blog](https://github.blog)
+[Changelog](https://github.blog/changelog)
+[Marketplace](https://github.com/marketplace)
+[View all features](https://github.com/features)
+- BY COMPANY SIZE[Enterprises](https://github.com/enterprise)[Small and medium teams](https://github.com/team)[Startups](https://github.com/enterprise/startups)[Nonprofits](https://github.com/solutions/industry/nonprofits)
+- [Enterprises](https://github.com/enterprise)
+- [Small and medium teams](https://github.com/team)
+- [Startups](https://github.com/enterprise/startups)
+- [Nonprofits](https://github.com/solutions/industry/nonprofits)
+
+## Navigation Menu
+
+- BY USE CASE[App Modernization](https://github.com/solutions/use-case/app-modernization)[DevSecOps](https://github.com/solutions/use-case/devsecops)[DevOps](https://github.com/solutions/use-case/devops)[CI/CD](https://github.com/solutions/use-case/ci-cd)[View all use cases](https://github.com/solutions/use-case)
+- [App Modernization](https://github.com/solutions/use-case/app-modernization)
+- [DevSecOps](https://github.com/solutions/use-case/devsecops)
+- [DevOps](https://github.com/solutions/use-case/devops)
+- [CI/CD](https://github.com/solutions/use-case/ci-cd)
+- [View all use cases](https://github.com/solutions/use-case)
+- BY INDUSTRY[Healthcare](https://github.com/solutions/industry/healthcare)[Financial services](https://github.com/solutions/industry/financial-services)[Manufacturing](https://github.com/solutions/industry/manufacturing)[Government](https://github.com/solutions/industry/government)[View all industries](https://github.com/solutions/industry)
+- [Healthcare](https://github.com/solutions/industry/healthcare)
+- [Financial services](https://github.com/solutions/industry/financial-services)
+- [Manufacturing](https://github.com/solutions/industry/manufacturing)
+- [Government](https://github.com/solutions/industry/government)
+- [View all industries](https://github.com/solutions/industry)
+- [Enterprises](https://github.com/enterprise)
+- [Small and medium teams](https://github.com/team)
+- [Startups](https://github.com/enterprise/startups)
+- [Nonprofits](https://github.com/solutions/industry/nonprofits)
+[Enterprises](https://github.com/enterprise)
+[Small and medium teams](https://github.com/team)
+[Startups](https://github.com/enterprise/startups)
+[Nonprofits](https://github.com/solutions/industry/nonprofits)
+- [App Modernization](https://github.com/solutions/use-case/app-modernization)
+- [DevSecOps](https://github.com/solutions/use-case/devsecops)
+- [DevOps](https://github.com/solutions/use-case/devops)
+- [CI/CD](https://github.com/solutions/use-case/ci-cd)
+- [View all use cases](https://github.com/solutions/use-case)
+[App Modernization](https://github.com/solutions/use-case/app-modernization)
+[DevSecOps](https://github.com/solutions/use-case/devsecops)
+[DevOps](https://github.com/solutions/use-case/devops)
+[CI/CD](https://github.com/solutions/use-case/ci-cd)
+[View all use cases](https://github.com/solutions/use-case)
+- [Healthcare](https://github.com/solutions/industry/healthcare)
+- [Financial services](https://github.com/solutions/industry/financial-services)
+- [Manufacturing](https://github.com/solutions/industry/manufacturing)
+- [Government](https://github.com/solutions/industry/government)
+- [View all industries](https://github.com/solutions/industry)
+[Healthcare](https://github.com/solutions/industry/healthcare)
+[Financial services](https://github.com/solutions/industry/financial-services)
+[Manufacturing](https://github.com/solutions/industry/manufacturing)
+[Government](https://github.com/solutions/industry/government)
+[View all industries](https://github.com/solutions/industry)
+[View all solutions](https://github.com/solutions)
+- EXPLORE BY TOPIC[AI](https://github.com/resources/articles?topic=ai)[Software Development](https://github.com/resources/articles?topic=software-development)[DevOps](https://github.com/resources/articles?topic=devops)[Security](https://github.com/resources/articles?topic=security)[View all topics](https://github.com/resources/articles)
+- [AI](https://github.com/resources/articles?topic=ai)
+- [Software Development](https://github.com/resources/articles?topic=software-development)
+- [DevOps](https://github.com/resources/articles?topic=devops)
+- [Security](https://github.com/resources/articles?topic=security)
+- [View all topics](https://github.com/resources/articles)
+- EXPLORE BY TYPE[Customer stories](https://github.com/customer-stories)[Events & webinars](https://github.com/resources/events)[Ebooks & reports](https://github.com/resources/whitepapers)[Business insights](https://github.com/solutions/executive-insights)[GitHub Skills](https://skills.github.com)
+- [Customer stories](https://github.com/customer-stories)
+- [Events & webinars](https://github.com/resources/events)
+- [Ebooks & reports](https://github.com/resources/whitepapers)
+- [Business insights](https://github.com/solutions/executive-insights)
+- [GitHub Skills](https://skills.github.com)
+
+## Navigation Menu
+
+- SUPPORT & SERVICES[Documentation](https://docs.github.com)[Customer support](https://support.github.com)[Community forum](https://github.com/orgs/community/discussions)[Trust center](https://github.com/trust-center)[Partners](https://github.com/partners)
+- [Documentation](https://docs.github.com)
+- [Customer support](https://support.github.com)
+- [Community forum](https://github.com/orgs/community/discussions)
+- [Trust center](https://github.com/trust-center)
+- [Partners](https://github.com/partners)
+- [AI](https://github.com/resources/articles?topic=ai)
+- [Software Development](https://github.com/resources/articles?topic=software-development)
+- [DevOps](https://github.com/resources/articles?topic=devops)
+- [Security](https://github.com/resources/articles?topic=security)
+- [View all topics](https://github.com/resources/articles)
+[AI](https://github.com/resources/articles?topic=ai)
+[Software Development](https://github.com/resources/articles?topic=software-development)
+[DevOps](https://github.com/resources/articles?topic=devops)
+[Security](https://github.com/resources/articles?topic=security)
+[View all topics](https://github.com/resources/articles)
+- [Customer stories](https://github.com/customer-stories)
+- [Events & webinars](https://github.com/resources/events)
+- [Ebooks & reports](https://github.com/resources/whitepapers)
+- [Business insights](https://github.com/solutions/executive-insights)
+- [GitHub Skills](https://skills.github.com)
+[Customer stories](https://github.com/customer-stories)
+[Events & webinars](https://github.com/resources/events)
+[Ebooks & reports](https://github.com/resources/whitepapers)
+[Business insights](https://github.com/solutions/executive-insights)
+[GitHub Skills](https://skills.github.com)
+- [Documentation](https://docs.github.com)
+- [Customer support](https://support.github.com)
+- [Community forum](https://github.com/orgs/community/discussions)
+- [Trust center](https://github.com/trust-center)
+- [Partners](https://github.com/partners)
+[Documentation](https://docs.github.com)
+[Customer support](https://support.github.com)
+[Community forum](https://github.com/orgs/community/discussions)
+[Trust center](https://github.com/trust-center)
+[Partners](https://github.com/partners)
+- COMMUNITY[GitHub SponsorsFund open source developers](https://github.com/sponsors)
+- [GitHub SponsorsFund open source developers](https://github.com/sponsors)
+- PROGRAMS[Security Lab](https://securitylab.github.com)[Maintainer Community](https://maintainers.github.com)[Accelerator](https://github.com/accelerator)[Archive Program](https://archiveprogram.github.com)
+- [Security Lab](https://securitylab.github.com)
+- [Maintainer Community](https://maintainers.github.com)
+- [Accelerator](https://github.com/accelerator)
+- [Archive Program](https://archiveprogram.github.com)
+- REPOSITORIES[Topics](https://github.com/topics)[Trending](https://github.com/trending)[Collections](https://github.com/collections)
+- [Topics](https://github.com/topics)
+- [Trending](https://github.com/trending)
+- [Collections](https://github.com/collections)
+- [GitHub SponsorsFund open source developers](https://github.com/sponsors)
+[GitHub SponsorsFund open source developers](https://github.com/sponsors)
+- [Security Lab](https://securitylab.github.com)
+- [Maintainer Community](https://maintainers.github.com)
+- [Accelerator](https://github.com/accelerator)
+- [Archive Program](https://archiveprogram.github.com)
+[Security Lab](https://securitylab.github.com)
+[Maintainer Community](https://maintainers.github.com)
+[Accelerator](https://github.com/accelerator)
+[Archive Program](https://archiveprogram.github.com)
+- [Topics](https://github.com/topics)
+- [Trending](https://github.com/trending)
+- [Collections](https://github.com/collections)
+[Topics](https://github.com/topics)
+[Trending](https://github.com/trending)
+[Collections](https://github.com/collections)
+- ENTERPRISE SOLUTIONS[Enterprise platformAI-powered developer platform](https://github.com/enterprise)
+- [Enterprise platformAI-powered developer platform](https://github.com/enterprise)
+- AVAILABLE ADD-ONS[GitHub Advanced SecurityEnterprise-grade security features](https://github.com/security/advanced-security)[Copilot for BusinessEnterprise-grade AI features](https://github.com/features/copilot/copilot-business)[Premium SupportEnterprise-grade 24/7 support](https://github.com/premium-support)
+
+## Navigation Menu
+
+- [GitHub Advanced SecurityEnterprise-grade security features](https://github.com/security/advanced-security)
+- [Copilot for BusinessEnterprise-grade AI features](https://github.com/features/copilot/copilot-business)
+- [Premium SupportEnterprise-grade 24/7 support](https://github.com/premium-support)
+- [Enterprise platformAI-powered developer platform](https://github.com/enterprise)
+[Enterprise platformAI-powered developer platform](https://github.com/enterprise)
+- [GitHub Advanced SecurityEnterprise-grade security features](https://github.com/security/advanced-security)
+- [Copilot for BusinessEnterprise-grade AI features](https://github.com/features/copilot/copilot-business)
+- [Premium SupportEnterprise-grade 24/7 support](https://github.com/premium-support)
+[GitHub Advanced SecurityEnterprise-grade security features](https://github.com/security/advanced-security)
+[Copilot for BusinessEnterprise-grade AI features](https://github.com/features/copilot/copilot-business)
+[Premium SupportEnterprise-grade 24/7 support](https://github.com/premium-support)
+[Pricing](https://github.com/pricing)
+
+# Search code, repositories, users, issues, pull requests...
+[Search syntax tips](https://docs.github.com/search-github/github-code-search/understanding-github-code-search-syntax)
+
+# Provide feedback
+We read every piece of feedback, and take your input very seriously.
+
+## Use saved searches to filter your results more quickly
+
+To see all available qualifiers, see our [documentation](https://docs.github.com/search-github/github-code-search/understanding-github-code-search-syntax).
+[Sign in](https://github.com/login?return_to=https%3A%2F%2Fgithub.com%2Fnoureddineouafy%2Fsilana-lite-ofc)
+[Sign up](https://github.com/signup?ref_cta=Sign+up&ref_loc=header+logged+out&ref_page=%2F%3Cuser-name%3E%2F%3Crepo-name%3E&source=header-repo&source_repo=noureddineouafy%2Fsilana-lite-ofc)
+[Reload](https://github.com/noureddineouafy/silana-lite-ofc)
+[Reload](https://github.com/noureddineouafy/silana-lite-ofc)
+[Reload](https://github.com/noureddineouafy/silana-lite-ofc)
+[noureddineouafy](https://github.com/noureddineouafy)
+[silana-lite-ofc](https://github.com/noureddineouafy/silana-lite-ofc)
+- 
+            [Notifications](https://github.com/login?return_to=%2Fnoureddineouafy%2Fsilana-lite-ofc)    You must be signed in to change notification settings
+
+
+- 
+          [Fork
+    324](https://github.com/login?return_to=%2Fnoureddineouafy%2Fsilana-lite-ofc)
+
+- 
+
+        [Star
+          36](https://github.com/login?return_to=%2Fnoureddineouafy%2Fsilana-lite-ofc)
+
+[Notifications](https://github.com/login?return_to=%2Fnoureddineouafy%2Fsilana-lite-ofc)
+[Fork
+    324](https://github.com/login?return_to=%2Fnoureddineouafy%2Fsilana-lite-ofc)
+[Star
+          36](https://github.com/login?return_to=%2Fnoureddineouafy%2Fsilana-lite-ofc)
+Silana Lite Official is a smart WhatsApp *** powered by AI, offering a wide range of features like automated responses, multimedia downloads, language translation, text-to-speech, and more. Lightweight and efficient, it enhances personal and group chats with customizable plugins and seamless automation for a smarter messaging experience.
+[36
+          stars](https://github.com/noureddineouafy/silana-lite-ofc/stargazers)
+[324
+          forks](https://github.com/noureddineouafy/silana-lite-ofc/forks)
+[Branches](https://github.com/noureddineouafy/silana-lite-ofc/branches)
+[Tags](https://github.com/noureddineouafy/silana-lite-ofc/tags)
+[Activity](https://github.com/noureddineouafy/silana-lite-ofc/activity)
+[Star](https://github.com/login?return_to=%2Fnoureddineouafy%2Fsilana-lite-ofc)
+[Notifications](https://github.com/login?return_to=%2Fnoureddineouafy%2Fsilana-lite-ofc)
+- 
+  [Code](https://github.com/noureddineouafy/silana-lite-ofc)
+- 
+  [Issues
+          1](https://github.com/noureddineouafy/silana-lite-ofc/issues)
+- 
+  [Pull requests
+          14](https://github.com/noureddineouafy/silana-lite-ofc/pulls)
+- 
+  [Actions](https://github.com/noureddineouafy/silana-lite-ofc/actions)
+- 
+  [Projects
+          0](https://github.com/noureddineouafy/silana-lite-ofc/projects)
+- https://github.com/noureddineouafy/silana-lite-ofc/security[Security](https://github.com/noureddineouafy/silana-lite-ofc/security)https://github.com/noureddineouafy/silana-lite-ofc/security
+  https://github.com/noureddineouafy/silana-lite-ofc/security[Uh oh!](https://github.com/noureddineouafy/silana-lite-ofc/security)[There was an error while loading.](https://github.com/noureddineouafy/silana-lite-ofc/security)[Please reload this page](https://github.com/noureddineouafy/silana-lite-ofc).
+
+
+
+
+
+
+
+
+- 
+  [Insights](https://github.com/noureddineouafy/silana-lite-ofc/pulse)
+[Code](https://github.com/noureddineouafy/silana-lite-ofc)
+[Issues
+          1](https://github.com/noureddineouafy/silana-lite-ofc/issues)
+[Pull requests
+          14](https://github.com/noureddineouafy/silana-lite-ofc/pulls)
+[Actions](https://github.com/noureddineouafy/silana-lite-ofc/actions)
+[Projects
+          0](https://github.com/noureddineouafy/silana-lite-ofc/projects)
+[Security](https://github.com/noureddineouafy/silana-lite-ofc/security)
+[Uh oh!](https://github.com/noureddineouafy/silana-lite-ofc/security)
+
+### Uh oh!
+
+[There was an error while loading.](https://github.com/noureddineouafy/silana-lite-ofc/security)[Please reload this page](https://github.com/noureddineouafy/silana-lite-ofc).
+[Insights](https://github.com/noureddineouafy/silana-lite-ofc/pulse)
+- 
+
+
+    [Code](https://github.com/noureddineouafy/silana-lite-ofc)
+
+
+- 
+
+
+    [Issues](https://github.com/noureddineouafy/silana-lite-ofc/issues)
+
+
+- 
+
+
+    [Pull requests](https://github.com/noureddineouafy/silana-lite-ofc/pulls)
+
+
+- 
+
+
+    [Actions](https://github.com/noureddineouafy/silana-lite-ofc/actions)
+
+
+- 
+
+
+    [Projects](https://github.com/noureddineouafy/silana-lite-ofc/projects)
+
+
+- 
+
+
+    [Security](https://github.com/noureddineouafy/silana-lite-ofc/security)
+
+
+- 
+
+
+    [Insights](https://github.com/noureddineouafy/silana-lite-ofc/pulse)
+
+
+[Code](https://github.com/noureddineouafy/silana-lite-ofc)
+[Issues](https://github.com/noureddineouafy/silana-lite-ofc/issues)
+[Pull requests](https://github.com/noureddineouafy/silana-lite-ofc/pulls)
+[Actions](https://github.com/noureddineouafy/silana-lite-ofc/actions)
+[Projects](https://github.com/noureddineouafy/silana-lite-ofc/projects)
+[Security](https://github.com/noureddineouafy/silana-lite-ofc/security)
+[Insights](https://github.com/noureddineouafy/silana-lite-ofc/pulse)
+
+# noureddineouafy/silana-lite-ofc
+
+[Branches](https://github.com/noureddineouafy/silana-lite-ofc/branches)
+[Tags](https://github.com/noureddineouafy/silana-lite-ofc/tags)
+
+## History
+[763 Commits](https://github.com/noureddineouafy/silana-lite-ofc/commits/master/)
+[function](https://github.com/noureddineouafy/silana-lite-ofc/tree/master/function)
+[function](https://github.com/noureddineouafy/silana-lite-ofc/tree/master/function)
+[lib](https://github.com/noureddineouafy/silana-lite-ofc/tree/master/lib)
+[lib](https://github.com/noureddineouafy/silana-lite-ofc/tree/master/lib)
+[plugins](https://github.com/noureddineouafy/silana-lite-ofc/tree/master/plugins)
+[plugins](https://github.com/noureddineouafy/silana-lite-ofc/tree/master/plugins)
+[sessions](https://github.com/noureddineouafy/silana-lite-ofc/tree/master/sessions)
+[sessions](https://github.com/noureddineouafy/silana-lite-ofc/tree/master/sessions)
+[tmp](https://github.com/noureddineouafy/silana-lite-ofc/tree/master/tmp)
+[tmp](https://github.com/noureddineouafy/silana-lite-ofc/tree/master/tmp)
+[README.md](https://github.com/noureddineouafy/silana-lite-ofc/blob/master/README.md)
+[README.md](https://github.com/noureddineouafy/silana-lite-ofc/blob/master/README.md)
+[config.js](https://github.com/noureddineouafy/silana-lite-ofc/blob/master/config.js)
+[config.js](https://github.com/noureddineouafy/silana-lite-ofc/blob/master/config.js)
+[handler.js](https://github.com/noureddineouafy/silana-lite-ofc/blob/master/handler.js)
+[handler.js](https://github.com/noureddineouafy/silana-lite-ofc/blob/master/handler.js)
+[index.js](https://github.com/noureddineouafy/silana-lite-ofc/blob/master/index.js)
+[index.js](https://github.com/noureddineouafy/silana-lite-ofc/blob/master/index.js)
+[main.js](https://github.com/noureddineouafy/silana-lite-ofc/blob/master/main.js)
+[main.js](https://github.com/noureddineouafy/silana-lite-ofc/blob/master/main.js)
+[package.json](https://github.com/noureddineouafy/silana-lite-ofc/blob/master/package.json)
+[package.json](https://github.com/noureddineouafy/silana-lite-ofc/blob/master/package.json)
+[test.js](https://github.com/noureddineouafy/silana-lite-ofc/blob/master/test.js)
+[test.js](https://github.com/noureddineouafy/silana-lite-ofc/blob/master/test.js)
+
+## Repository files navigation
+- [README](https://github.com/noureddineouafy/silana-lite-ofc)
+[README](https://github.com/noureddineouafy/silana-lite-ofc)
+
+# Silana Lite - Official Repository
+
+Welcome to the official repository of Silana Lite, a WhatsApp bot built using Baileys, featuring many advanced capabilities.
+
+```
+Baileys
+```
+
+## 📌 About Me
+(Im not a developper and I didn't learn any programming languages , i know just copy and past 🤣🤣🙏❤️♥️) 👤 Name: Noureddine 📌 GitHub: [noureddineouafy](https://github.com/noureddineouafy) 📌 Instagram: [@noureddine_ouafy](https://instagram.com/noureddine_ouafy) 📌 Facebook: [My Facebook Profile](https://www.facebook.com/profile.php?id=100063533185520)
+
+## 📺 My Channels and Platforms
+📢 My YouTube Channel: [Click here](https://youtube.com/@noureddineouafy2?si=rqfc1sb_YxOEYufE) to watch my videos on bot development and programming projects.
+📢 My WhatsApp Channel: [Join here](https://whatsapp.com/channel/0029VaX4b6J7DAWqt3Hhu01A) to stay updated on the latest news about my projects.
+📢 My Backup WhatsApp Channel: [Join here](https://whatsapp.com/channel/0029Vaz5bJz3mFY2ccGBev1n) as a backup channel in case any issues arise with the main one.
+
+## 🚀 About the Project
+Silana Lite is an enhanced, lightweight version of the Silana bot. It’s a WhatsApp bot that supports many features such as:
+- Downloading videos and images from various platforms.
+- Using AI for responses and advanced functions.
+- Converting text to speech in multiple languages.
+- Custom features tailored to user needs.
+
+## 💡 How to Contribute
+If you’d like to contribute to the development of this project, feel free to Fork the repository and submit a Pull Request with your modifications.
+
+```
+Fork
+```
+
+
+```
+Pull Request
+```
+
+Follow me on my platforms for more updates and upcoming projects! 🚀
+
+## About
+Silana Lite Official is a smart WhatsApp *** powered by AI, offering a wide range of features like automated responses, multimedia downloads, language translation, text-to-speech, and more. Lightweight and efficient, it enhances personal and group chats with customizable plugins and seamless automation for a smarter messaging experience.
+
+### Resources
+[Readme](https://github.com/noureddineouafy/silana-lite-ofc#readme-ov-file)
+
+### Uh oh!
+There was an error while loading. [Please reload this page](https://github.com/noureddineouafy/silana-lite-ofc).
+[Activity](https://github.com/noureddineouafy/silana-lite-ofc/activity)
+
+### Stars
+[36
+        stars](https://github.com/noureddineouafy/silana-lite-ofc/stargazers)
+
+### Watchers
+[3
+        watching](https://github.com/noureddineouafy/silana-lite-ofc/watchers)
+
+### Forks
+[324
+        forks](https://github.com/noureddineouafy/silana-lite-ofc/forks)
+[Report repository](https://github.com/contact/report-content?content_url=https%3A%2F%2Fgithub.com%2Fnoureddineouafy%2Fsilana-lite-ofc&report=noureddineouafy+%28user%29)
+
+## [Releases](https://github.com/noureddineouafy/silana-lite-ofc/releases)
+[Releases](https://github.com/noureddineouafy/silana-lite-ofc/releases)
+
+## [Packages 0](https://github.com/users/noureddineouafy/packages?repo_name=silana-lite-ofc)
+[Packages
+      0](https://github.com/users/noureddineouafy/packages?repo_name=silana-lite-ofc)
+
+### Uh oh!
+
+There was an error while loading. [Please reload this page](https://github.com/noureddineouafy/silana-lite-ofc).
+
+## Languages
+
+- 
+        [JavaScript
+          100.0%](https://github.com/noureddineouafy/silana-lite-ofc/search?l=javascript)
+
+[JavaScript
+          100.0%](https://github.com/noureddineouafy/silana-lite-ofc/search?l=javascript)
+
+### Footer navigation
+
+- 
+            [Terms](https://docs.github.com/site-policy/github-terms/github-terms-of-service)
+
+- 
+            [Privacy](https://docs.github.com/site-policy/privacy-policies/github-privacy-statement)
+
+- 
+            [Security](https://github.com/security)
+
+- 
+            [Status](https://www.githubstatus.com/)
+
+- 
+            [Community](https://github.community/)
+
+- 
+            [Docs](https://docs.github.com/)
+
+- 
+            [Contact](https://support.github.com?tags=dotcom-footer)
+
+- 
+
+
+       Manage cookies
+
+
+
+- 
+
+
+      Do not share my personal information
+
+
+
+[Terms](https://docs.github.com/site-policy/github-terms/github-terms-of-service)
+[Privacy](https://docs.github.com/site-policy/privacy-policies/github-privacy-statement)
+[Security](https://github.com/security)
+[Status](https://www.githubstatus.com/)
+[Community](https://github.community/)
+[Docs](https://docs.github.com/)
+[Contact](https://support.github.com?tags=dotcom-footer)
