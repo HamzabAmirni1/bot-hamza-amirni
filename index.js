@@ -723,7 +723,7 @@ async function startBot(sessionPath = sessionDir, phoneNumber = null) {
     const activeNumbers = new Set();
 
     // Helper to normalize numbers
-    const norm = (n) => n ? n.toString().replace(/[^0-9]/g, '').split(':')[0] : null;
+    const norm = (n) => n ? n.toString().split('@')[0].split(':')[0].replace(/[^0-9]/g, '') : null;
 
     // Helper to peek into session folder to see which number it belongs to
     const getNumFromFolder = (folder) => {
