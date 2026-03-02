@@ -375,6 +375,9 @@ async function startBot(sessionPath = sessionDir, phoneNumber = null) {
 
     // Attach session path for identification
     sock.sessionPath = sessionPath;
+    if (!global.clients.find(c => c.sessionPath === sessionPath)) {
+        global.clients.push(sock);
+    }
 
     // Helper: Decode JID
     sock.decodeJid = (jid) => {
