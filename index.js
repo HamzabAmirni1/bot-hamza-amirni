@@ -718,66 +718,86 @@ async function startBot(sessionPath = sessionDir, phoneNumber = null) {
 
     console.log(chalk.cyan(`\n🚀 Starting bot multi-session manager...`));
 
-    // Unified Session Gathering with Smart Deduplication
-    const pathsToStartMap = new Map();
-    const activeNumbers = new Set();
+    // Unified Session Gathering with Smart Deduplication by Phone Number
+    const numberToPathMap = new Map(); // Key: Phone Number, Value: Object { path, pNum }
+    const pendingPaths = []; // Folders with no identified number yet
 
-    // Helper to normalize numbers
-    const norm = (n) => n ? n.toString().split('@')[0].split(':')[0].replace(/[^0-9]/g, '') : null;
+    // Helper to normalize numbers (Strict)
+    const norm = (n) => {
+        if (!n) return null;
+        let cleaned = n.toString().split('@')[0].split(':')[0].replace(/[^0-9]/g, '');
+        return cleaned.length >= 10 ? cleaned : null;
+    };
 
-    // Helper to peek into session folder to see which number it belongs to
+    // Helper to peek into session folder
     const getNumFromFolder = (folder) => {
         try {
             const credsP = path.join(folder, 'creds.json');
             if (fs.existsSync(credsP)) {
                 const creds = JSON.parse(fs.readFileSync(credsP));
-                return norm(creds.me?.id || creds.me?.jid);
+                const num = norm(creds.me?.id || creds.me?.jid);
+                if (num) return num;
             }
         } catch (e) { }
         return null;
     };
 
-    // 1. First, scan existing folders (from Env Vars sync or previous runs)
-    const existingFolders = await getSessionPaths();
-    existingFolders.forEach(ex => {
-        const fullP = path.resolve(ex.path);
-        const folderNum = getNumFromFolder(ex.path);
-        const nameNum = norm(/^\d+$/.test(ex.name) ? ex.name : null);
-        const effectiveNum = folderNum || nameNum;
+    // Gather all potential sources
+    const allSources = [];
 
-        pathsToStartMap.set(fullP, { path: ex.path, pNum: effectiveNum });
-        if (effectiveNum) activeNumbers.add(effectiveNum);
-    });
+    // 1. Scan existing folders
+    const existing = await getSessionPaths();
+    existing.forEach(ex => allSources.push({ path: ex.path, name: ex.name }));
 
-    // 2. Add Core Session from Settings (Only if number not already active)
+    // 2. Add Core Session from Settings
     const coreNum = norm(settings.pairingNumber);
-    if (coreNum && !activeNumbers.has(coreNum)) {
-        const corePath = path.resolve(sessionDir);
-        if (!pathsToStartMap.has(corePath)) {
-            pathsToStartMap.set(corePath, { path: sessionDir, pNum: coreNum });
-            activeNumbers.add(coreNum);
-        }
-    }
+    if (coreNum) allSources.push({ path: sessionDir, pNum: coreNum, name: 'Default' });
 
-    // 3. Add Extra Numbers from Settings (Only if not already active)
+    // 3. Add Extra Numbers from Settings
     if (Array.isArray(settings.extraNumbers)) {
         settings.extraNumbers.forEach(num => {
-            const cleanNum = norm(num);
-            if (cleanNum && !activeNumbers.has(cleanNum)) {
-                const sessionFolderName = path.join(sessionsRoot, cleanNum);
-                const fullPath = path.resolve(sessionFolderName);
-                if (!pathsToStartMap.has(fullPath)) {
-                    pathsToStartMap.set(fullPath, { path: sessionFolderName, pNum: cleanNum });
-                    activeNumbers.add(cleanNum);
-                }
-            }
+            const clean = norm(num);
+            if (clean) allSources.push({ path: path.join(sessionsRoot, clean), pNum: clean, name: clean });
         });
     }
 
-    const finalPaths = Array.from(pathsToStartMap.values());
-    console.log(chalk.cyan(`🔄 Found ${finalPaths.length} sessions to initialize...`));
+    // Process all sources into the unique Number-to-Path Map
+    for (const source of allSources) {
+        const fullPath = path.resolve(source.path);
+        const folderNum = getNumFromFolder(source.path);
+        const effectiveNum = folderNum || source.pNum || norm(/^\d+$/.test(source.name) ? source.name : null);
 
+        if (effectiveNum) {
+            // Priority: If multiple paths claim the same number, we only keep the first one
+            // This prevents starting two sessions for the same account, which causes 440 Conflict errors.
+            if (!numberToPathMap.has(effectiveNum)) {
+                numberToPathMap.set(effectiveNum, { path: source.path, pNum: effectiveNum });
+            }
+        } else {
+            // If no number yet, keep as pending folder (new pairing)
+            if (!pendingPaths.find(p => path.resolve(p.path) === fullPath)) {
+                pendingPaths.push({ path: source.path, pNum: null });
+            }
+        }
+    }
+
+    // Merge unique numbers and pending paths
+    const finalPaths = [...Array.from(numberToPathMap.values()), ...pendingPaths];
+
+    // Final check: filter out duplicates by path
+    const uniqueByPath = [];
+    const seenAbsPaths = new Set();
     for (const s of finalPaths) {
+        const abs = path.resolve(s.path);
+        if (!seenAbsPaths.has(abs)) {
+            uniqueByPath.push(s);
+            seenAbsPaths.add(abs);
+        }
+    }
+
+    console.log(chalk.cyan(`\n🔄 Found ${uniqueByPath.length} unique sessions to initialize...`));
+
+    for (const s of uniqueByPath) {
         try {
             await startBot(s.path, s.pNum);
             await delay(15000); // Wait between sessions
