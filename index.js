@@ -718,42 +718,58 @@ async function startBot(sessionPath = sessionDir, phoneNumber = null) {
 
     console.log(chalk.cyan(`\n🚀 Starting bot multi-session manager...`));
 
-    // Unified Session Gathering with Deduplication by Number
+    // Unified Session Gathering with Smart Deduplication
     const pathsToStartMap = new Map();
     const activeNumbers = new Set();
 
-    // Helper to normalize numbers for deduplication
-    const norm = (n) => n ? n.toString().replace(/[^0-9]/g, '') : null;
+    // Helper to normalize numbers
+    const norm = (n) => n ? n.toString().replace(/[^0-9]/g, '').split(':')[0] : null;
 
-    // 1. Existing local sessions (Highest Priority: Environment Variables synced here first)
+    // Helper to peek into session folder to see which number it belongs to
+    const getNumFromFolder = (folder) => {
+        try {
+            const credsP = path.join(folder, 'creds.json');
+            if (fs.existsSync(credsP)) {
+                const creds = JSON.parse(fs.readFileSync(credsP));
+                return norm(creds.me?.id || creds.me?.jid);
+            }
+        } catch (e) { }
+        return null;
+    };
+
+    // 1. First, scan existing folders (from Env Vars sync or previous runs)
     const existingFolders = await getSessionPaths();
     existingFolders.forEach(ex => {
         const fullP = path.resolve(ex.path);
-        const num = norm(/^\d+$/.test(ex.name) ? ex.name : null);
+        const folderNum = getNumFromFolder(ex.path);
+        const nameNum = norm(/^\d+$/.test(ex.name) ? ex.name : null);
+        const effectiveNum = folderNum || nameNum;
 
-        pathsToStartMap.set(fullP, { path: ex.path, pNum: num });
-        if (num) activeNumbers.add(num);
+        pathsToStartMap.set(fullP, { path: ex.path, pNum: effectiveNum });
+        if (effectiveNum) activeNumbers.add(effectiveNum);
     });
 
-    // 2. Core Session from Settings (Only if not already covered by env vars)
+    // 2. Add Core Session from Settings (Only if number not already active)
     const coreNum = norm(settings.pairingNumber);
-    if (!activeNumbers.has(coreNum)) {
+    if (coreNum && !activeNumbers.has(coreNum)) {
         const corePath = path.resolve(sessionDir);
         if (!pathsToStartMap.has(corePath)) {
             pathsToStartMap.set(corePath, { path: sessionDir, pNum: coreNum });
-            if (coreNum) activeNumbers.add(coreNum);
+            activeNumbers.add(coreNum);
         }
     }
 
-    // 3. Extra Numbers from Settings (Only if not already covered)
+    // 3. Add Extra Numbers from Settings (Only if not already active)
     if (Array.isArray(settings.extraNumbers)) {
         settings.extraNumbers.forEach(num => {
             const cleanNum = norm(num);
-            if (!activeNumbers.has(cleanNum)) {
+            if (cleanNum && !activeNumbers.has(cleanNum)) {
                 const sessionFolderName = path.join(sessionsRoot, cleanNum);
                 const fullPath = path.resolve(sessionFolderName);
-                pathsToStartMap.set(fullPath, { path: sessionFolderName, pNum: cleanNum });
-                activeNumbers.add(cleanNum);
+                if (!pathsToStartMap.has(fullPath)) {
+                    pathsToStartMap.set(fullPath, { path: sessionFolderName, pNum: cleanNum });
+                    activeNumbers.add(cleanNum);
+                }
             }
         });
     }
