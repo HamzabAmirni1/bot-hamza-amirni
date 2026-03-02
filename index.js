@@ -13,6 +13,14 @@ const {
     delay,
     Browsers
 } = Baileys;
+
+// --- GLOBAL CRASH PROTECTION ---
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('🛑 Unhandled Rejection at:', promise, 'reason:', reason);
+});
+process.on('uncaughtException', (err) => {
+    console.error('🛑 Uncaught Exception:', err);
+});
 const makeInMemoryStore = typeof makeInMemoryStoreFunc === 'function' ? makeInMemoryStoreFunc : () => ({
     bind: () => { },
     loadMessage: async () => { },
@@ -449,8 +457,8 @@ async function startBot(sessionPath = sessionDir, phoneNumber = null) {
             if (!process.env[sessionEnvVarName] && !sentSessionCodes.has(sessionPath)) {
                 setTimeout(async () => {
                     try {
-                        // Re-check if connected and if we already sent it during the wait
-                        if (sentSessionCodes.has(sessionPath)) return;
+                        // Re-check if connected and valid
+                        if (sentSessionCodes.has(sessionPath) || !sock.user) return;
 
                         const credsFile = path.join(sessionPath, 'creds.json');
                         if (fs.existsSync(credsFile)) {
@@ -461,17 +469,22 @@ async function startBot(sessionPath = sessionDir, phoneNumber = null) {
 
                             // 1. Send to self (Bot's own number)
                             const myNumber = sock.decodeJid(sock.user.id);
-                            await sock.sendMessage(myNumber, { text: msgText }).catch(() => { });
 
-                            // 2. Send to the Main Owner as backup
-                            const mainOwners = Array.isArray(settings.ownerNumber) ? settings.ownerNumber : [settings.ownerNumber];
-                            const mainOwner = mainOwners[0] + '@s.whatsapp.net';
-                            if (mainOwner !== myNumber) {
-                                await sock.sendMessage(mainOwner, { text: msgText }).catch(() => { });
+                            // Check if socket is still active before sending
+                            try {
+                                await sock.sendMessage(myNumber, { text: msgText });
+
+                                // 2. Send to the Main Owner as backup
+                                const mainOwners = Array.isArray(settings.ownerNumber) ? settings.ownerNumber : [settings.ownerNumber];
+                                const mainOwner = mainOwners[0] + '@s.whatsapp.net';
+                                if (mainOwner !== myNumber) {
+                                    await sock.sendMessage(mainOwner, { text: msgText });
+                                }
+                                sentSessionCodes.add(sessionPath);
+                                console.log(chalk.green(`✅ Session code sent to private chat of ${myNumber} and Owner`));
+                            } catch (e) {
+                                // Socket might have closed during the sequence
                             }
-
-                            sentSessionCodes.add(sessionPath); // Mark as sent for this run
-                            console.log(chalk.green(`✅ Session code sent to private chat of ${myNumber} and Owner`));
                         }
                     } catch (err) {
                         console.error('Failed to send session code:', err.message);
@@ -705,29 +718,45 @@ async function startBot(sessionPath = sessionDir, phoneNumber = null) {
 
     console.log(chalk.cyan(`\n🚀 Starting bot multi-session manager...`));
 
-    // Unified Session Gathering
+    // Unified Session Gathering with Deduplication by Number
     const pathsToStartMap = new Map();
+    const activeNumbers = new Set();
 
-    // 1. Core Session from Settings
-    pathsToStartMap.set(path.resolve(sessionDir), { path: sessionDir, pNum: settings.pairingNumber });
+    // Helper to normalize numbers for deduplication
+    const norm = (n) => n ? n.toString().replace(/[^0-9]/g, '') : null;
 
-    // 2. Extra Numbers from Settings
-    if (Array.isArray(settings.extraNumbers)) {
-        settings.extraNumbers.forEach(num => {
-            const fullPath = path.resolve(path.join(sessionsRoot, num));
-            pathsToStartMap.set(fullPath, { path: path.join(sessionsRoot, num), pNum: num });
-        });
-    }
-
-    // 3. Existing local sessions (e.g. from SESSION_ID sync)
+    // 1. Existing local sessions (Highest Priority: Environment Variables synced here first)
     const existingFolders = await getSessionPaths();
     existingFolders.forEach(ex => {
         const fullP = path.resolve(ex.path);
-        if (!pathsToStartMap.has(fullP)) {
-            const num = /^\d+$/.test(ex.name) ? ex.name : null;
-            pathsToStartMap.set(fullP, { path: ex.path, pNum: num });
-        }
+        const num = norm(/^\d+$/.test(ex.name) ? ex.name : null);
+
+        pathsToStartMap.set(fullP, { path: ex.path, pNum: num });
+        if (num) activeNumbers.add(num);
     });
+
+    // 2. Core Session from Settings (Only if not already covered by env vars)
+    const coreNum = norm(settings.pairingNumber);
+    if (!activeNumbers.has(coreNum)) {
+        const corePath = path.resolve(sessionDir);
+        if (!pathsToStartMap.has(corePath)) {
+            pathsToStartMap.set(corePath, { path: sessionDir, pNum: coreNum });
+            if (coreNum) activeNumbers.add(coreNum);
+        }
+    }
+
+    // 3. Extra Numbers from Settings (Only if not already covered)
+    if (Array.isArray(settings.extraNumbers)) {
+        settings.extraNumbers.forEach(num => {
+            const cleanNum = norm(num);
+            if (!activeNumbers.has(cleanNum)) {
+                const sessionFolderName = path.join(sessionsRoot, cleanNum);
+                const fullPath = path.resolve(sessionFolderName);
+                pathsToStartMap.set(fullPath, { path: sessionFolderName, pNum: cleanNum });
+                activeNumbers.add(cleanNum);
+            }
+        });
+    }
 
     const finalPaths = Array.from(pathsToStartMap.values());
     console.log(chalk.cyan(`🔄 Found ${finalPaths.length} sessions to initialize...`));
