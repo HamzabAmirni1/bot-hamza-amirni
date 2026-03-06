@@ -129,16 +129,8 @@ const sentSessionCodes = new Set(); // TRACKER TO PREVENT DUPLICATE SESSION CODE
 const stores = new Map();
 const retryCaches = new Map();
 
-const welcomedPath = path.join(__dirname, 'data/welcomed.json');
-if (!global.welcomedUsers) {
-    try {
-        if (fs.existsSync(welcomedPath)) {
-            global.welcomedUsers = new Set(JSON.parse(fs.readFileSync(welcomedPath)));
-        } else {
-            global.welcomedUsers = new Set();
-        }
-    } catch (e) { global.welcomedUsers = new Set(); }
-}
+// Welcomed users will be handled per socket
+
 
 // --- PERSISTENT MESSAGE DEDUPLICATION ---
 const processedPath = path.join(__dirname, 'data/processed_msgs.json');
@@ -644,12 +636,26 @@ async function startBot(sessionPath = sessionDir, phoneNumber = null) {
                     const { loadAutoWelcomeState } = require('./commands/group/autowelcome');
 
                     if (loadAutoWelcomeState() && !pmState.enabled) {
-                        if (!global.welcomedUsers) global.welcomedUsers = new Set();
-                        if (!global.welcomedUsers.has(msg.key.remoteJid)) {
+                        const botId = sock.user?.id?.split(':')[0] || 'bot';
+                        const welcomedPath = path.join(__dirname, `data/welcomed_${botId}.json`);
+
+                        if (!sock.welcomedUsers) {
+                            try {
+                                if (fs.existsSync(welcomedPath)) {
+                                    sock.welcomedUsers = new Set(JSON.parse(fs.readFileSync(welcomedPath)));
+                                } else {
+                                    sock.welcomedUsers = new Set();
+                                }
+                            } catch (e) { sock.welcomedUsers = new Set(); }
+                        }
+
+                        if (!sock.welcomedUsers.has(msg.key.remoteJid)) {
                             // Send Welcome
                             const welcomeText = `مرحباً بك يا @${msg.key.remoteJid.split('@')[0]} في عالم ${settings.botName} ⚔️\n\nللإطلاع على الأوامر: ${settings.prefix}menu`;
                             await sock.sendMessage(msg.key.remoteJid, { text: welcomeText, mentions: [msg.key.remoteJid] });
-                            global.welcomedUsers.add(msg.key.remoteJid);
+
+                            sock.welcomedUsers.add(msg.key.remoteJid);
+                            fs.writeFileSync(welcomedPath, JSON.stringify(Array.from(sock.welcomedUsers)));
 
                             // Auto-subscribe
                             try { require('./commands/islamic/ad3iya').autoSubscribe(sock, msg.key.remoteJid); } catch (e) { }
