@@ -46,10 +46,7 @@ const DEFAULT_MESSAGE = `╔═════════════════�
 🌐 *الموقع الشخصي:*
    • https://hamzaamirni.netlify.app
 
-💻 *GitHub:*
-   • https://github.com/HamzabAmirni1
-
-🔗 *TikTok:*
+ *TikTok:*
    • https://www.tiktok.com/@hamzaamirni
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
