@@ -3,57 +3,65 @@ const fs = require('fs');
 const path = require('path');
 const moment = require('moment-timezone');
 
-// Duas data file
-const duasDataPath = path.join(__dirname, '../data/duas-subscribers.json');
+const dataDir = path.join(__dirname, '../data');
+
+function getDbPath(sock) {
+    let num = 'default';
+    if (sock && sock.user && sock.user.id) {
+        num = sock.user.id.split(':')[0];
+    }
+    return path.join(dataDir, `duas_subscribers_${num}.json`);
+}
 
 // Ensure data file exists (with EACCES handling)
-function ensureDataFile() {
+function ensureDataFile(sock) {
     try {
-        const dataDir = path.join(__dirname, '../data');
         if (!fs.existsSync(dataDir)) {
             fs.mkdirSync(dataDir, { recursive: true });
         }
-        if (!fs.existsSync(duasDataPath)) {
-            fs.writeFileSync(duasDataPath, JSON.stringify({ subscribers: [], enabled: false }));
+        const filePath = getDbPath(sock);
+        if (!fs.existsSync(filePath)) {
+            fs.writeFileSync(filePath, JSON.stringify({ subscribers: [], enabled: false }));
         }
         // Force permissions if possible
-        try { fs.chmodSync(duasDataPath, 0o666); } catch (e) { }
+        try { fs.chmodSync(filePath, 0o666); } catch (e) { }
     } catch (e) {
         console.error('[Ad3iya] Error ensuring data file:', e.message);
     }
 }
 
-function loadData() {
+function loadData(sock) {
     try {
-        ensureDataFile();
-        if (fs.existsSync(duasDataPath)) {
-            const data = JSON.parse(fs.readFileSync(duasDataPath, 'utf8'));
+        ensureDataFile(sock);
+        const filePath = getDbPath(sock);
+        if (fs.existsSync(filePath)) {
+            const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
             if (data.enabled === undefined) data.enabled = true;
             return data;
         }
     } catch (e) {
         console.error('[Ad3iya] Error loading data:', e.message);
     }
-    return global.duasFallbackData || { subscribers: [], enabled: true };
+    return { subscribers: [], enabled: true };
 }
 
-function saveData(data) {
-    global.duasFallbackData = data;
+function saveData(sock, data) {
     try {
-        ensureDataFile();
-        fs.writeFileSync(duasDataPath, JSON.stringify(data, null, 2));
+        ensureDataFile(sock);
+        const filePath = getDbPath(sock);
+        fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
     } catch (e) {
         console.error('[Ad3iya] Error saving data:', e.message);
     }
 }
 
-function autoSubscribe(chatId) {
+function autoSubscribe(sock, chatId) {
     if (chatId.endsWith('@g.us')) return;
-    const data = loadData();
+    const data = loadData(sock);
     if (!data.subscribers.includes(chatId)) {
         data.subscribers.push(chatId);
         data.enabled = true;
-        saveData(data);
+        saveData(sock, data);
     }
 }
 
@@ -103,11 +111,11 @@ async function ad3iyaCommand(sock, chatId, msg, argsInput, commands, userLang) {
     const args = (Array.isArray(argsInput) ? argsInput.join(' ') : (argsInput || '')).trim().toLowerCase();
 
     if (args === 'on' || args === 'subscribe') {
-        const data = loadData();
+        const data = loadData(sock);
         if (!data.subscribers.includes(chatId)) {
             data.subscribers.push(chatId);
             data.enabled = true;
-            saveData(data);
+            saveData(sock, data);
             await sendWithChannelButton(sock, chatId, t('ad3iya.subscribe_success', {}, userLang), msg);
         } else {
             await sendWithChannelButton(sock, chatId, t('ad3iya.already_subscribed', {}, userLang), msg);
@@ -116,9 +124,9 @@ async function ad3iyaCommand(sock, chatId, msg, argsInput, commands, userLang) {
     }
 
     if (args === 'off' || args === 'unsubscribe') {
-        const data = loadData();
+        const data = loadData(sock);
         data.subscribers = data.subscribers.filter(id => id !== chatId);
-        saveData(data);
+        saveData(sock, data);
         await sendWithChannelButton(sock, chatId, t('ad3iya.unsubscribe_success', {}, userLang), msg);
         return;
     }
@@ -137,16 +145,12 @@ async function ad3iyaCommand(sock, chatId, msg, argsInput, commands, userLang) {
     await sendWithChannelButton(sock, chatId, response, msg);
 }
 
-// Tracking to avoid duplicate messages on restart/reconnect
-global.duasLastSent = global.duasLastSent || {};
-
 function startScheduler(sock) {
-    if (global.duasInterval) clearInterval(global.duasInterval);
-    global.duasInterval = setInterval(async () => {
-        const currentSock = global.sock || sock;
+    const task = setInterval(async () => {
+        const currentSock = sock;
         if (!currentSock || !currentSock.user) return;
 
-        const data = loadData();
+        const data = loadData(currentSock);
         if (!data.enabled || data.subscribers.length === 0) return;
 
         const now = moment().tz('Africa/Casablanca');
@@ -162,12 +166,13 @@ function startScheduler(sock) {
             const runKey = `${currentDate}_${currentHour}`;
 
             // Avoid duplicate execution within the same hour
-            if (global.duasLastSent[runKey]) return;
-            global.duasLastSent[runKey] = true;
+            if (!currentSock.duasLastSent) currentSock.duasLastSent = {};
+            if (currentSock.duasLastSent[runKey]) return;
+            currentSock.duasLastSent[runKey] = true;
 
             // Clean up old keys (keep only current date)
-            Object.keys(global.duasLastSent).forEach(key => {
-                if (!key.startsWith(currentDate)) delete global.duasLastSent[key];
+            Object.keys(currentSock.duasLastSent).forEach(key => {
+                if (!key.startsWith(currentDate)) delete currentSock.duasLastSent[key];
             });
             // Special: Friday Morning Surah Al-Kahf
             if (isFriday && now.hours() === 9) {
@@ -235,7 +240,7 @@ function startScheduler(sock) {
             }
         }
     }, 60000);
-    return global.duasInterval;
+    return task;
 }
 
 module.exports = ad3iyaCommand;

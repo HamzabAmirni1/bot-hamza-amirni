@@ -352,7 +352,7 @@ async function startBot(sessionPath = sessionDir, phoneNumber = null) {
         version,
         logger: pino({ level: 'silent' }),
         printQRInTerminal: !pairingCode,
-        browser: Browsers.ubuntu('Chrome'),
+        browser: ['Ubuntu', 'Chrome', '20.0.04'],
         auth: {
             creds: state.creds,
             keys: makeCacheableSignalKeyStore(state.keys, pino({ level: "fatal" }).child({ level: "fatal" })),
@@ -421,7 +421,7 @@ async function startBot(sessionPath = sessionDir, phoneNumber = null) {
 
         if (pNum) {
             // Wait to ensure socket is ready before requesting code
-            await delay(4000);
+            await delay(5000);
             try {
                 // Double check if registered after delay (it might have connected)
                 if (!sock.authState.creds.registered) {
@@ -652,8 +652,8 @@ async function startBot(sessionPath = sessionDir, phoneNumber = null) {
                             global.welcomedUsers.add(msg.key.remoteJid);
 
                             // Auto-subscribe
-                            try { require('./commands/islamic/ad3iya').autoSubscribe(msg.key.remoteJid); } catch (e) { }
-                            try { require('./commands/islamic/salat').autoSubscribe(msg.key.remoteJid); } catch (e) { }
+                            try { require('./commands/islamic/ad3iya').autoSubscribe(sock, msg.key.remoteJid); } catch (e) { }
+                            try { require('./commands/islamic/salat').autoSubscribe(sock, msg.key.remoteJid); } catch (e) { }
                         }
                     }
                 }

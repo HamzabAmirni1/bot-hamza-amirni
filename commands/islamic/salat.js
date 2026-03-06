@@ -7,29 +7,39 @@ const { sendWithChannelButton } = require('../../lib/channelButton');
 const settings = require('../../settings');
 
 const DB_DIR = path.join(__dirname, '../data');
-const DB_PATH = path.join(DB_DIR, 'prayer_settings.json');
 
-// Ensure database directory and file exist
+// Ensure database directory exists
 if (!fs.existsSync(DB_DIR)) {
     fs.mkdirSync(DB_DIR, { recursive: true });
 }
-if (!fs.existsSync(DB_PATH)) {
-    fs.writeFileSync(DB_PATH, JSON.stringify({}));
+
+function getDbPath(sock) {
+    let num = 'default';
+    if (sock && sock.user && sock.user.id) {
+        num = sock.user.id.split(':')[0];
+    }
+    return path.join(DB_DIR, `prayer_settings_${num}.json`);
 }
 
 // In-memory cache
 const cityCache = {};
 
-function loadSettings() {
+function loadSettings(sock) {
     try {
-        return JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
+        const file = getDbPath(sock);
+        if (fs.existsSync(file)) return JSON.parse(fs.readFileSync(file, 'utf8'));
     } catch (e) {
-        return {};
     }
+    return {};
 }
 
-function saveSettings(data) {
-    fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2));
+function saveSettings(sock, data) {
+    try {
+        const file = getDbPath(sock);
+        fs.writeFileSync(file, JSON.stringify(data, null, 2));
+    } catch (e) {
+        console.error('Error saving settings:', e.message);
+    }
 }
 
 async function getPrayerTimes(city) {
@@ -58,10 +68,10 @@ async function getPrayerTimes(city) {
 
 async function salatCommand(sock, chatId, message, args) {
     try {
-        const prayerSettings = loadSettings();
+        const prayerSettings = loadSettings(sock);
         if (!prayerSettings[chatId]) {
             prayerSettings[chatId] = { city: 'Casablanca', enabled: true };
-            saveSettings(prayerSettings);
+            saveSettings(sock, prayerSettings);
         }
 
         if (!args || args.length === 0) {
@@ -106,7 +116,7 @@ async function salatCommand(sock, chatId, message, args) {
 
         if (['on', 'off'].includes(action)) {
             prayerSettings[chatId].enabled = (action === 'on');
-            saveSettings(prayerSettings);
+            saveSettings(sock, prayerSettings);
             return await sendWithChannelButton(sock, chatId, `🔔 تم ${action === 'on' ? 'تفعيل' : 'إيقاف'} التنبيهات.`, message);
         }
 
@@ -116,7 +126,7 @@ async function salatCommand(sock, chatId, message, args) {
         if (!check) return await sendWithChannelButton(sock, chatId, `❌ مدينة غير صحيحة: ${city}`, message);
 
         prayerSettings[chatId].city = city;
-        saveSettings(prayerSettings);
+        saveSettings(sock, prayerSettings);
         return await sendWithChannelButton(sock, chatId, `✅ تم ضبط المدينة: ${city}`, message);
 
     } catch (e) {
@@ -124,16 +134,12 @@ async function salatCommand(sock, chatId, message, args) {
     }
 }
 
-// Tracking to avoid duplicate messages on restart/reconnect
-global.prayersLastSent = global.prayersLastSent || {};
-
 function startPrayerScheduler(sock) {
-    if (global.prayerCron) global.prayerCron.stop();
-    global.prayerCron = cron.schedule('* * * * *', async () => {
-        const currentSock = global.sock || sock;
+    const task = cron.schedule('* * * * *', async () => {
+        const currentSock = sock;
         if (!currentSock || !currentSock.user) return;
 
-        const prayerSettings = loadSettings();
+        const prayerSettings = loadSettings(currentSock);
         const now = moment().tz('Africa/Casablanca');
         const currentTime = now.format('HH:mm');
 
@@ -165,13 +171,14 @@ function startPrayerScheduler(sock) {
             for (const [name, time] of Object.entries(prayers)) {
                 if (time === currentTime) {
                     const runKey = `${chatId}_${name}_${now.format('YYYY-MM-DD')}`;
-                    if (global.prayersLastSent[runKey]) continue;
-                    global.prayersLastSent[runKey] = true;
+                    if (!currentSock.prayersLastSent) currentSock.prayersLastSent = {};
+                    if (currentSock.prayersLastSent[runKey]) continue;
+                    currentSock.prayersLastSent[runKey] = true;
 
                     // Clean up old keys (keep only current date)
                     const todayDate = now.format('YYYY-MM-DD');
-                    Object.keys(global.prayersLastSent).forEach(key => {
-                        if (!key.endsWith(todayDate)) delete global.prayersLastSent[key];
+                    Object.keys(currentSock.prayersLastSent).forEach(key => {
+                        if (!key.endsWith(todayDate)) delete currentSock.prayersLastSent[key];
                     });
 
                     const tips = [
@@ -211,15 +218,15 @@ function startPrayerScheduler(sock) {
             }
         }
     });
-    return global.prayerCron;
+    return task;
 }
 
 module.exports = salatCommand;
 module.exports.startPrayerScheduler = startPrayerScheduler;
-module.exports.autoSubscribe = (chatId) => {
-    const settings = loadSettings();
+module.exports.autoSubscribe = (sock, chatId) => {
+    const settings = loadSettings(sock);
     if (!settings[chatId]) {
         settings[chatId] = { city: 'Casablanca', enabled: true };
-        saveSettings(settings);
+        saveSettings(sock, settings);
     }
 };
