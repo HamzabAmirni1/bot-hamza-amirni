@@ -449,11 +449,13 @@ async function startBot(sessionPath = sessionDir, phoneNumber = null) {
 
             // Send Session Code to Owner upon connection (Limit to once per session path per run)
             const sessionEnvVarName = sessionPath === sessionDir ? 'SESSION_ID' : `SESSION_${path.basename(sessionPath)}`;
-            if (!process.env[sessionEnvVarName] && !sentSessionCodes.has(sessionPath)) {
+            const markerFile = path.join(sessionPath, '.session_code_sent');
+
+            if (!process.env[sessionEnvVarName] && !sentSessionCodes.has(sessionPath) && !fs.existsSync(markerFile)) {
                 setTimeout(async () => {
                     try {
                         // Re-check if connected and valid
-                        if (sentSessionCodes.has(sessionPath) || !sock.user) return;
+                        if (sentSessionCodes.has(sessionPath) || !sock.user || fs.existsSync(markerFile)) return;
 
                         const credsFile = path.join(sessionPath, 'creds.json');
                         if (fs.existsSync(credsFile)) {
@@ -476,6 +478,7 @@ async function startBot(sessionPath = sessionDir, phoneNumber = null) {
                                     await sock.sendMessage(mainOwner, { text: msgText });
                                 }
                                 sentSessionCodes.add(sessionPath);
+                                try { fs.writeFileSync(markerFile, 'sent'); } catch (e) { }
                                 console.log(chalk.green(`✅ Session code sent to private chat of ${myNumber} and Owner`));
                             } catch (e) {
                                 // Socket might have closed during the sequence
