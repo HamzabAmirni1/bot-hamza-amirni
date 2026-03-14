@@ -74,8 +74,13 @@ function setupSilencer() {
         'failed to decrypt message',
         'SessionError',
         'No session record',
-        'incoming prekey bundle'
-    ];
+        'incoming prekey bundle',
+    'SessionEntry',
+    'chainKey',
+    'ratchetKey',
+    'currentRatchet',
+    'indexInfo'
+];
 
     function shouldSilence(args) {
         if (!args || !args.length) return false;
@@ -348,7 +353,7 @@ async function startBot(sessionPath = sessionDir, phoneNumber = null) {
         version,
         logger: pino({ level: 'fatal' }),
         printQRInTerminal: !pairingCode,
-        browser: ['Hamza Amirni', 'Safari', '1.0.0'],
+        browser: ['Hamza-Bot', 'Safari', '3.0.0'],
         auth: {
             creds: state.creds,
             keys: makeCacheableSignalKeyStore(state.keys, pino({ level: "fatal" }).child({ level: "fatal" })),
