@@ -75,12 +75,14 @@ function setupSilencer() {
         'SessionError',
         'No session record',
         'incoming prekey bundle',
-    'SessionEntry',
-    'chainKey',
-    'ratchetKey',
-    'currentRatchet',
-    'indexInfo'
-];
+        'SessionEntry',
+        'chainKey',
+        'ratchetKey',
+        'currentRatchet',
+        'indexInfo',
+        'Bad MAC',
+        'Failed to decrypt message'
+    ];
 
     function shouldSilence(args) {
         if (!args || !args.length) return false;
@@ -94,7 +96,7 @@ function setupSilencer() {
     console.info = (...args) => { if (!shouldSilence(args)) originalConsoleInfo.apply(console, args); };
 }
 
-// setupSilencer(); // Disabled by default for better debugging during sifting
+setupSilencer();
 
 const app = express();
 const port = process.env.PORT || 8000;
