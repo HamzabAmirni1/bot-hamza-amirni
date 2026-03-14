@@ -342,9 +342,9 @@ async function startBot(sessionPath = sessionDir, phoneNumber = null) {
 
     const sock = makeWASocket({
         version,
-        logger: pino({ level: 'silent' }),
+        logger: pino({ level: 'error' }),
         printQRInTerminal: !pairingCode,
-        browser: ['Ubuntu', 'Chrome', '20.0.04'],
+        browser: ['Hamza Amirni', 'Safari', '1.0.0'],
         auth: {
             creds: state.creds,
             keys: makeCacheableSignalKeyStore(state.keys, pino({ level: "fatal" }).child({ level: "fatal" })),
@@ -355,12 +355,12 @@ async function startBot(sessionPath = sessionDir, phoneNumber = null) {
             return msg?.message || { conversation: settings.botName || 'Hamza Amirni' };
         },
         msgRetryCounterCache,
-        defaultQueryTimeoutMs: undefined,
-        connectTimeoutMs: 60000,
-        keepAliveIntervalMs: 30000,
+        defaultQueryTimeoutMs: 120000,
+        connectTimeoutMs: 120000,
+        keepAliveIntervalMs: 60000,
         fireInitQueries: false,
         syncFullHistory: false,
-        markOnlineOnConnect: false,
+        markOnlineOnConnect: true,
         emitOwnEvents: true,
         generateHighQualityLinkPreview: true,
     });
@@ -385,7 +385,10 @@ async function startBot(sessionPath = sessionDir, phoneNumber = null) {
 
     // Determine pairing needs specifically for THIS socket
     const credsExist = fs.existsSync(path.join(sessionPath, 'creds.json'));
-    // If creds don't exist OR if we have creds but they aren't registered yet, we need to request a pairing code
+    
+    // Check if there is an env variable for this session to skip pairing
+    const sessionEnvVarName = (sessionPath === sessionDir || sessionPath === './session') ? 'SESSION_ID' : path.basename(sessionPath).toUpperCase();
+    const hasSessionVar = !!process.env[sessionEnvVarName] && process.env[sessionEnvVarName].length > 10;
 
     // Determine the phone number to use for this session upfront
     let pNum = phoneNumber;
@@ -403,7 +406,8 @@ async function startBot(sessionPath = sessionDir, phoneNumber = null) {
         }
     }
 
-    const needsPairing = (!credsExist || !sock.authState.creds.registered) && !!pNum;
+    // If session var exists, we don't need pairing code (it should connect from var)
+    const needsPairing = !hasSessionVar && (!credsExist || !sock.authState.creds.registered) && !!pNum;
 
     // Pairing Code Flow
     if (needsPairing && !sock.authState.creds.registered) {
@@ -413,7 +417,7 @@ async function startBot(sessionPath = sessionDir, phoneNumber = null) {
 
         if (pNum) {
             // Wait to ensure socket is ready before requesting code
-            await delay(5000);
+            await delay(10000);
             try {
                 // Double check if registered after delay (it might have connected)
                 if (!sock.authState.creds.registered) {
@@ -568,8 +572,9 @@ async function startBot(sessionPath = sessionDir, phoneNumber = null) {
                     } catch (e) { }
                 }
             } else if (statusCode === 408 || statusCode === DisconnectReason.connectionLost) {
-                console.log(chalk.yellow(`Connection lost, retrying in 15s...`));
-                setTimeout(() => startBot(sessionPath, phoneNumber), 15000);
+                const retryDelay = 30000 + Math.floor(Math.random() * 15000);
+                console.log(chalk.yellow(`Connection lost (408), retrying in ${retryDelay / 1000}s...`));
+                setTimeout(() => startBot(sessionPath, phoneNumber), retryDelay);
             } else if (statusCode === 500 || statusCode === DisconnectReason.connectionClosed || statusCode === 428) {
                 const retryDelay = 25000 + Math.floor(Math.random() * 10000);
                 console.log(chalk.yellow(`Connection closed (428/500), retrying in ${retryDelay / 1000}s...`));
