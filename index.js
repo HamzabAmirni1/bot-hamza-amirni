@@ -346,7 +346,7 @@ async function startBot(sessionPath = sessionDir, phoneNumber = null) {
 
     const sock = makeWASocket({
         version,
-        logger: pino({ level: 'error' }),
+        logger: pino({ level: 'fatal' }),
         printQRInTerminal: !pairingCode,
         browser: ['Hamza Amirni', 'Safari', '1.0.0'],
         auth: {
@@ -584,8 +584,9 @@ async function startBot(sessionPath = sessionDir, phoneNumber = null) {
                 console.log(chalk.yellow(`Connection closed (428/500), retrying in ${retryDelay / 1000}s...`));
                 setTimeout(() => startBot(sessionPath, phoneNumber), retryDelay);
             } else if (statusCode === 440 || statusCode === DisconnectReason.restartRequired) {
-                console.log(chalk.cyan(`Restart required (440), reconnecting in 20s...`));
-                setTimeout(() => startBot(sessionPath, phoneNumber), 20000);
+                const retryDelay = 40000 + Math.floor(Math.random() * 20000);
+                console.log(chalk.cyan(`Restart required (440 - Conflict), reconnecting in ${retryDelay / 1000}s to avoid loop...`));
+                setTimeout(() => startBot(sessionPath, phoneNumber), retryDelay);
             } else if (shouldReconnect) {
                 setTimeout(() => startBot(sessionPath, phoneNumber), 15000);
             }
