@@ -355,7 +355,7 @@ async function startBot(sessionPath = sessionDir, phoneNumber = null) {
         version,
         logger: pino({ level: 'fatal' }),
         printQRInTerminal: !pairingCode,
-        browser: ['Hamza-Bot', 'Safari', '3.0.0'],
+        browser: ['Hamza', 'Chrome', '20.0.04'],
         auth: {
             creds: state.creds,
             keys: makeCacheableSignalKeyStore(state.keys, pino({ level: "fatal" }).child({ level: "fatal" })),
@@ -371,7 +371,7 @@ async function startBot(sessionPath = sessionDir, phoneNumber = null) {
         keepAliveIntervalMs: 60000,
         fireInitQueries: false,
         syncFullHistory: false,
-        markOnlineOnConnect: true,
+        markOnlineOnConnect: false,
         emitOwnEvents: true,
         generateHighQualityLinkPreview: true,
     });
@@ -396,7 +396,7 @@ async function startBot(sessionPath = sessionDir, phoneNumber = null) {
 
     // Determine pairing needs specifically for THIS socket
     const credsExist = fs.existsSync(path.join(sessionPath, 'creds.json'));
-    
+
     // Check if there is an env variable for this session to skip pairing
     const sessionEnvVarName = (sessionPath === sessionDir || sessionPath === './session') ? 'SESSION_ID' : path.basename(sessionPath).toUpperCase();
     const hasSessionVar = !!process.env[sessionEnvVarName] && process.env[sessionEnvVarName].length > 10;
@@ -428,7 +428,7 @@ async function startBot(sessionPath = sessionDir, phoneNumber = null) {
 
         if (pNum) {
             // Wait to ensure socket is ready before requesting code
-            await delay(10000);
+            await delay(5000);
             try {
                 // Double check if registered after delay (it might have connected)
                 if (!sock.authState.creds.registered) {
