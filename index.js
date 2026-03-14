@@ -70,7 +70,11 @@ function setupSilencer() {
     const silencePatterns = [
         'Closing open session',
         'Removing old closed session',
-        'Replacing old closed session'
+        'Replacing old closed session',
+        'failed to decrypt message',
+        'SessionError',
+        'No session record',
+        'incoming prekey bundle'
     ];
 
     function shouldSilence(args) {
