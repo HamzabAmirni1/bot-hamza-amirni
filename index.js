@@ -608,9 +608,12 @@ async function startBot(sessionPath = sessionDir, phoneNumber = null) {
                 const retryDelay = 25000 + Math.floor(Math.random() * 10000);
                 console.log(chalk.yellow(`Connection closed (428/500), retrying in ${retryDelay / 1000}s...`));
                 setTimeout(() => startBot(sessionPath, phoneNumber), retryDelay);
-            } else if (statusCode === 440 || statusCode === DisconnectReason.restartRequired) {
+            } else if (statusCode === DisconnectReason.restartRequired) {
+                console.log(chalk.cyan(`[${sessionPath}] Restart required (515), reconnecting immediately...`));
+                setTimeout(() => startBot(sessionPath, phoneNumber), 1000);
+            } else if (statusCode === 440) {
                 const retryDelay = 40000 + Math.floor(Math.random() * 20000);
-                console.log(chalk.cyan(`Restart required (440 - Conflict), reconnecting in ${retryDelay / 1000}s to avoid loop...`));
+                console.log(chalk.cyan(`Conflict (440), reconnecting in ${retryDelay / 1000}s to avoid loop...`));
                 setTimeout(() => startBot(sessionPath, phoneNumber), retryDelay);
             } else if (shouldReconnect) {
                 setTimeout(() => startBot(sessionPath, phoneNumber), 15000);
