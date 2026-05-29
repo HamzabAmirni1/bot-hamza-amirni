@@ -1,6 +1,5 @@
 // instagram.com/noureddine_ouafy
-const axios = require("axios")
-
+const axios = require('axios');
 let handler = async (m, { conn, command, quoted, prefix }) => {
   const removal = {
     _hit: async (url, fetchName, returnType = "json", opts = {}) => {

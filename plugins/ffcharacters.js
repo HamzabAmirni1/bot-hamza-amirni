@@ -1,5 +1,5 @@
-const axios = require("axios");
-const cheerio = require("cheerio");
+const axios = require('axios');
+const cheerio = require('cheerio');
 
 const BASE_URL = "https://freefire.fandom.com";
 const LIST_URL = BASE_URL + "/wiki/Characters";
@@ -150,5 +150,4 @@ handler.help = ["ffcharacters"];
 handler.command = ["ffcharacters"];
 handler.tags = ["tools"];
 handler.limit = true;
-
 module.exports = handler;

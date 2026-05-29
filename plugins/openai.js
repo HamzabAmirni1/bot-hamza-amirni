@@ -4,8 +4,7 @@
       
       Please do not remove this watermark.
 **/
-
-const axios = require("axios");
+const axios = require('axios');
 
 let handler = async (m, { conn, usedPrefix, command, text }) => {
     if (!text)
@@ -45,7 +44,6 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
 handler.help = ["openai"];
 handler.tags = ["ai"];
 handler.command = /^(openai)$/i;
-
 module.exports = handler;
 
 async function openai(text, logic) { // Function to call OpenAI

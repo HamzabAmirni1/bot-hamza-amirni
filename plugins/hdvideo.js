@@ -1,15 +1,14 @@
 // plugin by noureddine ouafy
 // scrape by https://share.petrolabs.me/tools/videoenhance
-
-const fs = require("node:fs/promises");
-const { resolve  } = require("node:path");
-const crypto = require("node:crypto");
-const axios = require("axios"); // Used to download media from the message
-const { fileURLToPath  } = require("url");
-const { dirname, join  } = require("path");
+const fs = require('node:fs/promises');
+const { resolve } = require('node:path');
+const crypto = require('node:crypto');
+const axios = require('axios');
+const { fileURLToPath } = require('url');
+const { dirname, join } = require('path');
 
 // Get the current directory to store temporary files
-const __filename = fileURLToPath(import.meta.url);
+const __filename = __filename;
 const __dirname = dirname(__filename);
 const tempDir = join(__dirname, 'temp');
 
@@ -225,5 +224,4 @@ handler.help = ['hdvideo'];
 handler.command = ['hdvideo'];
 handler.tags = ['tools'];
 handler.limit = true; // Usage limit if your bot supports it
-
 module.exports = handler;

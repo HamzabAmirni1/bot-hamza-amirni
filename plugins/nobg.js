@@ -1,6 +1,5 @@
 // instagram.com/noureddine_ouafy
-
-const axios = require("axios");
+const axios = require('axios');
 
 function isUrl(string) {
   try {

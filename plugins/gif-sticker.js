@@ -1,6 +1,6 @@
-const axios = require("axios");
-const cheerio = require("cheerio");
-const { Sticker  } = require("wa-sticker-formatter");
+const axios = require('axios');
+const cheerio = require('cheerio');
+const { Sticker } = require('wa-sticker-formatter');
 
 async function gifsSearch(q) {
     try {

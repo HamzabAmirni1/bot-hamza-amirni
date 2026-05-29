@@ -1,7 +1,6 @@
 // plugin by noureddine ouafy 
 // scrape by malik
-
-const axios = require("axios");
+const axios = require('axios');
 
 class Carbonara {
   constructor() {
@@ -89,7 +88,6 @@ Specify language:
 handler.help = handler.command = ['carbon'];
 handler.tags = ['tools'];
 handler.limit = true;
-
 module.exports = handler;
 
 
@@ -134,5 +132,4 @@ If you encounter issues, check your code formatting and try again.
 guide.help = guide.command = ['carbonguide'];
 guide.tags = ['tools'];
 guide.limit = false;
-
-export { guide };
+module.exports = { guide };

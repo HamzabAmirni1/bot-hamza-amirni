@@ -1,7 +1,6 @@
 // @noureddine_ouafy
-const axios = require("axios")
-const cheerio = require("cheerio")
-
+const axios = require('axios');
+const cheerio = require('cheerio');
 async function igdl2(url) {
     let res = await axios("https://indown.io/")
     let _$ = cheerio.load(res.data)

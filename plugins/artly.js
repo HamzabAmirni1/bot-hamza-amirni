@@ -1,6 +1,6 @@
 // plugin by noureddine ouafy
 // scrape by NBS30 Daffa
-const axios = require("axios");
+const axios = require('axios');
 
 // The main handler function that will be triggered by commands.
 let handler = async (m, { conn, text, usedPrefix, command }) => {

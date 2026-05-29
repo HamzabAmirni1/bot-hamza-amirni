@@ -1,4 +1,4 @@
-const axios = require("axios");
+const axios = require('axios');
 
 let handler = async (m, { conn, text, command }) => {
     
@@ -75,5 +75,4 @@ handler.command = ['apk2'];
 handler.tags = ['downloader'];
 handler.limit = true;
 handler.args = true; // Requires arguments (the query)
-
 module.exports = handler;

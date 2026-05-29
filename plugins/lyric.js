@@ -1,7 +1,6 @@
 // plugin by Noureddine Ouafy 
 // scrape by NekoLabs
-
-const axios = require("axios");
+const axios = require('axios');
 
 /**
  * Searches for lyrics on lrclib.net.
@@ -73,5 +72,4 @@ handler.help = ['lyric'];
 handler.command = ['lyric'];
 handler.tags = ['search'];
 handler.limit = true; // Enables usage limit for this command.
-
 module.exports = handler;

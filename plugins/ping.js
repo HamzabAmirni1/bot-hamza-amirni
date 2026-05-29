@@ -1,5 +1,5 @@
-const speed = require("performance-now");
-const { spawn, exec, execSync  } = require("child_process");
+const speed = require('performance-now');
+const { spawn, exec, execSync } = require('child_process');
 
 let handler = async (m, { conn }) => {
   let timestamp = speed();
@@ -13,5 +13,4 @@ let handler = async (m, { conn }) => {
 handler.help = ["ping"];
 handler.tags = ["tools"];
 handler.command = ["ping", "speed"];
-
 module.exports = handler;

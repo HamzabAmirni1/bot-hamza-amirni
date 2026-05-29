@@ -1,5 +1,5 @@
-const fetch = require("node-fetch")
-const { Sticker  } = require("wa-sticker-formatter")
+const fetch = require('node-fetch');
+const { Sticker } = require('wa-sticker-formatter');
 let handler = async (m, { conn, text, usedPrefix, command }) => {
 	let [emo1, emo2] = text.split`+`
 	if (!(emo1 && emo2)) throw `Ex: *.emojimix* 😟+🥺`

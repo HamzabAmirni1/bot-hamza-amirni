@@ -13,5 +13,4 @@ let handler = async (m, { conn, text }) => {
 handler.help = ['screenshot'];
 handler.tags = ['tools'];
 handler.command = /^(screenshot)$/i;
-
 module.exports = handler;

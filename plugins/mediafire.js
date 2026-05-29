@@ -5,11 +5,9 @@
   Note    : Auto send file if <= 100MB, otherwise send link
   modified: by noureddine ouafy 
 */
-
-const axios = require("axios")
-const cheerio = require("cheerio")
-const crypto = require("crypto")
-
+const axios = require('axios');
+const cheerio = require('cheerio');
+const crypto = require('crypto');
 const UA =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/122 Safari/537.36"
 

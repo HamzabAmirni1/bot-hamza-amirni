@@ -23,5 +23,4 @@ let handler = async (m, { text, conn }) => {
 handler.command = ['reminder'];
 handler.help = ['reminder'];
 handler.tags = ['tools'];
-
 module.exports = handler;

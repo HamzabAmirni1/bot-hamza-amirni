@@ -1,8 +1,8 @@
 // instagram.com/noureddine_ouafy
 // scrape by malik 
-const axios = require("axios");
-const crypto = require("crypto");
-const FormData = require("form-data");
+const axios = require('axios');
+const crypto = require('crypto');
+const FormData = require('form-data');
 
 class ChatUpAI {
   constructor() {
@@ -73,5 +73,4 @@ let handler = async (m, { conn, text }) => {
 handler.help = handler.command = ["chatupai"];
 handler.tags = ["ai"];
 handler.limit = true;
-
 module.exports = handler;

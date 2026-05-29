@@ -1,8 +1,7 @@
 // plugin by instagram.com/noureddine_ouafy
 // scrape by NusanTech
-const axios = require("axios")
-const { parseStringPromise  } = require("xml2js")
-
+const axios = require('axios');
+const { parseStringPromise } = require('xml2js');
 async function generateTextCraftImage(text, text2, text3) {
   const baseUrl = 'https://textcraft.net/gentext3.php'
   const query = new URLSearchParams({

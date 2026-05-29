@@ -2,10 +2,8 @@
 // 🇲🇦 WELCOME/GOODBYE PLUGIN - راية المغرب
 // instagram.com/noureddine_ouafy
 // ====================================================
-
-const { WAMessageStubType  } = require("@whiskeysockets/baileys")
-const { createCanvas, loadImage  } = require("canvas")
-
+const { WAMessageStubType } = require('@whiskeysockets/baileys');
+const { createCanvas, loadImage } = require('canvas');
 exports.before = async function before(m, { conn, participants, groupMetadata }) {
   if (!m.isGroup || !m.messageStubType) return true
 

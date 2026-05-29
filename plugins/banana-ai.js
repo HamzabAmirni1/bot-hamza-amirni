@@ -1,11 +1,8 @@
 // plugin by noureddine ouafy 
 // scrape by ZenzzXD
-
-
-const axios = require("axios")
-const CryptoJS = require("crypto-js")
-const fs = require("fs")
-
+const axios = require('axios');
+const CryptoJS = require('crypto-js');
+const fs = require('fs');
 const AES_KEY = 'ai-enhancer-web__aes-key'
 const AES_IV = 'aienhancer-aesiv'
 
@@ -123,5 +120,4 @@ let handler = async (m, { conn, text }) => {
 handler.help = handler.command = ['banana-ai']
 handler.tags = ['ai']
 handler.limit = true
-
 module.exports = handler

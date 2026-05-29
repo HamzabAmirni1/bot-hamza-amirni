@@ -1,4 +1,4 @@
-const fetch = require("node-fetch");
+const fetch = require('node-fetch');
 
 const handler = async (m, { conn, usedPrefix, command, text }) => {
     if (!text) return m.reply(`*• مثال :* ${usedPrefix + command} *[رابط جوجل درايف]*`);
@@ -71,5 +71,4 @@ function formatSize(bytes) {
 handler.help = ["gdrive"];
 handler.tags = ["downloader"];
 handler.command = ["gdrive", "drivedl"];
-
 module.exports = handler;

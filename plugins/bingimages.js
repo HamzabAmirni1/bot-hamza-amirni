@@ -1,8 +1,6 @@
 // instagram.com/noureddine_ouafy
-
-const axios = require("axios")
-const cheerio = require("cheerio")
-
+const axios = require('axios');
+const cheerio = require('cheerio');
 async function getBingImages(query, limit = 5) {
   const headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36'

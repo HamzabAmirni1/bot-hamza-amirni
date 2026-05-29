@@ -24,5 +24,4 @@ let before = async function (m, { conn, isAdmin, isBotAdmin }) {
     await conn.groupParticipantsUpdate(m.chat, [m.sender], "remove")
   }
 }
-
 module.exports = { before }

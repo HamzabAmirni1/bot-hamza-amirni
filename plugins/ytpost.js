@@ -37,7 +37,7 @@ handler.limit = true;
 module.exports = handler;
 
 // تابع ytpost
-const fetch = require("node-fetch");
+const fetch = require('node-fetch');
 
 const ytpost = async (ytpostUrl) => {
   if (!ytpostUrl) throw Error(`❌ لم يتم إدخال رابط منشور يوتيوب.`);

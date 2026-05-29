@@ -1,6 +1,5 @@
-const jimp_1 = require("jimp")
-const { URL_REGEX  } = require("@whiskeysockets/baileys")
-
+const jimp_1 = require('jimp');
+const { URL_REGEX } = require('@whiskeysockets/baileys');
 let handler = async (m, { conn, args }) => {
 let q = m.quoted ? m.quoted : m
 let mime = (q.msg || q).mimetype || q.mediaType || ''

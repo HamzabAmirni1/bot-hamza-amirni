@@ -1,5 +1,5 @@
 const { proto, generateWAMessage, areJidsSameUser } = (
-  await import('@whiskeysockets/baileys')
+  require('@whiskeysockets/baileys')
 ).default;
 exports.all = async function all(m, chatUpdate) {
   if (m.isBaileys) return;

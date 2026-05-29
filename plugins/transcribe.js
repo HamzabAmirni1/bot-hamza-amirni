@@ -1,8 +1,7 @@
 // plugin by noureddine ouafy 
 // scraper malik 
-
-const axios = require("axios");
-const FormData = require("form-data");
+const axios = require('axios');
+const FormData = require('form-data');
 
 /**
  * SpeechToText Class
@@ -254,5 +253,4 @@ handler.help = ['transcribe'];
 handler.command = ['transcribe'];
 handler.tags = ['tools'];
 handler.limit = true; // Set to true to enable usage limits if your bot supports it
-
 module.exports = handler;

@@ -1,5 +1,5 @@
-const axios = require("axios");
-const FormData = require("form-data");
+const axios = require('axios');
+const FormData = require('form-data');
 
 class BackgroundRemover {
   constructor() {
@@ -76,5 +76,4 @@ handler.help = ["srvrembg"];
 handler.tags = ["editor"];
 handler.command = ["srvrembg"];
 handler.limit = true;
-
 module.exports = handler;

@@ -1,4 +1,4 @@
-const fetch = require("node-fetch");
+const fetch = require('node-fetch');
 let handler = async (m, { conn, command }) => {
 	try {
 		let q = m.quoted ? m.quoted : m

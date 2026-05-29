@@ -1,5 +1,5 @@
-const axios = require("axios");
-const FormData = require("form-data");
+const axios = require('axios');
+const FormData = require('form-data');
 
 /**
  * Enhance image using ihancer API
@@ -94,5 +94,4 @@ Supported formats:
 handler.help = handler.command = ["remini"];
 handler.tags = ["editor"];
 handler.limit = 2;
-
 module.exports = handler;

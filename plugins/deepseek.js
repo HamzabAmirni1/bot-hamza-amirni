@@ -1,7 +1,6 @@
 // plugin by instagram.com/noureddine_ouafy
 // scrape by malik
-
-const axios = require("axios");
+const axios = require('axios');
 
 class DeepSeek {
   constructor() {
@@ -89,5 +88,4 @@ handler.help = ['deepseek'];
 handler.command = ['deepseek'];
 handler.tags = ['ai'];
 handler.limit = true;
-
 module.exports = handler;

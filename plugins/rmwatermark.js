@@ -1,10 +1,8 @@
 // plugin by instagram.com/noureddine_ouafy
 // scrape by ZenzzXD
-
-const fs = require("fs")
-const axios = require("axios")
-const FormData = require("form-data")
-
+const fs = require('fs');
+const axios = require('axios');
+const FormData = require('form-data');
 async function ezremove(path) {
   const form = new FormData()
   form.append('image_file', fs.createReadStream(path), path.split('/').pop())
@@ -94,5 +92,4 @@ let handler = async (m, { conn }) => {
 handler.help = handler.command = ['rmwatermark']
 handler.tags = ['editor']
 handler.limit = true
-
 module.exports = handler

@@ -1,7 +1,6 @@
-const { createHash  } = require("crypto")
-const axios = require("axios")
-const https = require("https")
-
+const { createHash } = require('crypto');
+const axios = require('axios');
+const https = require('https');
 /* ============================================================
    🔧 Kiana-Chan YouTube Downloader — Core Scraper
    API: https://tools.kiana-chan.fun

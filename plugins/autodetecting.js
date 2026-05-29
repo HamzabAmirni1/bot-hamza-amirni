@@ -1,5 +1,4 @@
-const { WAMessageStubType  } = require("@whiskeysockets/baileys");
-
+const { WAMessageStubType } = require('@whiskeysockets/baileys');
 exports.before = async function before(m) {
 	if (!m.messageStubType || !m.isGroup) return;
 	const edtr = `🧙‍♂️ @${m.sender.split('@')[0]} 🧙‍♂️`;
@@ -53,5 +52,4 @@ exports.before = async function before(m) {
 		});
 	}
 }
-
 exports.disabled = false;

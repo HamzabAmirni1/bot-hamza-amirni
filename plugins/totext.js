@@ -1,10 +1,8 @@
 // ocr support also arabic 
 // plugin by noureddine Ouafy 
 //scrape by GilangSan
-
-
-const axios = require("axios");
-const FormData = require("form-data");
+const axios = require('axios');
+const FormData = require('form-data');
 
 /**
  * Performs OCR on an image buffer using the ocr.space API.

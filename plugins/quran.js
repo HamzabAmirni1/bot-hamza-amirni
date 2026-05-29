@@ -1,7 +1,6 @@
 // plugin by noureddine ouafy
 // scrape by Claude Ai
-
-const axios = require("axios");
+const axios = require('axios');
 
 const API     = 'https://api.alquran.cloud/v1';
 const TOTAL_AYAHS = 6236;
@@ -224,5 +223,4 @@ handler.cron = async (conn, chats) => {
 handler.help = ['quran'];
 handler.tags    = ['islamic'];
 handler.command = ['quran'];
-
 module.exports = handler;

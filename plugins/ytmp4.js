@@ -1,5 +1,4 @@
-const axios = require("axios")
-
+const axios = require('axios');
 const CONFIG = {
   video: { ext: ["mp4"], q: ["144p", "240p", "360p", "480p", "720p", "1080p"] }
 }
@@ -115,5 +114,4 @@ handler.help = ['ytmp4']
 handler.tags = ['downloader']
 handler.command = ['ytmp4']
 handler.limit = true
-
 module.exports = handler

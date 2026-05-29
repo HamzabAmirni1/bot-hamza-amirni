@@ -2,11 +2,10 @@
 // Plugin: HD Image Upscaler
 // Scraper Source: https://whatsapp.com/channel/0029Vb2mOzL1Hsq0lIEHoR0N/579
 // Converted to ESM & English
-
-const axios = require("axios");
-const FormData = require("form-data");
-const fs = require("fs");
-const path = require("path");
+const axios = require('axios');
+const FormData = require('form-data');
+const fs = require('fs');
+const path = require('path');
 
 const availableScaleRatio = [2, 4];
 
@@ -145,5 +144,4 @@ handler.help = ["remini3"];
 handler.tags = ["tools"];
 handler.command = ["remini3"];
 handler.limit = true;
-
 module.exports = handler;

@@ -4,10 +4,8 @@
 👤 Source : snaplytics.io (via twittermedia CDN)
 ✍️ Converted by : ChatGPT and instagram.com/noureddine_ouafy
 */
-
-const axios = require("axios")
-const crypto = require("crypto")
-
+const axios = require('axios');
+const crypto = require('crypto');
 async function twitterStalk(username) {
     if (!username) throw new Error('Username is required')
 
@@ -110,5 +108,4 @@ handler.help = ['twitterstalk']
 handler.tags = ['tools']
 handler.command = /^(twitterstalk)$/i
 handler.limit = false
-
 module.exports = handler

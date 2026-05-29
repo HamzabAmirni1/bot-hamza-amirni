@@ -1,13 +1,11 @@
 // plugin by instagram.com/noureddine_ouafy
 // scrape by fathurweb
-
-const axios = require("axios")
-const crypto = require("crypto")
-const fs = require("fs")
-const FormData = require("form-data")
-const path = require("path")
-const { fileURLToPath  } = require("url")
-
+const axios = require('axios');
+const crypto = require('crypto');
+const fs = require('fs');
+const FormData = require('form-data');
+const path = require('path');
+const { fileURLToPath } = require('url');
 const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"
 const BASE_URL = 'https://api.deepai.org'
 
@@ -113,5 +111,4 @@ handler.help = ['colorize_v2']
 handler.command = ['colorize_v2']
 handler.tags = ['ai']
 handler.limit = true
-
 module.exports = handler

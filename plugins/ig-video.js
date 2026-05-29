@@ -1,7 +1,7 @@
 // instagram.com/noureddine_ouafy
 // scrape by @zaenal-iyyl
-const axios = require("axios");
-const cheerio = require("cheerio");
+const axios = require('axios');
+const cheerio = require('cheerio');
 
 async function igram(url) {
   try {
@@ -60,5 +60,4 @@ let handler = async (m, { conn, text }) => {
 handler.help = handler.command = ["ig-video"];
 handler.tags = ["downloader"];
 handler.limit = true;
-
 module.exports = handler;

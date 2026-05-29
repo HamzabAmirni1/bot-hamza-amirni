@@ -1,9 +1,7 @@
 //plugin by noureddine ouafy
 // scrape by GilangSan
-
-
-const { createCanvas, loadImage  } = require("canvas");
-const fetch = require("node-fetch");
+const { createCanvas, loadImage } = require('canvas');
+const fetch = require('node-fetch');
 function roundRect(ctx, x, y, width, height, radius) {
     ctx.beginPath();
     ctx.moveTo(x + radius, y);

@@ -23,5 +23,4 @@ const handler = async (m, { conn }) => {
 
 handler.command = ["sendptvchannel"]
 handler.owner = true
-
 module.exports = handler

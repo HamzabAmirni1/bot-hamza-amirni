@@ -1,5 +1,5 @@
 // instagram.com/noureddine_ouafy
-const axios = require("axios");
+const axios = require('axios');
 
 // دالة لتحويل النص إلى حروف مزخرفة
 async function generate(text) {
@@ -83,5 +83,4 @@ handler.help = ['ttsanime'];
 handler.tags = ['ai'];
 handler.command = ['ttsanime'];
 handler.limit = true;
-
 module.exports = handler;

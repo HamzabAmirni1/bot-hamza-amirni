@@ -1,5 +1,5 @@
-const { WAMessageStubType } = (await import('@whiskeysockets/baileys')).default;
-const { format  } = require("util");
+const { WAMessageStubType } = require('@whiskeysockets/baileys');
+const { format } = require('util');
 
 const isNumber = (x) => typeof x === "number" && !isNaN(x);
 const delay = (ms) =>
@@ -10,7 +10,6 @@ const delay = (ms) =>
       resolve();
     }, ms),
   );
-
 exports.all = async function all(m) {
   if (m.fromMe && m.isBaileys) return !0;
   let text;

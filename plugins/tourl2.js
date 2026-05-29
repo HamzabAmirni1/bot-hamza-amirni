@@ -1,7 +1,7 @@
-const fetch = require("node-fetch");
-const FormData = require("form-data");
-const { fileTypeFromBuffer  } = require("file-type");
-const { proto, prepareWAMessageMedia } = (await import('@whiskeysockets/baileys')).default;
+const fetch = require('node-fetch');
+const FormData = require('form-data');
+const { fileTypeFromBuffer } = require('file-type');
+const { proto, prepareWAMessageMedia } = require('@whiskeysockets/baileys');
 
 /**
  * @param {Object} m

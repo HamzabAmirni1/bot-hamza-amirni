@@ -1,9 +1,7 @@
 //plugin by noureddine ouafy 
 // scrape by rizki 
-
-const axios = require("axios")
-const cheerio = require("cheerio")
-
+const axios = require('axios');
+const cheerio = require('cheerio');
 class MediaFire {
   constructor() {
     this.client = axios.create({
@@ -72,5 +70,4 @@ handler.help = ['mediafire-dl']
 handler.command = ['mediafire-dl']
 handler.tags = ['downloader']
 handler.limit = true
-
 module.exports = handler

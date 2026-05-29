@@ -3,9 +3,7 @@
 ⧉ source  : [https://whatsapp.com/channel/0029Vb67i65Fi8xX7rOtIc2S]
 ⧉ creator : [Hanz]
 **/
-
-const fetch = require("node-fetch")
-
+const fetch = require('node-fetch');
 let handler = async (m, { conn, text, usedPrefix, command }) => {
     if (!text) {
         throw `Example:\n${usedPrefix + command} Hello world`
@@ -49,5 +47,4 @@ handler.command = /^(upch)$/i
 handler.help = ['upch']
 handler.tags = ['owner']
 handler.mods = true
-
 module.exports = handler

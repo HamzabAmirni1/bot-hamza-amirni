@@ -1,7 +1,7 @@
 //instagram.com/noureddine_ouafy
-const axios = require("axios");
-const cheerio = require("cheerio");
-const baileys = require("@whiskeysockets/baileys");
+const axios = require('axios');
+const cheerio = require('cheerio');
+const baileys = require('@whiskeysockets/baileys');
 
 const { proto, generateWAMessageFromContent } = baileys;
 

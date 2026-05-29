@@ -1,9 +1,8 @@
 // plugin by noureddine ouafy
 // scrape by Fahmi-XD
 // instagram.com/noureddine_ouafy
-
-const axios = require("axios");
-const crypto = require("crypto");
+const axios = require('axios');
+const crypto = require('crypto');
 
 class Util {
   static PRIMARY_KEY = "73587A446B5642716E6A6A48325742733561436D5A457847555273367A4E4B79";
@@ -102,5 +101,4 @@ let handler = async (m, { conn, text }) => {
 handler.help = handler.command = ["twitter-x"];
 handler.tags = ["downloader"];
 handler.limit = true;
-
 module.exports = handler;

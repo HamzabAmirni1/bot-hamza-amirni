@@ -1,7 +1,6 @@
 // plugin by Noureddine Ouafy 
 // scrape by DAFFA 
-
-const axios = require("axios");
+const axios = require('axios');
 
 // --- Start of AI Generation Logic ---
 const aiLabs = {

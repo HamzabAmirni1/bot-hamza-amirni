@@ -1,8 +1,5 @@
 // @noureddine_ouafy
-
-const axios = require("axios")
-
-// Simple helper function to translate text to English using Google Translate API
+const axios = require('axios');
 const translateToEnglish = async (text) => {
   try {
     const response = await axios.get(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=en&dt=t&q=${encodeURIComponent(text)}`)
@@ -83,5 +80,4 @@ handler.help = ['deepimg']
 handler.tags = ['ai']
 handler.command = ['deepimg']
 handler.limit = true
-
 module.exports = handler

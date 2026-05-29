@@ -1,7 +1,6 @@
 //scrape by Daffa thanks brother 
 //plugin by Noureddine ouafy
-
-const axios = require("axios");
+const axios = require('axios');
 
 // Define the googleFonts object with English messages
 const googleFonts = {

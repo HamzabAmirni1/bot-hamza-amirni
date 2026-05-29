@@ -1,8 +1,5 @@
-
-
-const { createHash  } = require("crypto")
-const fetch = require("node-fetch")
-
+const { createHash } = require('crypto');
+const fetch = require('node-fetch');
 let Reg = /\|?(.*)([.|] *?)([0-9]*)$/i
 let handler = async function (m, { text, usedPrefix, command }) {
 // nama
@@ -49,7 +46,6 @@ handler.help = ['@verify']
 handler.tags = ['infobot']
 handler.customPrefix = /^(@verify)/i;
 handler.command = new RegExp()
-
 module.exports = handler
 
 function pickRandom(list) {

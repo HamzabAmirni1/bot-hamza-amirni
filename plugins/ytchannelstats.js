@@ -2,7 +2,7 @@
 // Instagram: @noureddine_ouafy
 // Source: https://evano.com API
 // scrape by : GilangSan
-const axios = require("axios");
+const axios = require('axios');
 
 let handler = async (m, { conn, text }) => {
     if (!text) return conn.reply(m.chat, "Send me a YouTube channel URL. Example:\nhttps://youtube.com/@noureddineouafy2", m);
@@ -64,5 +64,4 @@ handler.help = ['ytchannelstats'];
 handler.tags = ['tools'];
 handler.command = ['ytchannelstats'];
 handler.limit = true;
-
 module.exports = handler;

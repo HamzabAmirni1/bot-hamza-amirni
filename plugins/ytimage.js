@@ -1,9 +1,8 @@
 // plugin by noureddine ouafy 
 // scrape by manzxy
 // thanks to claude ai for helping nour hahaha
-
-const axios = require("axios");
-const cheerio = require("cheerio");
+const axios = require('axios');
+const cheerio = require('cheerio');
 
 // ── Page config for each mode ──────────────────────────────────
 const PAGE_CONFIG = {

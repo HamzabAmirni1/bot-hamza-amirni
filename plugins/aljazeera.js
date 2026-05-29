@@ -1,7 +1,6 @@
 // plugin by  noureddine ouafy 
 // code by Claude ai
-
-const axios = require("axios");
+const axios = require('axios');
 
 const AJ_URL = 'https://www.aljazeera.net/';
 const HEADERS = {

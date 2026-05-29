@@ -1,7 +1,6 @@
-const axios = require("axios");
-const ws = require("ws");
-const cheerio = require("cheerio");
-
+const axios = require('axios');
+const ws = require('ws');
+const cheerio = require('cheerio');
 exports.twitter = async function twitter(url) {
     return new Promise(async (resolve, reject) => {
         try {

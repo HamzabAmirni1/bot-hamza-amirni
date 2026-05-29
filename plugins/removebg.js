@@ -1,8 +1,7 @@
 // plugin by noureddine ouafy
 // scrape by malik
-
-const axios = require("axios");
-const FormData = require("form-data");
+const axios = require('axios');
+const FormData = require('form-data');
 
 // 1. The API Client Class (kept mostly intact, but ready for Buffers)
 class ApiClient {
@@ -140,5 +139,4 @@ handler.help = ['removebg']
 handler.tags = ['editor']
 handler.command = /^(removebg)$/i
 handler.limit = true;
-
 module.exports = handler

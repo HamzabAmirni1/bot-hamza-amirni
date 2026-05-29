@@ -1,8 +1,6 @@
 // instagram.com/noureddine_ouafy
 // Plugin: Convert Website to APK using appmaker.xyz API
-
-const axios = require("axios")
-
+const axios = require('axios');
 class Web2Apk {
   constructor() {
     this.baseURL = 'https://standalone-app-api.appmaker.xyz'
@@ -125,5 +123,4 @@ handler.tags = ['tools']
 handler.command = /^(web2apk)$/i
 handler.limit = true
 handler.premium = false
-
 module.exports = handler

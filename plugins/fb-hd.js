@@ -1,9 +1,7 @@
 // plugin by instagram.com/noureddine_ouafy
 // scrape by ZenzzXD
-
-const axios = require("axios")
-const cheerio = require("cheerio")
-
+const axios = require('axios');
+const cheerio = require('cheerio');
 async function fbdl(url){
   try{
     const r = await axios.post('https://v3.fdownloader.net/api/ajaxSearch',
@@ -78,5 +76,4 @@ Send a Facebook video link to download it in HD.
 handler.help = handler.command = ['fb-hd']
 handler.tags = ['downloader']
 handler.limit = true
-
 module.exports = handler

@@ -4,10 +4,8 @@
 * Modified: @noureddine_ouafy
 * Source: https://www.uhdpaper.com
 */
-
-const axios = require("axios")
-const cheerio = require("cheerio")
-
+const axios = require('axios');
+const cheerio = require('cheerio');
 let handler = async (m, { conn, text }) => {
   if (!text) return m.reply('من فضلك أدخل الكلمة المفتاحية للبحث عن خلفيات مثل:\n\n.wallpaper anime')
 

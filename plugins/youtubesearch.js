@@ -1,7 +1,6 @@
 // instagram.com/noureddine_ouafy
-
-const axios = require("axios");
-const cheerio = require("cheerio");
+const axios = require('axios');
+const cheerio = require('cheerio');
 
 let handler = async (m, { text, conn }) => {
   if (!text) return m.reply('Please enter a search query.\nExample: .youtubesearch cat videos');
@@ -23,7 +22,6 @@ ${i + 1}. ${v.title}
 handler.help = handler.command = ['youtubesearch'];
 handler.tags = ['search'];
 handler.limit = true;
-
 module.exports = handler;
 
 // Function to scrape top 10 YouTube search results

@@ -81,7 +81,6 @@ handler.help = ["apk"];
 handler.tags = ["downloader"];
 handler.command = /^(apk)$/i;
 handler.limit = true;
-
 module.exports = handler;
 
 const aptoide = {

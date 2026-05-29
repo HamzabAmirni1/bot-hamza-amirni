@@ -1,12 +1,9 @@
 // Plugin by noureddine_ouafy
 // Converts an image to a pencil sketch using an online API.
-
-const axios = require("axios")
-const FormData = require("form-data")
-const https = require("https")
-const crypto = require("crypto")
-
-// Generate a random session hash
+const axios = require('axios');
+const FormData = require('form-data');
+const https = require('https');
+const crypto = require('crypto');
 function generateSessionHash() {
   const chars = 'abcdefghijklmnopqrstuvwxyz0123456789'
   let result = ''
@@ -153,5 +150,4 @@ kana.help = ['image2sketch']
 kana.tags = ['editor']
 kana.command = /^(image2sketch)$/i
 kana.limit = true
-
 module.exports = kana

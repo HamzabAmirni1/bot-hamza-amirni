@@ -1,4 +1,4 @@
-const { generateWAMessageFromContent  } = require("@whiskeysockets/baileys");
+const { generateWAMessageFromContent } = require('@whiskeysockets/baileys');
 
 let handler = async (m, { text, conn }) => {
   if (!text) return m.reply('Please provide the link.');
@@ -15,5 +15,4 @@ let handler = async (m, { text, conn }) => {
 handler.help = handler.command = ['channel-id'];
 handler.tags = ['tools'];
 handler.limit = true;
-
 module.exports = handler;

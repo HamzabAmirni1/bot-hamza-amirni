@@ -1,8 +1,6 @@
 // instagram.com/noureddine_ouafy
-
-const axios = require("axios")
-const cheerio = require("cheerio")
-
+const axios = require('axios');
+const cheerio = require('cheerio');
 const detailDownload = async (url) => {
   try {
     const response = await axios.get(url)

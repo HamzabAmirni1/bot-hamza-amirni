@@ -4,9 +4,8 @@
  * CH https://whatsapp.com/channel/0029VagslooA89MdSX0d1X1z
  * WEB https://codeteam.my.id
  */
-
-const fetch = require("node-fetch");
-const cheerio = require("cheerio");
+const fetch = require('node-fetch');
+const cheerio = require('cheerio');
 
 let handler = async (m, { conn, text }) => {
   if (!text) return m.reply('🔍 Please enter a search query.\n\nExample:\n.an1search capcut');

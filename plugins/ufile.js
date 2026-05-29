@@ -3,14 +3,11 @@
  * Creator: nath
  * Enhanced: handler format + guide + error handling by noureddine ouafy and claude ai 🙂
  */
-
-const axios = require("axios")
-const FormData = require("form-data")
-const fs = require("fs")
-const path = require("path")
-const { tmpdir  } = require("os")
-
-// ─── Guide ───────────────────────────────────────────────────────────────────
+const axios = require('axios');
+const FormData = require('form-data');
+const fs = require('fs');
+const path = require('path');
+const { tmpdir } = require('os');
 const GUIDE = `
 ╔══════════════════════════════════╗
 ║       📤 UFile.io Uploader       ║

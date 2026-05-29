@@ -1,5 +1,5 @@
-const yts = require("yt-search")
-const fs = require("fs")
+const yts = require('yt-search');
+const fs = require('fs');
 let handler = async (m, {conn, text }) => {
   if (!text) throw ' هذا الامر خاص بالبحث في اليوتوب وأخذ رابط الفيديو \n مثلا :\n *.yts*   noureddine ouafy whatsapp bot'
   await conn.reply(m.chat, global.wait, m)

@@ -1,14 +1,13 @@
 // plugin by noureddine ouafy 
 // scrape by claude ai
-
-const fetch = require("node-fetch")
-const cheerio = require("cheerio")
-const https = require("https")
-const http = require("http")
-const fs = require("fs")
-const path = require("path")
-const { createWriteStream  } = require("fs")
-const { execSync  } = require("child_process")   // ✅ built-in — no extra package needed
+const fetch = require('node-fetch');
+const cheerio = require('cheerio');
+const https = require('https');
+const http = require('http');
+const fs = require('fs');
+const path = require('path');
+const { createWriteStream } = require('fs');
+const { execSync } = require('child_process');
 
 // ─────────────────────────────────────────────────────────────
 //  CONFIG
@@ -310,5 +309,4 @@ handler.help    = ['arabicfont']
 handler.command = ['arabicfont']
 handler.tags    = ['downloader']
 handler.limit   = true
-
 module.exports = handler

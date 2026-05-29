@@ -1,6 +1,6 @@
-const axios = require("axios");
-const { randomBytes  } = require("crypto");
-const { writeFileSync, unlinkSync  } = require("fs");
+const axios = require('axios');
+const { randomBytes } = require('crypto');
+const { writeFileSync, unlinkSync } = require('fs');
 
 const handler = async (m, { conn, text }) => {
     try {
@@ -96,5 +96,4 @@ handler.tags = ['ai'];
 handler.command = /^(degree-ai)$/i;
 handler.limit = false;
 handler.premium = false;
-
 module.exports = handler;

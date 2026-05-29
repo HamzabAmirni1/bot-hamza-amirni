@@ -1,4 +1,4 @@
-const axios = require("axios");
+const axios = require('axios');
 async function Screenshot(url) {
     try {
         const response = await axios.get(`https://image.thum.io/get/png/fullpage/viewportWidth/2400/${url}`, {
@@ -32,5 +32,4 @@ let handler = async (m, { args, conn }) => {
 handler.help = ['ssweb'];
 handler.command = ['ssweb'];
 handler.tags = ['tools'];
-
 module.exports = handler;

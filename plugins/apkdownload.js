@@ -1,7 +1,6 @@
 // @noureddine_ouafy
 // APK Downloader Plugin using NexOracle API
-
-const axios = require("axios");
+const axios = require('axios');
 
 let handler = async (m, { conn, args }) => {
   const appName = args.join(" ");

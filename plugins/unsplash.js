@@ -1,10 +1,8 @@
 // PLUGINS: UNSPLASH || TYPE: ESM || NOTE: MAX 15 IMAGES || SOURCE: 𝐁𝐋𝐔𝐄 𝐒𝐊𝐘
 
 // SCRAPE: https://whatsapp.com/channel/0029Vb2WECv9xVJaXVi46y2m/328
-
-const axios = require("axios")
-const cheerio = require("cheerio")
-
+const axios = require('axios');
+const cheerio = require('cheerio');
 let handler = async (m, { conn, text, usedPrefix, command }) => {
     await conn.sendMessage(m.chat, {
         react: {

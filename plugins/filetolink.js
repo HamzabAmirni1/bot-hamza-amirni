@@ -4,11 +4,10 @@
 • Author: Agas
 °° modified by instagram.com/noureddine_ouafy
 */
-
-const crypto = require("crypto");
-const { FormData, Blob  } = require("formdata-node");
-const { fileTypeFromBuffer  } = require("file-type");
-const axios = require("axios");
+const crypto = require('crypto');
+const { FormData, Blob } = require('formdata-node');
+const { fileTypeFromBuffer } = require('file-type');
+const axios = require('axios');
 
 const handler = async (m, { conn }) => {
   const q = m.quoted ? m.quoted : m;

@@ -4,11 +4,8 @@
 * Sumber : https://whatsapp.com/channel/0029Vb6Zs8yEgGfRQWWWp639
 * Author : ZenzzXD
 */
-
-const axios = require("axios")
-const cheerio = require("cheerio")
-
-// Shuffle function to randomize results
+const axios = require('axios');
+const cheerio = require('cheerio');
 function shuffle(arr) {
     for (let i = arr.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1))

@@ -1,7 +1,5 @@
-const fetch = require("node-fetch")
-const FormData = require("form-data")
-
-// Convert bytes to readable size
+const fetch = require('node-fetch');
+const FormData = require('form-data');
 function formatSize(bytes) {
   if (!bytes) return "0 B"
   const sizes = ["B", "KB", "MB", "GB", "TB"]

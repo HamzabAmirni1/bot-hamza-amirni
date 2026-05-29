@@ -1,9 +1,9 @@
-const sharp = require("sharp");
-const { unlink, mkdir, rm, readFile  } = require("fs/promises");
-const { randomBytes  } = require("crypto");
-const path = require("path");
-const { spawn  } = require("child_process");
-const { tmpdir  } = require("os");
+const sharp = require('sharp');
+const { unlink, mkdir, rm, readFile } = require('fs/promises');
+const { randomBytes } = require('crypto');
+const path = require('path');
+const { spawn } = require('child_process');
+const { tmpdir } = require('os');
 
 let handler = async (m, { conn, usedPrefix, command }) => {
 
@@ -195,5 +195,4 @@ handler.help = ["tovideo"];
 handler.command = ["tovideo"];
 handler.tags = ["sticker"];
 handler.limit = true;
-
 module.exports = handler;

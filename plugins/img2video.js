@@ -1,5 +1,5 @@
-const axios = require("axios");
-const FormData = require("form-data");
+const axios = require('axios');
+const FormData = require('form-data');
 
 const fkontak = {
   key: { participant: '0@s.whatsapp.net', remoteJid: '0@s.whatsapp.net', fromMe: false, id: 'Halo' },
@@ -133,5 +133,4 @@ handler.help = ["img2video"];
 handler.tags = ["ai"];
 handler.command = ["img2video"];
 handler.limit = true;
-
 module.exports = handler;

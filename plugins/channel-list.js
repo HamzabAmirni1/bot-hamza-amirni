@@ -3,8 +3,7 @@
  * https://whatsapp.com/channel/0029VadrgqYKbYMHyMERXt0e
  * info: list of WhatsApp channels, that's all
  **/
-
-const moment = require("moment-timezone");
+const moment = require('moment-timezone');
 
 let handler = async (m, { conn, command }) => {
     switch (command) {

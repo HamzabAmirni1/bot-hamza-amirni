@@ -1,9 +1,6 @@
 // plugin by noureddine ouafy 
 // scrape by wolfyflutter
-
-
-const fs = require("fs")
-
+const fs = require('fs');
 const ssweb = {
     _static: Object.freeze({
         baseUrl: 'https://www.screenshotmachine.com',
@@ -115,5 +112,4 @@ let handler = async (m, { conn, args }) => {
 handler.help = handler.command = ['screenshotmachine']
 handler.tags = ['tools']
 handler.limit = true
-
 module.exports = handler

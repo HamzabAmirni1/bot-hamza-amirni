@@ -1,7 +1,6 @@
 // instagram.com/noureddine_ouafy
-const axios = require("axios")
-const cheerio = require("cheerio")
-
+const axios = require('axios');
+const cheerio = require('cheerio');
 class SpotdlDownloader {
   constructor(baseURL, headers) {
     this.cookieStore = {}
@@ -144,5 +143,4 @@ handler.help = ["spotify2"]
 handler.tags = ["downloader"]
 handler.command = ["spotify2"]
 handler.limit = true
-
 module.exports = handler

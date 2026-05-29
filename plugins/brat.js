@@ -1,8 +1,8 @@
-const axios = require("axios");
-const fs = require("fs");
-const path = require("path");
-const sharp = require("sharp");
-const { tmpdir  } = require("os");
+const axios = require('axios');
+const fs = require('fs');
+const path = require('path');
+const sharp = require('sharp');
+const { tmpdir } = require('os');
 
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 

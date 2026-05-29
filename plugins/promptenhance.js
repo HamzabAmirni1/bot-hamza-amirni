@@ -11,9 +11,8 @@
  * plugin by noureddine ouafy 
  * scrape by GilangSan
  */
-
-const axios = require("axios");
-const crypto = require("crypto");
+const axios = require('axios');
+const crypto = require('crypto');
 
 // --- Helper Functions from the original script ---
 
@@ -168,5 +167,4 @@ handler.help = ['promptenhance'];
 handler.tags = ['ai'];
 handler.command = ['promptenhance'];
 handler.limit = true;
-
 module.exports = handler;

@@ -1,5 +1,5 @@
-const axios = require("axios");
-const cheerio = require("cheerio");
+const axios = require('axios');
+const cheerio = require('cheerio');
 
 // --- Scraper Logic for TikTok ---
 const SITE_URL = 'https://instatiktok.com/';

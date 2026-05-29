@@ -1,6 +1,5 @@
 // instagram.com/noureddine_ouafy
-const fetch = require("node-fetch")
-
+const fetch = require('node-fetch');
 const netflixTrending = async () => {
   const region = '/ar' // '/id-en' لو حاب إنجليزي
   const netflixUrl = 'https://www.netflix.com' + region
@@ -59,5 +58,4 @@ handler.help = ['netflix']
 handler.tags = ['search']
 handler.command = ['netflix']
 handler.limit = true
-
 module.exports = handler

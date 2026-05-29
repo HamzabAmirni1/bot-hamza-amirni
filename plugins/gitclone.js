@@ -1,4 +1,4 @@
-const fetch = require("node-fetch");
+const fetch = require('node-fetch');
 
 let regexRepo = /(?:https|git)(?::\/\/|@)github\.com[\/:]([^\/:]+)\/([^\/:]+)(?:\/tree\/[^\/]+|\/blob\/[^\/]+)?(?:\/(.+))?/i;
 let regexGist = /https:\/\/gist\.github\.com\/([^\/]+)\/([a-zA-Z0-9]+)/i;
@@ -58,5 +58,4 @@ handler.help = ['gitclone'];
 handler.tags = ['downloader'];
 handler.command = /gitclone/i;
 handler.limit = true;
-
 module.exports = handler;

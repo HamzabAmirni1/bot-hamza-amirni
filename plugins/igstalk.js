@@ -1,7 +1,7 @@
 // scrape by JazxCode
 //plugin by noureddine ouafy
-const axios = require("axios");
-const cheerio = require("cheerio");
+const axios = require('axios');
+const cheerio = require('cheerio');
 
 // The main handler function
 let handler = async (m, { conn, args, text }) => {

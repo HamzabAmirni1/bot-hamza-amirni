@@ -1,6 +1,5 @@
-const axios = require("axios")
-const cheerio = require("cheerio")
-
+const axios = require('axios');
+const cheerio = require('cheerio');
 function extractUrl(url) {
   if (!url || typeof url !== 'string') return null
 
@@ -195,5 +194,4 @@ handler.help = ['tiktokdown']
 handler.tags = ['downloader']
 handler.command = ['tiktokdown']
 handler.limit = true
-
 module.exports = handler

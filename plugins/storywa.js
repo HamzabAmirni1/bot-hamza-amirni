@@ -1,7 +1,7 @@
 // plugin by noureddine ouafy 
 // scrape by malik
-const axios = require("axios");
-const crypto = require("crypto");
+const axios = require('axios');
+const crypto = require('crypto');
 
 // ========== CLIENT CLASS ==========
 class LulaStoryClient {
@@ -209,5 +209,4 @@ Use English keywords for better accuracy.
 handler.help = handler.command = ['storywa'];
 handler.tags = ['search'];
 handler.limit = true;
-
 module.exports = handler;

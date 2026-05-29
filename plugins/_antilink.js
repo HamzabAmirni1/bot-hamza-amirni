@@ -1,7 +1,6 @@
 // @instagram: noureddine_ouafy
 const isLinkHttp = /https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]{22}/i;
 const isWhatsAppChannel = /https:\/\/whatsapp\.com\/channel\/[A-Za-z0-9?=._-]+/i;
-
 exports.before = async function before(
   m,
   { conn, args, usedPrefix, command, isAdmin, isBotAdmin },

@@ -1,10 +1,9 @@
 //plugin by instagram.com/noureddine_ouafy
 // scrape by my friend rizki
-const axios = require("axios")
-const crypto = require("crypto")
-const FormData = require("form-data")
-const fs = require("fs")
-
+const axios = require('axios');
+const crypto = require('crypto');
+const FormData = require('form-data');
+const fs = require('fs');
 function detectLanguage(text = '') {
     // Simple Arabic detection
     const arabicRegex = /[\u0600-\u06FF]/
@@ -109,5 +108,4 @@ handler.help = ['analyze']
 handler.command = ['analyze']
 handler.tags = ['ai','morocco']
 handler.limit = true
-
 module.exports = handler

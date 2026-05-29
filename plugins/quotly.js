@@ -1,9 +1,7 @@
 // scrape by malik
 // plugin by noureddine ouafy 
-
-const axios = require("axios")
-const { randomBytes, randomInt  } = require("crypto")
-
+const axios = require('axios');
+const { randomBytes, randomInt } = require('crypto');
 class Quotly {
   constructor() {
     this.urls = [
@@ -121,5 +119,4 @@ handler.help = ['quotly']
 handler.command = ['quotly']
 handler.tags = ['tools']
 handler.limit = true
-
 module.exports = handler

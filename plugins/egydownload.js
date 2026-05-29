@@ -1,8 +1,7 @@
 //plugin by noureddineouafy 
 //scrape by malik 
-
-const axios = require("axios");
-const cheerio = require("cheerio");
+const axios = require('axios');
+const cheerio = require('cheerio');
 
 class EgyDeadScraper {
     constructor(baseURL = "https://egydead.center/") {

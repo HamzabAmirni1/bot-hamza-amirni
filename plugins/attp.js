@@ -1,7 +1,7 @@
-const { createCanvas  } = require("canvas");
-const { exec  } = require("child_process");
-const fs = require("fs");
-const path = require("path");
+const { createCanvas } = require('canvas');
+const { exec } = require('child_process');
+const fs = require('fs');
+const path = require('path');
 
 async function create_frame(text, color, pathna) {
   const width = 400;

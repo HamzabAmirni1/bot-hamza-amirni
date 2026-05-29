@@ -1,12 +1,11 @@
 // plugin by noureddine ouafy 
 // scrape by daffa channel 
 // author gienetic
-
-const axios = require("axios");
-const FormData = require("form-data");
-const fs = require("fs");
-const { tmpdir  } = require("os");
-const { join  } = require("path");
+const axios = require('axios');
+const FormData = require('form-data');
+const fs = require('fs');
+const { tmpdir } = require('os');
+const { join } = require('path');
 
 // --- Translation Function ---
 async function translateToEnglish(text) {

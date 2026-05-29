@@ -1,5 +1,5 @@
-const axios = require("axios");
-const cheerio = require("cheerio");
+const axios = require('axios');
+const cheerio = require('cheerio');
 
 let handler = async (m, { conn, args, text }) => {
   if (!text) return m.reply('Please provide a search query!');

@@ -1,6 +1,6 @@
-const fetch = require("node-fetch");
-const { addExif  } = require("../lib/silana/sticker.js");
-const { Sticker  } = require("wa-sticker-formatter");
+const fetch = require('node-fetch');
+const { addExif } = require('../lib/silana/sticker.js');
+const { Sticker } = require('wa-sticker-formatter');
 
 let handler = async (m, { conn, args, usedPrefix, command }) => {
   let hapus = m.key.participant;

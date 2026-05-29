@@ -1,10 +1,8 @@
 //plugin by Noureddineouafy 
 //edited by obito (add funtion reply with id)
 //scrape by malik
-
-
-const cheerio = require("cheerio");
-const fetch = require("node-fetch");
+const cheerio = require('cheerio');
+const fetch = require('node-fetch');
 
 let activeChats = {};
 

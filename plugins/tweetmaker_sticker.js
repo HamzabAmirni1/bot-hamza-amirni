@@ -1,6 +1,6 @@
-const fetch = require("node-fetch")
-const { sticker  } = require("../lib/silana/sticker.js")
-const uploadImage = require("../lib/silana/uploadImage.js")
+const fetch = require('node-fetch');
+const { sticker } = require('../lib/silana/sticker.js');
+const uploadImage = require('../lib/silana/uploadImage.js');
 let handler = async (m, { conn, args, text, usedPrefix, command }) => {
 let input = ` *exemple*
 	

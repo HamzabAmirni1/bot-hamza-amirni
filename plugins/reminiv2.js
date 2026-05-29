@@ -1,7 +1,7 @@
 // Instagram: noureddine_ouafy
 // https://xyro.site/
-const axios = require("axios");
-const FormData = require("form-data");
+const axios = require('axios');
+const FormData = require('form-data');
 
 let handler = async (m, { conn, command, quoted, prefix, usedPrefix, text }) => {
   let q = quoted ? quoted : m;

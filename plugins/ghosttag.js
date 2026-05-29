@@ -1,7 +1,5 @@
 // plugin from my friend adnan thanks 
-
-const { generateWAMessageFromContent  } = require("@whiskeysockets/baileys")
-
+const { generateWAMessageFromContent } = require('@whiskeysockets/baileys');
 let handler = async (m, { conn, text }) => {
     const userJid = conn.user?.id
     let jid = m.chat
@@ -34,5 +32,4 @@ handler.command = ['ghosttag','hmm']
 handler.help = ['ghosttag']
 handler.tags = ['owner']
 handler.owner = true
-
 module.exports = handler

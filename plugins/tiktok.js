@@ -1,7 +1,5 @@
 // instagram.com/noureddine_ouafy
-
-const axios = require("axios")
-
+const axios = require('axios');
 let handler = async (m, { text, command, conn }) => {
   if (!text) return m.reply('⛔ المرجو إدخال رابط TikTok للتحميل')
 

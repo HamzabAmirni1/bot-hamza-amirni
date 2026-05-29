@@ -1,9 +1,7 @@
 // plugin by my friend Const Offmon = Lana
 // modify by instagram.com/noureddine_ouafy
-
-const moment = require("moment-timezone")
-const { toPTT  } = require("../lib/silana/converter.js")
-
+const moment = require('moment-timezone');
+const { toPTT } = require('../lib/silana/converter.js');
 const handler = async (m, { conn, text, usedPrefix, command }) => {
   let channelId = "120363285847738492@newsletter" // Your updated channel ID
   let q = m.quoted ? m.quoted : m
@@ -46,5 +44,4 @@ handler.command = ['playch']
 handler.tags = ['owner']
 handler.help = ['playch']
 handler.owner = true
-
 module.exports = handler

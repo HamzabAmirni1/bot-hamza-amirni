@@ -1,10 +1,8 @@
 // plugin by noureddine ouafy 
 // scrape by 🚀CodeTeam 
-
-const axios = require("axios")
-const FormData = require("form-data")
-const fs = require("fs")
-
+const axios = require('axios');
+const FormData = require('form-data');
+const fs = require('fs');
 async function getAuthToken() {
   const { data } = await axios.get('https://freeimage.host/')
   const token = data.match(/auth_token\s*=\s*"(.+?)"/)?.[1]
@@ -76,5 +74,4 @@ handler.help = ['uploadimg']
 handler.command = ['uploadimg']
 handler.tags = ['uploader']
 handler.limit = true
-
 module.exports = handler

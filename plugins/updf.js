@@ -3,8 +3,7 @@
 // Feature: Chat, Explain, Translate, Summary
 // Source: https://apis.updf.com
 // scrape by GilangSan
-const axios = require("axios")
-
+const axios = require('axios');
 function generateRandomDeviceId() {
     const chars = 'abcdef0123456789';
     let deviceId = '';
@@ -162,5 +161,4 @@ handler.help = ['updf'];
 handler.tags = ['ai'];
 handler.command = ['updf'];
 handler.limit = true;
-
 module.exports = handler;

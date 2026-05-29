@@ -40,7 +40,6 @@ handler.tags = ["owner"];
 handler.command = /^(reset)$/i;
 
 handler.owner = true;
-
 module.exports = handler;
 
 function isNumber(x = 0) {

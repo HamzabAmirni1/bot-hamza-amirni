@@ -1,8 +1,7 @@
 // @noureddine_ouafy
 // scrape by Author: Shannz
-const crypto = require("crypto")
-const axios = require("axios")
-
+const crypto = require('crypto');
+const axios = require('axios');
 const nowtech = {
   chat: async (question) => {
     const timestamp = Date.now().toString()
@@ -94,5 +93,4 @@ handler.help = ['nowai']
 handler.tags = ['ai']
 handler.command = ['nowai']
 handler.limit = true
-
 module.exports = handler

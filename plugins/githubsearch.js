@@ -1,4 +1,4 @@
-const fetch = require("node-fetch")
+const fetch = require('node-fetch');
 let handler = async (m, { text, command, usedPrefix }) => {
     if (!text) throw 'البحث عن مشاريع في github مثال :\n\n*.githubsearch bobiza*'
     let res = await fetch(global.API('https://api.github.com', '/search/repositories', {
@@ -24,7 +24,6 @@ ${repo.open_issues} Issue${repo.description ? `
 handler.help = ['githubsearch']
 handler.tags = ['search']
 handler.command =/^githubsearch$/i
-
 module.exports = handler
 
 function formatDate(n, locale = 'id') {

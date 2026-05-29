@@ -1,5 +1,4 @@
-const { performance  } = require("perf_hooks");
-
+const { performance } = require('perf_hooks');
 exports.before = async function before(m, { isAdmin, isOwner, isBotAdmin }) {
   const users = global.db.data.users;
   const chats = global.db.data.chats;

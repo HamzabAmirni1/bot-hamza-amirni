@@ -62,5 +62,4 @@ let handler = async (m, { conn, usedPrefix, command }) => {
 handler.help = handler.command = ['tmpupload']
 handler.tags = ['uploader']
 handler.limit = true
-
 module.exports = handler

@@ -4,9 +4,7 @@ scrape by : Fik
 Base  : https://sub4unlock.io
 Adjusted Handler + Guide Example
 */
-
-const axios = require("axios")
-
+const axios = require('axios');
 class Sub4Unlock {
     constructor() {
         this.endpoint = 'https://sub4unlock.io/ajax.php'
@@ -128,5 +126,4 @@ handler.help = ['sub4unlock']
 handler.command = ['sub4unlock']
 handler.tags = ['tools']
 handler.limit = true
-
 module.exports = handler

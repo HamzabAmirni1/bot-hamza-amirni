@@ -1,6 +1,6 @@
-const axios = require("axios");
-const crypto = require("crypto");
-const FormData = require("form-data");
+const axios = require('axios');
+const crypto = require('crypto');
+const FormData = require('form-data');
 
 function cyphereddata(t, r = "cryptoJS") {
     t = t.toString();

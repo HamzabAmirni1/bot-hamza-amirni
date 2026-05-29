@@ -11,75 +11,149 @@ const sourcePluginsDir = path.join(SILANA_DIR, 'plugins');
 const targetLibDir = path.join(BOT_DIR, 'lib', 'silana');
 const targetPluginsDir = path.join(BOT_DIR, 'plugins');
 
+// Plugins to SKIP entirely - they rely on silana's global DB or clash with native bot commands
+const BLACKLISTED_PLUGINS = new Set([
+    'menu',           // clashes with main bot menu, uses global.db.data
+    'enable',         // silana-specific group settings DB
+    'register',       // silana user registration system
+    'cleandblist',    // silana DB cleanup
+    'clearsessionusers', // silana sessions
+    'deleteplugin',   // silana plugin management
+    'getplugin',      // silana plugin management  
+    'plugintracker',  // silana plugin tracker
+    'listplugins',    // silana plugin list
+    'jadibot',        // silana-specific feature
+    'autogcclose',    // silana group management
+    'auto-block-kickgc', // silana group management
+    'getsession',     // silana session tool
+    'path',           // generic name, would break things
+    'tag',            // basic tag, clashes
+    'feature',        // silana feature toggles
+    'script',         // silana script info
+    'pin',            // too generic
+    'restart',        // silana restart
+    'owner',          // silana owner (we have our own)
+    'disk',           // silana disk info
+    'gcbot',          // silana-only
+    'get',            // too generic
+    'runtime',        // silana runtime
+    'sfp',            // silana-only
+    'list',           // too generic, clashes
+    'join',           // silana join
+    'kick',           // clashes with native kick
+    'warn',           // clashes with native warn
+    'top_gc_user',    // silana DB
+    'listonline',     // silana DB
+    'couple',         // silana DB
+    'ppcouple',       // silana DB
+]);
+
 // Create directories if they don't exist
-if (!fs.existsSync(targetLibDir)) {
-    fs.mkdirSync(targetLibDir, { recursive: true });
-}
-if (!fs.existsSync(targetPluginsDir)) {
-    fs.mkdirSync(targetPluginsDir, { recursive: true });
-}
+if (!fs.existsSync(targetLibDir)) fs.mkdirSync(targetLibDir, { recursive: true });
+if (!fs.existsSync(targetPluginsDir)) fs.mkdirSync(targetPluginsDir, { recursive: true });
 
 /**
  * Robust ES Module to CommonJS syntax converter
- * @param {string} code - The ESM javascript code
- * @param {boolean} isPlugin - Whether we are converting a plugin file
  */
 function convertESMToCJS(code, isPlugin) {
     let result = code;
 
-    // 1. Redirect relative library imports inside plugins to the silana subfolder
+    // Pre-process: put semicolon-separated imports/requires on their own lines so that the ^import/const regexes can match them
+    result = result.replace(/;\s*import\s+/g, ';\nimport ');
+
+    // 0. Redirect relative library imports inside plugins
     if (isPlugin) {
-        // '../lib/xxx' -> '../lib/silana/xxx'
         result = result.replace(/['"]\.\.\/lib\/([^'"]+)['"]/g, "'../lib/silana/$1'");
     }
 
-    // 2. Replace Baileys fork import with official WhiskeySockets fork
+    // 1. Replace Baileys fork with official fork
     result = result.replace(/['"]@adiwajshing\/baileys['"]/g, "'@whiskeysockets/baileys'");
 
-    // 3. Convert ESM imports to CommonJS requires
-    
-    // Combined import: import defaultExport, { named1, named2 } from 'module'
-    result = result.replace(/import\s+(\w+),\s*\{\s*([^}]+)\s*\}\s+from\s+['"]([^'"]+)['"]/g, (match, defaultExport, namedExports, modulePath) => {
-        return `const ${defaultExport} = require('${modulePath}');\nconst { ${namedExports} } = require('${modulePath}');`;
-    });
+    // 2. Fix import.meta.url -> use __filename directly (require('url') etc. already imported)
+    result = result.replace(/fileURLToPath\s*\(\s*import\.meta\.url\s*\)/g, '__filename');
+    result = result.replace(/import\.meta\.url/g, '__filename');
+    result = result.replace(/import\.meta\.dirname/g, '__dirname');
 
-    // Destructured import: import { name1, name2 } from 'module'
-    result = result.replace(/import\s+\{\s*([^}]+)\s*\}\s+from\s+['"]([^'"]+)['"]/g, 'const { $1 } = require("$2")');
+    // 3. Convert (await import('module')).default -> require('module')
+    result = result.replace(/\(await\s+import\s*\(\s*(['"][^'"]+['"])\s*\)\s*\)\.default/g, 'require($1)');
+    // (await import('module')) -> require('module')
+    result = result.replace(/\(await\s+import\s*\(\s*(['"][^'"]+['"])\s*\)\s*\)/g, 'require($1)');
+    // await import('module') -> require('module')
+    result = result.replace(/await\s+import\s*\(\s*(['"][^'"]+['"])\s*\)/g, 'require($1)');
 
-    // Star import: import * as name from 'module'
-    result = result.replace(/import\s*\*\s*as\s+(\w+)\s+from\s+['"]([^'"]+)['"]/g, 'const $1 = require("$2")');
+    // 4. Fix TOP-LEVEL await in variable declarations: const x = await something() -> 
+    //    Wrap the await call in a sync-friendly pattern or remove await if it's a method call  
+    //    Pattern: const x = await SomeClass.method({...}) at module level
+    result = result.replace(
+        /^\s*(const|let|var)\s+(\w+)\s*=\s*await\s+([\w.]+\s*\([^;]*\))\s*;?\s*$/gm,
+        (match, decl, varName, call) => {
+            // Check if this is a top-level (not inside function/class)
+            // We check for common patterns that appear top-level in silana plugins
+            if (/^(axios\.create|require)/.test(call.trim())) {
+                // axios.create(), require() etc. - don't need await
+                return `${decl} ${varName} = ${call};`;
+            }
+            return match; // leave it if unsure
+        }
+    );
 
-    // Default import: import name from 'module'
-    result = result.replace(/import\s+(\w+)\s+from\s+['"]([^'"]+)['"]/g, 'const $1 = require("$2")');
+    // 5. Convert ESM imports to CommonJS requires
 
-    // Bare import: import 'module'
-    result = result.replace(/import\s+['"]([^'"]+)['"]/g, 'require("$1")');
+    // Side-effect import: import 'module'
+    result = result.replace(/^\s*import\s+['"]([^'"]+)['"]\s*;?[ \t]*(?:\/\/[^\n]*)?$/gm, "require('$1');");
 
-    // 4. Convert ESM exports to CommonJS
-    
-    // Default export: export default x
-    result = result.replace(/export\s+default\s+(\w+)/g, 'module.exports = $1');
+    // Combined: import Default, { named } from 'module'
+    result = result.replace(
+        /^\s*import\s+(\w+)\s*,\s*\{\s*([^}]+)\s*\}\s+from\s+['"]([^'"]+)['"]\s*;?[ \t]*(?:\/\/[^\n]*)?$/gm,
+        (_, def, named, mod) => {
+            const cleanedNamed = named.trim().replace(/\b(\w+)\s+as\s+(\w+)\b/g, '$1: $2');
+            return `const ${def} = require('${mod}');\nconst { ${cleanedNamed} } = require('${mod}');`;
+        }
+    );
 
-    // Default export inline: export default function/async function/class/object
-    result = result.replace(/export\s+default\s+/g, 'module.exports = ');
+    // Destructured: import { name1, name2 } from 'module'
+    result = result.replace(
+        /^\s*import\s+\{\s*([^}]+)\s*\}\s+from\s+['"]([^'"]+)['"]\s*;?[ \t]*(?:\/\/[^\n]*)?$/gm,
+        (_, names, mod) => {
+            const cleanedNames = names.trim().replace(/\b(\w+)\s+as\s+(\w+)\b/g, '$1: $2');
+            return `const { ${cleanedNames} } = require('${mod}');`;
+        }
+    );
 
-    // Named exports: export const x = y
-    result = result.replace(/export\s+const\s+(\w+)\s*=/g, 'exports.$1 =');
-    result = result.replace(/export\s+let\s+(\w+)\s*=/g, 'exports.$1 =');
-    result = result.replace(/export\s+var\s+(\w+)\s*=/g, 'exports.$1 =');
+    // Star: import * as name from 'module'
+    result = result.replace(
+        /^\s*import\s*\*\s*as\s+(\w+)\s+from\s+['"]([^'"]+)['"]\s*;?[ \t]*(?:\/\/[^\n]*)?$/gm,
+        (_, alias, mod) => `const ${alias} = require('${mod}');`
+    );
 
-    // Named function export: export function/async function x(...)
-    result = result.replace(/export\s+async\s+function\s+(\w+)/g, 'exports.$1 = async function $1');
-    result = result.replace(/export\s+function\s+(\w+)/g, 'exports.$1 = function $1');
+    // Default: import name from 'module'
+    result = result.replace(
+        /^\s*import\s+(\w+)\s+from\s+['"]([^'"]+)['"]\s*;?[ \t]*(?:\/\/[^\n]*)?$/gm,
+        (_, name, mod) => `const ${name} = require('${mod}');`
+    );
 
-    // Named class export: export class x
-    result = result.replace(/export\s+class\s+(\w+)/g, 'exports.$1 = class $1');
+    // 6. Convert ESM named export list at end of file: export { a, b, c }
+    result = result.replace(
+        /^\s*export\s+\{\s*([^}]+)\s*\}\s*;?[ \t]*$/gm,
+        (_, names) => {
+            const cleaned = names.trim();
+            return `module.exports = { ${cleaned} };`;
+        }
+    );
 
-    // Star dynamic imports inside ESM that might be written as:
-    // (await import('...')) -> require('...')
-    // Note: Node.js dynamic import() actually works in CJS, but let's make sure baileys references are replaced
-    result = result.replace(/\(await\s+import\(['"]@adiwajshing\/baileys['"]\)\)/g, "require('@whiskeysockets/baileys')");
-    result = result.replace(/await\s+import\(['"]@adiwajshing\/baileys['"]\)/g, "require('@whiskeysockets/baileys')");
+    // 7. Named exports: export const/let/var/function/class
+    result = result.replace(/^\s*export\s+const\s+/gm, 'exports.');
+    // Fix: exports.name = ... (not exports.const)
+    result = result.replace(/^\s*exports\.\s*(\w+)\s*=/gm, 'exports.$1 =');
+
+    result = result.replace(/^\s*export\s+let\s+(\w+)/gm, 'exports.$1');
+    result = result.replace(/^\s*export\s+var\s+(\w+)/gm, 'exports.$1');
+    result = result.replace(/^\s*export\s+async\s+function\s+(\w+)/gm, 'exports.$1 = async function $1');
+    result = result.replace(/^\s*export\s+function\s+(\w+)/gm, 'exports.$1 = function $1');
+    result = result.replace(/^\s*export\s+class\s+(\w+)/gm, 'exports.$1 = class $1');
+
+    // 8. Default export: export default handler / export default { ... }
+    result = result.replace(/^\s*export\s+default\s+/gm, 'module.exports = ');
 
     return result;
 }
@@ -101,63 +175,60 @@ function getFilesRecursively(dir) {
 }
 
 // Convert libraries
-console.log('🔄 Converting and copying silana libraries...');
+console.log('🔄 Converting silana libraries...');
 if (fs.existsSync(sourceLibDir)) {
     const libFiles = getFilesRecursively(sourceLibDir);
-    let successCount = 0;
+    let ok = 0, fail = 0;
     libFiles.forEach(file => {
         if (file.endsWith('.js')) {
             const relPath = path.relative(sourceLibDir, file);
             const targetPath = path.join(targetLibDir, relPath);
-            const targetSubDir = path.dirname(targetPath);
-
-            if (!fs.existsSync(targetSubDir)) {
-                fs.mkdirSync(targetSubDir, { recursive: true });
-            }
-
+            fs.mkdirSync(path.dirname(targetPath), { recursive: true });
             try {
                 const code = fs.readFileSync(file, 'utf8');
-                const convertedCode = convertESMToCJS(code, false);
-                fs.writeFileSync(targetPath, convertedCode, 'utf8');
-                successCount++;
+                const converted = convertESMToCJS(code, false);
+                fs.writeFileSync(targetPath, converted, 'utf8');
+                ok++;
             } catch (err) {
-                console.error(`❌ Error converting library ${relPath}:`, err.message);
+                console.error(`❌ lib/${relPath}:`, err.message);
+                fail++;
             }
         }
     });
-    console.log(`✅ Converted ${successCount}/${libFiles.length} library files!`);
-} else {
-    console.log('⚠️ Silana library directory not found!');
+    console.log(`✅ Libraries: ${ok} converted, ${fail} failed`);
 }
 
 // Convert plugins
-console.log('🔄 Converting and copying silana plugins...');
+console.log('🔄 Converting silana plugins...');
 if (fs.existsSync(sourcePluginsDir)) {
     const pluginFiles = getFilesRecursively(sourcePluginsDir);
-    let successCount = 0;
+    let ok = 0, skipped = 0, fail = 0;
     pluginFiles.forEach(file => {
-        if (file.endsWith('.js') || !path.extname(file)) { // Some might not have .js
+        const baseName = path.basename(file, '.js');
+        // Skip blacklisted plugins
+        if (BLACKLISTED_PLUGINS.has(baseName)) {
+            // Delete from target if exists
+            const targetPath = path.join(targetPluginsDir, baseName + '.js');
+            if (fs.existsSync(targetPath)) fs.unlinkSync(targetPath);
+            skipped++;
+            return;
+        }
+        if (file.endsWith('.js') || !path.extname(file)) {
             const relPath = path.relative(sourcePluginsDir, file);
             const targetPath = path.join(targetPluginsDir, relPath.endsWith('.js') ? relPath : relPath + '.js');
-            const targetSubDir = path.dirname(targetPath);
-
-            if (!fs.existsSync(targetSubDir)) {
-                fs.mkdirSync(targetSubDir, { recursive: true });
-            }
-
+            fs.mkdirSync(path.dirname(targetPath), { recursive: true });
             try {
                 const code = fs.readFileSync(file, 'utf8');
-                const convertedCode = convertESMToCJS(code, true);
-                fs.writeFileSync(targetPath, convertedCode, 'utf8');
-                successCount++;
+                const converted = convertESMToCJS(code, true);
+                fs.writeFileSync(targetPath, converted, 'utf8');
+                ok++;
             } catch (err) {
-                console.error(`❌ Error converting plugin ${relPath}:`, err.message);
+                console.error(`❌ plugin/${relPath}:`, err.message);
+                fail++;
             }
         }
     });
-    console.log(`✅ Converted ${successCount}/${pluginFiles.length} plugin files!`);
-} else {
-    console.log('⚠️ Silana plugins directory not found!');
+    console.log(`✅ Plugins: ${ok} converted, ${skipped} blacklisted/skipped, ${fail} failed`);
 }
 
-console.log('🎉 Done converting all silana assets!');
+console.log('🎉 Done!');

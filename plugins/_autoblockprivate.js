@@ -5,5 +5,4 @@ handler.before = async function (m, { conn, isOwner }) {
         await conn.updateBlockStatus(m.sender, "block");
     }
 };
-
 module.exports = handler;

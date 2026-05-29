@@ -1,6 +1,6 @@
-const yts = require("yt-search");
-const axios = require("axios");
-const { generateWAMessageContent, generateWAMessageFromContent, proto } = (await import('@whiskeysockets/baileys')).default;
+const yts = require('yt-search');
+const axios = require('axios');
+const { generateWAMessageContent, generateWAMessageFromContent, proto } = require('@whiskeysockets/baileys');
 
 let handler = async (m, { conn, text, usedPrefix, command }) => {
     if (!text) return m.reply(`• *Example:* ${usedPrefix + command} Noureddine ouafy silana bot`);

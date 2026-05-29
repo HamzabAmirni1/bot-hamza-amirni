@@ -11,9 +11,8 @@ https://whatsapp.com/channel/0029Vb3u2awADTOCXVsvia28
 *[Scrape Source]*
 https://whatsapp.com/channel/0029Vb5EZCjIiRotHCI1213L/190
 */
-
-const axios = require("axios");
-const qs = require("qs");
+const axios = require('axios');
+const qs = require('qs');
 
 const gistlib = {
   api: {

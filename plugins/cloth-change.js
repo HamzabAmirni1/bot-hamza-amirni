@@ -5,9 +5,9 @@
 @elol sendir aja benerin
 @wm garena
 */
-const { FormData, Blob  } = require("formdata-node");
-const { fileTypeFromBuffer  } = require("file-type");
-const fetch = require("node-fetch");
+const { FormData, Blob } = require('formdata-node');
+const { fileTypeFromBuffer } = require('file-type');
+const fetch = require('node-fetch');
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -148,5 +148,4 @@ handler.command = ['cloth-change'];
 handler.help = ['cloth-change'];
 handler.tags = ['ai'];
 handler.limit = true;
-
 module.exports = handler;

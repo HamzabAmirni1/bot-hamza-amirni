@@ -1,8 +1,6 @@
 // scrape by hannuniverse
 // plugin by noureddine ouafy
-
-const axios = require("axios")
-
+const axios = require('axios');
 class YouTubeDownloader {
   constructor() {
     this.baseUrl = 'https://p.savenow.to'
@@ -148,5 +146,4 @@ ${data.downloadUrl}`,
 handler.help = handler.command = ['ytdl']
 handler.tags = ['downloader']
 handler.limit = true
-
 module.exports = handler

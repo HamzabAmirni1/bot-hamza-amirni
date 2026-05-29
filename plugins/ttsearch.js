@@ -1,5 +1,4 @@
-const axios = require("axios")
-
+const axios = require('axios');
 const searchCache = new Map()
 
 async function ttSearch(query) {
@@ -113,5 +112,4 @@ handler.help = ["ttsearch"]
 handler.tags = ["search"]
 handler.command = ["ttsearch"]
 handler.limit = true
-
 module.exports = handler

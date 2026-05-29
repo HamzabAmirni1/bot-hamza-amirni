@@ -1,8 +1,7 @@
 // @instagram: noureddine_ouafy
 // 📌 Plugin: Gock Prompt Generator
 // scrape by GilangSan
-const axios = require("axios")
-
+const axios = require('axios');
 class Gock {
   constructor() {
     this.base = 'https://ai.gock.net'

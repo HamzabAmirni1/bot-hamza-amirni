@@ -1,7 +1,7 @@
-const fetch = require("node-fetch");
-const crypto = require("crypto");
-const { FormData, Blob  } = require("formdata-node");
-const { fileTypeFromBuffer  } = require("file-type");
+const fetch = require('node-fetch');
+const crypto = require('crypto');
+const { FormData, Blob } = require('formdata-node');
+const { fileTypeFromBuffer } = require('file-type');
 
 const cif = async (m, { conn }) => {
     let q = m.quoted ? m.quoted : m;

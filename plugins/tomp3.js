@@ -1,5 +1,4 @@
-const { toAudio  } = require("../lib/silana/converter.js")
-
+const { toAudio } = require('../lib/silana/converter.js');
 let handler = async (m, { conn, usedPrefix, command }) => {
     let chat = global.db.data.chats[m.chat]
     let q = m.quoted ? m.quoted : m

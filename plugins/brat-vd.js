@@ -6,15 +6,13 @@
 🧠 Instagram: @noureddine_ouafy
 scrape by Fruatre
 */
-
-const fs = require("fs")
-const path = require("path")
-const { createCanvas  } = require("canvas")
-const Jimp = require("jimp")
-const { execSync  } = require("child_process")
-const { fileURLToPath  } = require("url")
-
-const __filename = fileURLToPath(import.meta.url)
+const fs = require('fs');
+const path = require('path');
+const { createCanvas } = require('canvas');
+const Jimp = require('jimp');
+const { execSync } = require('child_process');
+const { fileURLToPath } = require('url');
+const __filename = __filename
 const __dirname = path.dirname(__filename)
 
 function colorize(ctx, width, colors) {
@@ -163,5 +161,4 @@ handler.help = ['brat-vd']
 handler.tags = ['tools']
 handler.command = /^brat-vd$/i
 handler.limit = true
-
 module.exports = handler

@@ -1,9 +1,7 @@
 // plugin by noureddine ouafy 
 // scrape by ( i don't remember 😐)
-
-const crypto = require("crypto")
-const CryptoJS = require("crypto-js")
-
+const crypto = require('crypto');
+const CryptoJS = require('crypto-js');
 const PUBLIC_KEY = `-----BEGIN PUBLIC KEY-----
 MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCwlO+boC6cwRo3UfXVBadaYwcX
 0zKS2fuVNY2qZ0dgwb1NJ+/Q9FeAosL4ONiosD71on3PVYqRUlL5045mvH2K9i8b
@@ -133,5 +131,4 @@ handler.help = ['aiimg']
 handler.command = ['aiimg']
 handler.tags = ['ai']
 handler.limit = true
-
 module.exports = handler

@@ -1,9 +1,9 @@
 //plugin by noureddine ouafy
 // scrape by Claude ai
-const { spawn  } = require("child_process");
-const { writeFile, unlink, mkdtemp  } = require("fs/promises");
-const { tmpdir  } = require("os");
-const { join  } = require("path");
+const { spawn } = require('child_process');
+const { writeFile, unlink, mkdtemp } = require('fs/promises');
+const { tmpdir } = require('os');
+const { join } = require('path');
 
 // ═══════════════════════════════════════════════════════════════════════════
 //  PYTHON SCRIPT content (written to a temp file at runtime)

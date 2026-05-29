@@ -1,6 +1,5 @@
-
-const axios = require("axios");
-const crypto = require("crypto");
+const axios = require('axios');
+const crypto = require('crypto');
 
 class TurnstileSolver {
   constructor() {
@@ -155,5 +154,4 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
 handler.help = handler.command = ["aibanana"];
 handler.tags = ["ai"];
 handler.limit = true;
-
 module.exports = handler;

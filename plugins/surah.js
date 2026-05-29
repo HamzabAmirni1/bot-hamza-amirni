@@ -1,5 +1,5 @@
-const axios = require("axios");
-const cheerio = require("cheerio");
+const axios = require('axios');
+const cheerio = require('cheerio');
 
 async function selectSurah(link) { 
     let { data } = await axios.get(link);
@@ -78,5 +78,4 @@ let handler = async (m, { conn, text }) => {
 handler.help = ['surah'];
 handler.tags = ['tools'];
 handler.command = ['surah'];
-
 module.exports = handler;

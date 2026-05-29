@@ -1,10 +1,9 @@
 // @instagram: noureddine_ouafy
-const axios = require("axios")
-const fetch = require("node-fetch")
-const FormData = require("form-data")
-const { Readable  } = require("stream")
-const sharp = require("sharp")
-
+const axios = require('axios');
+const fetch = require('node-fetch');
+const FormData = require('form-data');
+const { Readable } = require('stream');
+const sharp = require('sharp');
 function randomIP() {
   return Array(4).fill(0).map(() => Math.floor(Math.random() * 256)).join('.')
 }
@@ -152,5 +151,4 @@ handler.help = ['photo2anime']
 handler.tags = ['editor']
 handler.command = ['photo2anime']
 handler.limit = true
-
 module.exports = handler

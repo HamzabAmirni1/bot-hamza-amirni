@@ -1,7 +1,6 @@
 // plugin by sc Kashiwada-MultiDevice 
 // modified by me instagram.com/noureddine_ouafy
-
-const axios = require("axios");
+const axios = require('axios');
 
 function extractId(url) {
   try {
@@ -62,5 +61,4 @@ You can receive the content either as:
 handler.help = handler.command = ['gits', 'getgits'];
 handler.tags = ['tools'];
 handler.limit = true;
-
 module.exports = handler;

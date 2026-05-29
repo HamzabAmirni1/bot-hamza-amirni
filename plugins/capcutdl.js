@@ -1,8 +1,6 @@
 // plugin by noureddine ouafy 
 // scrape by andhikagg (NXNX.OSSYSTEM ARCHIVE)
-
-const axios = require("axios")
-
+const axios = require('axios');
 async function CapcutDl(url) {
   try {
     const res = await axios.get(url, {
@@ -120,5 +118,4 @@ handler.help = ['capcutdl']
 handler.command = ['capcutdl']
 handler.tags = ['downloader']
 handler.limit = true
-
 module.exports = handler

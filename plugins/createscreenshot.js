@@ -3,8 +3,7 @@
 // 📎 Source: https://whatsapp.com/channel/0029Vaio4dYC1FuGr5kxfy2l
 // ❗ لا تحذف حقوق المطور
 // plugin by noureddine ouafy
-const axios = require("axios")
-
+const axios = require('axios');
 async function ssweb(url) {
   const headers = {
     'accept': '*/*',
@@ -69,5 +68,4 @@ handler.help = ['createscreenshot']
 handler.tags = ['tools']
 handler.command = ['createscreenshot']
 handler.limit = true
-
 module.exports = handler

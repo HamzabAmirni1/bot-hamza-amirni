@@ -1,9 +1,8 @@
 // plugin by noureddine ouafy 
 // scrape by rizki
-
-const axios = require("axios");
-const FormData = require("form-data");
-const fs = require("fs");
+const axios = require('axios');
+const FormData = require('form-data');
+const fs = require('fs');
 
 // ─────────────────────────────────────────────
 //  GUIDE
@@ -92,5 +91,4 @@ handler.help    = ['uploadf'];
 handler.command = ['uploadf'];
 handler.tags    = ['tools'];
 handler.limit   = true;
-
 module.exports = handler;

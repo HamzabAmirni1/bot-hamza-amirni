@@ -1,7 +1,6 @@
 // @noureddine_ouafy
 // scrape by GilangSan
-const axios = require("axios")
-
+const axios = require('axios');
 async function createPoster(prompt, text = '', type = 'custom', style = 'minimal') {
   if (!prompt) return 'فين هو البرومبت؟'
   try {
@@ -62,5 +61,4 @@ handler.help = ['poster']
 handler.tags = ['ai']
 handler.command = ['poster']
 handler.limit = true
-
 module.exports = handler

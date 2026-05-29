@@ -1,7 +1,6 @@
 // plugin by noureddine ouafy 
 // scrape by rynn-stuff
-
-const axios = require("axios");
+const axios = require('axios');
 
 /**
  * This handler uses a two-stage AI process to generate music.
@@ -106,6 +105,5 @@ handler.command = /^(aimusic)$/i;
 handler.tags = ['ai'];
 handler.limit = true;
 handler.premium = true; // This is a resource-intensive command
-
 module.exports = handler;
       

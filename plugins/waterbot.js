@@ -1,9 +1,8 @@
 // scrape by malik
 // plugin by instagram.com/noureddine_ouafy
-const axios = require("axios")
-const https = require("https")
-const crypto = require("crypto")
-
+const axios = require('axios');
+const https = require('https');
+const crypto = require('crypto');
 class WaterBot {
   constructor() {
     this.base = 'https://37.187.99.30'
@@ -78,5 +77,4 @@ handler.help = ['waterbot']
 handler.command = ['waterbot']
 handler.tags = ['ai']
 handler.limit = true
-
 module.exports = handler

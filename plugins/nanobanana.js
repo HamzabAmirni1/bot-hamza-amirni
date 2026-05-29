@@ -3,10 +3,8 @@ Base : https://aifaceswap.io/
 By : ZennzXD
 Created : Jumat 27 Februari 2026
 */
-
-const crypto = require("crypto")
-const fetch = require("node-fetch")
-
+const crypto = require('crypto');
+const fetch = require('node-fetch');
 const publicKey = `-----BEGIN PUBLIC KEY-----
 MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCwlO+boC6cwRo3UfXVBadaYwcX
 0zKS2fuVNY2qZ0dgwb1NJ+/Q9FeAosL4ONiosD71on3PVYqRUlL5045mvH2K9i8b
@@ -254,5 +252,4 @@ handler.help = handler.command = ['nanobanana']
 handler.tags = ['editor']
 
 handler.limit = true
-
 module.exports = handler

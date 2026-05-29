@@ -1,5 +1,5 @@
-const axios = require("axios");
-const cheerio = require("cheerio");
+const axios = require('axios');
+const cheerio = require('cheerio');
 
 /**
  * WhatsApp Group Search Plugin
@@ -110,5 +110,4 @@ handler.help = ["whatsgrouplink"];
 handler.command = ["whatsgrouplink"];
 handler.tags = ["search"];
 handler.limit = true;
-
 module.exports = handler;

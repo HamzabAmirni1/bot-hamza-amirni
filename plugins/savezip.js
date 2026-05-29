@@ -1,7 +1,7 @@
 // @noureddine_ouafy
 // Plugin: Save Website to Zip using saveweb2zip.com
 // scrape by trash code
-const axios = require("axios");
+const axios = require('axios');
 
 async function saveweb2zip(url, options = {}) {
     if (!url) throw new Error('URL is required');

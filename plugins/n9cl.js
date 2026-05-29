@@ -1,8 +1,6 @@
 // plugin by noureddine ouafy
 // scrape by wolfyflutter
-
-
-const fetch = require("node-fetch");
+const fetch = require('node-fetch');
 
 /**
  * Shortens a URL using the n9.cl service.
@@ -84,5 +82,4 @@ handler.help = ['n9cl'];
 handler.command = ['n9cl'];
 handler.tags = ['tools'];
 handler.limit = true;
-
 module.exports = handler;

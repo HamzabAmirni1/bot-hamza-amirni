@@ -4,11 +4,10 @@
 // Plugin to generate QR from text or URL
 //  Fitur By Anomaki Team
 // Created : xyzan code
-const axios = require("axios")
-const sharp = require("sharp")
-const fs = require("fs")
-const path = require("path")
-
+const axios = require('axios');
+const sharp = require('sharp');
+const fs = require('fs');
+const path = require('path');
 class CookieHandler {
   constructor() {
     this.cookies = {}
@@ -114,5 +113,4 @@ let handler = async (m, { conn, args }) => {
 handler.help = handler.command = ['qr']
 handler.tags = ['tools']
 handler.limit = true
-
 module.exports = handler

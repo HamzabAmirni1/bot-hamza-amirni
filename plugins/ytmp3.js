@@ -1,7 +1,6 @@
 // plugin by instagram.com/noureddine_ouafy
-const crypto = require("crypto")
-const axios = require("axios")
-
+const crypto = require('crypto');
+const axios = require('axios');
 class SaveTube {
   constructor() {
     this.ky = 'C5D58EF67A7584E4A29F6C35BBC4EB12'
@@ -101,5 +100,4 @@ handler.help = ['ytmp3']
 handler.command = ['ytmp3']
 handler.tags = ['downloader']
 handler.limit = true
-
 module.exports = handler

@@ -1,9 +1,8 @@
 // noureddine_ouafy
 // scrape by wolfyflutter
-const fetch = require("node-fetch")
-const FormData = require("form-data")
-const { Buffer  } = require("buffer")
-
+const fetch = require('node-fetch');
+const FormData = require('form-data');
+const { Buffer } = require('buffer');
 let handler = async (m, { conn }) => {
   let q = m.quoted || m
   let mime = q?.mimetype || m?.msg?.mimetype || ''

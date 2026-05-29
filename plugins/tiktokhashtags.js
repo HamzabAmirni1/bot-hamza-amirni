@@ -1,7 +1,7 @@
 // instagram.com/noureddine_ouafy
 // scrape by GilangSan
-const axios = require("axios");
-const cheerio = require("cheerio");
+const axios = require('axios');
+const cheerio = require('cheerio');
 
 async function getHashtagCount(hashtag) {
   if (!hashtag) throw new Error("Hashtag not provided");
@@ -90,5 +90,4 @@ let handler = async (m, { text }) => {
 handler.help = handler.command = ["tiktokhashtags"];
 handler.tags = ["tools"];
 handler.limit = true;
-
 module.exports = handler;

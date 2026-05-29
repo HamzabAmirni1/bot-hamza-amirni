@@ -1,8 +1,6 @@
 // scrape by github=zaenal-iyyl
 // plugin by noureddine ouafy 
-
-const axios = require("axios")
-
+const axios = require('axios');
 async function capcutDownloader(url) {
   try {
     const headers = {
@@ -46,5 +44,4 @@ let handler = async (m, { conn, text }) => {
 handler.help = handler.command = ['capcut-dl']
 handler.tags = ['downloader']
 handler.limit = true
-
 module.exports = handler

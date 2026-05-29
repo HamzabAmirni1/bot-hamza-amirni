@@ -1,6 +1,6 @@
-const fs = require("fs")
-const { S_WHATSAPP_NET } =  (await import('@whiskeysockets/baileys')).default
-const Jimp = require("jimp")
+const fs = require('fs');
+const { S_WHATSAPP_NET } =  require('@whiskeysockets/baileys')
+const Jimp = require('jimp');
 let handler = async (m, { conn }) => {
 var image = m.quoted ? m.quoted : m
 var mime = (image.msg || image).mimetype || ''

@@ -1,6 +1,6 @@
-const axios = require("axios");
-const cheerio = require("cheerio");
-const FormData = require("form-data");
+const axios = require('axios');
+const cheerio = require('cheerio');
+const FormData = require('form-data');
 
 const handler = async (m, {
     conn,

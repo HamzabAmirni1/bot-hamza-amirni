@@ -1,5 +1,4 @@
-const axios = require("axios")
-
+const axios = require('axios');
 let handler = async (m, {
     conn,
     command,

@@ -1,7 +1,6 @@
 // plugin by noureddine ouafy
 // scrape by Malik
-
-const axios = require("axios");
+const axios = require('axios');
 
 class AiImageEdit {
   constructor() {

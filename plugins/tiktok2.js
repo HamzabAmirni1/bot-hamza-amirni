@@ -1,4 +1,4 @@
-const axios = require("axios");
+const axios = require('axios');
 
 let handler = async (m, { args }) => {
   if (!args[0]) {
@@ -39,7 +39,6 @@ let handler = async (m, { args }) => {
 handler.help = ["tiktok2"];
 handler.tags = ["downloader"];
 handler.command = ["tiktok2"];
-
 module.exports = handler;
 
 const Tiktok = async (url) => {

@@ -1,7 +1,5 @@
 // @noureddine_ouafy
-
-const { toPTT  } = require("../lib/silana/converter.js")
-
+const { toPTT } = require('../lib/silana/converter.js');
 let handler = async (m, { conn, usedPrefix, command }) => {
   let q = m.quoted ? m.quoted : m
   let mime = (m.quoted ? m.quoted : m.msg).mimetype || ''

@@ -1,9 +1,7 @@
 // @noureddine_ouafy
-
-const fs = require("fs")
-const { exec  } = require("child_process")
-const { promisify  } = require("util")
-
+const fs = require('fs');
+const { exec } = require('child_process');
+const { promisify } = require('util');
 const execAsync = promisify(exec)
 
 let handler = async (m, { text, conn }) => {

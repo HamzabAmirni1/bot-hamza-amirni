@@ -1,7 +1,5 @@
 // @noureddine_ouafy
-
-const axios = require("axios")
-
+const axios = require('axios');
 let handler = async (m, { args }) => {
   try {
     if (!args[0]) return m.reply('Please provide a link to shorten.')
@@ -25,5 +23,4 @@ handler.help = ['shortlink']
 handler.command = ['shortlink']
 handler.tags = ['tools']
 handler.limit = true
-
 module.exports = handler

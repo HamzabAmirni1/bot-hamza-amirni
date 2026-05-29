@@ -1,6 +1,5 @@
-const axios = require("axios")
-const FormData = require("form-data")
-
+const axios = require('axios');
+const FormData = require('form-data');
 let handler = async (m, { conn, args }) => {
   const q = m.quoted ? m.quoted : m
   const mime = (q.msg || q).mimetype || ''

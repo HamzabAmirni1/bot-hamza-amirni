@@ -1,13 +1,10 @@
 // plugin from liora sc
 // modified by instagram.com/noureddine_ouafy
-
-
-const fetch = require("node-fetch")
-const crypto = require("crypto")
-const sharp = require("sharp")
-const { FormData, Blob  } = require("formdata-node")
-const { fileTypeFromBuffer  } = require("file-type")
-
+const fetch = require('node-fetch');
+const crypto = require('crypto');
+const sharp = require('sharp');
+const { FormData, Blob } = require('formdata-node');
+const { fileTypeFromBuffer } = require('file-type');
 /* ================= CATBOX UPLOADER ================= */
 
 async function uploadToCatbox(buffer) {
@@ -125,5 +122,4 @@ handler.help = ["smeme"]
 handler.tags = ["tools"]
 handler.command = /^smeme$/i
 handler.limit = true
-
 module.exports = handler

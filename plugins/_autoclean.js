@@ -4,9 +4,8 @@
 // ╚══════════════════════════════════════════════════╝
 // plugin by noureddine ouafy 
 // by Claude Ai 
-const fs = require("fs")
-const path = require("path")
-
+const fs = require('fs');
+const path = require('path');
 const TMP_DIR     = '/tmp'
 const INTERVAL_MS = 30 * 60 * 1000  // كل 30 دقيقة
 const MAX_AGE_MS  = 60 * 60 * 1000  // احذف الملفات الأكبر من ساعة
@@ -70,5 +69,4 @@ handler.help     = []
 handler.command  = []
 handler.tags     = []
 handler.disabled = true
-
 module.exports = handler

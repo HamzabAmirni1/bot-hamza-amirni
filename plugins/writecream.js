@@ -3,8 +3,7 @@
 // Usage: .writecream system message|user message
 // Example: .writecream You are a helpful assistant.|What is the capital of Morocco?
 // Description: Sends a prompt to Writecream AI and replies with the generated response.
-const fetch = require("node-fetch")
-
+const fetch = require('node-fetch');
 let handler = async (m, { text }) => {
   if (!text) throw 'Please provide input in the format: system message|user message'
 

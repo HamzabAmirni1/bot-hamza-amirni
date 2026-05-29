@@ -1,8 +1,6 @@
 // plugin by noureddine ouafy
 // scrape by malik
-
-const axios = require("axios")
-
+const axios = require('axios');
 const UA = "okhttp/5.3.2"
 const FBASE = "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyB8XaGLKyMR1t8jT_NSMhsVi0acvtGL0Vk"
 const STS = "https://airbrush.com/core-api/v1/upload/sts"
@@ -158,5 +156,4 @@ handler.help = ['airbrush']
 handler.tags = ['editor']
 handler.command = ['airbrush']
 handler.limit = true
-
 module.exports = handler

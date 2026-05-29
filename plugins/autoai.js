@@ -1,5 +1,5 @@
 // instagram.com/noureddine_ouafy
-const fetch = require("node-fetch");
+const fetch = require('node-fetch');
 
 const gemini = {
   getNewCookie: async function () {
@@ -113,5 +113,4 @@ handler.command = ["autoai"];
 handler.tags = ["ai"];
 handler.help = ["autoai"];
 handler.limit = true;
-
 module.exports = handler;

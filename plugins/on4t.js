@@ -1,8 +1,8 @@
 // Instagram: noureddine_ouafy
 // Download videos from multiple platforms using On4t.com
 // scrape by rikikangsc2-eng
-const axios = require("axios");
-const cheerio = require("cheerio");
+const axios = require('axios');
+const cheerio = require('cheerio');
 
 let handler = async (m, { conn, text, args, usedPrefix, command }) => {
   if (!text) throw ` *On4t Video Downloader*

@@ -1,7 +1,6 @@
 // @noureddine_ouafy
-const axios = require("axios")
-const { createHash, randomUUID  } = require("crypto")
-
+const axios = require('axios');
+const { createHash, randomUUID } = require('crypto');
 let handler = async (m, { conn, args, command }) => {
   let [module = 'SUMMARIZE', ...rest] = args
   let inputText = rest.join(' ').trim()

@@ -1,7 +1,7 @@
-const cp = require("child_process");
-const { promisify  } = require("util");
-const { createCanvas  } = require("canvas");
-const uploadImage = require("../lib/silana/uploadImage.js");
+const cp = require('child_process');
+const { promisify } = require('util');
+const { createCanvas } = require('canvas');
+const uploadImage = require('../lib/silana/uploadImage.js');
 
 const exec = promisify(cp.exec).bind(cp);
 
@@ -155,5 +155,4 @@ let handler = async (m, { conn }) => {
 handler.help = ["infodisk"];
 handler.tags = ["tools"];
 handler.command = ["infodisk"];
-
 module.exports = handler;

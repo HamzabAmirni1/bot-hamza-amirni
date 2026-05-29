@@ -6,12 +6,9 @@ Note:
 - Don't delete this WM
 - This WM is not disturbing!!!!
 */
-
-
-const { GoogleGenerativeAI  } = require("@google/generative-ai");
-const uploadFile = require("../lib/silana/uploadFile.js")
-const uploadImage = require("../lib/silana/uploadImage.js")
-
+const { GoogleGenerativeAI } = require('@google/generative-ai');
+const uploadFile = require('../lib/silana/uploadFile.js');
+const uploadImage = require('../lib/silana/uploadImage.js');
 let handler = async (m, { conn, text, usedPrefix, command }) => {
     if (!text) throw(`exemple:\n${usedPrefix}${command} who is the latest prophet? \n this feature support  text / img / video /gif ...etc `);
 const apikeynyah = "AIzaSyB3Q74etnADQ_qSX3OJtzTnteGh-fd4df8"

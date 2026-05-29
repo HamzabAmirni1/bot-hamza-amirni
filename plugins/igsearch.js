@@ -1,7 +1,6 @@
 // plugin by noureddine ouafy 
 // scrape by andhikagg
-const axios = require("axios")
-
+const axios = require('axios');
 async function reelsSearch(query, num = 10) {
   try {
     const cx = "e500c3a7a523b49df";
@@ -131,5 +130,4 @@ handler.help = ['igsearch']
 handler.command = ['igsearch']
 handler.tags = ['search']
 handler.limit = true
-
 module.exports = handler

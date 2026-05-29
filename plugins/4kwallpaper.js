@@ -1,8 +1,7 @@
 // modified by : noureddine_ouafy
 // scrape by GilangSan
-const axios = require("axios")
-const cheerio = require("cheerio")
-
+const axios = require('axios');
+const cheerio = require('cheerio');
 class Wallpaper {
   constructor() {
     this.base = 'https://4kwallpapers.com'
@@ -137,5 +136,4 @@ handler.help = ['4kwallpaper']
 handler.tags = ['downloader']
 handler.command = ['4kwallpaper']
 handler.limit = true
-
 module.exports = handler

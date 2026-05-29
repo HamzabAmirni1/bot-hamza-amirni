@@ -1,4 +1,4 @@
-const { areJidsSameUser  } = require("@whiskeysockets/baileys"); 
+const { areJidsSameUser } = require('@whiskeysockets/baileys');
 
 let handler = async (m, { conn, participants }) => { 
    let users = participants.filter((u) => !areJidsSameUser(u.id, conn.user.id)); 

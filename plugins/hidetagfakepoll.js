@@ -49,5 +49,4 @@ handler.tags = ['owner']
 handler.command = /^(hidetagfakepoll)$/i
 handler.group = true
 handler.admin = true
-
 module.exports = handler

@@ -1,10 +1,7 @@
 // instagram.com/noureddine_ouafy
 // scrape by malik
-
-const axios = require("axios")
-const crypto = require("crypto")
-
-// SpoofHead function merged inside
+const axios = require('axios');
+const crypto = require('crypto');
 const SpoofHead = (extra = {}) => {
   const ip = [10, crypto.randomInt(256), crypto.randomInt(256), crypto.randomInt(256)].join(".")
   const genericHeaders = {
@@ -107,5 +104,4 @@ let handler = async (m, { conn, args }) => {
 handler.help = handler.command = ['play-chordmini']
 handler.tags = ['downloader']
 handler.limit = true
-
 module.exports = handler

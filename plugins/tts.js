@@ -1,8 +1,6 @@
 // plugin by noureddine ouafy 
 // scrape by malik
-
-
-const axios = require("axios");
+const axios = require('axios');
 
 // ==========================================
 // 1. DATA & LOGIC
@@ -409,5 +407,4 @@ handler.help = ['tts'];
 handler.tags = ['ai'];
 handler.command = /^(tts)$/i;
 handler.limit = true;
-
 module.exports = handler;

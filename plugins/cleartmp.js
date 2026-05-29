@@ -1,5 +1,5 @@
-const cp = require("child_process")
-const { promisify  } = require("util")
+const cp = require('child_process');
+const { promisify } = require('util');
 let exec = promisify(cp.exec).bind(cp)
 let handler = async (m) => {
 	await conn.reply(m.chat, "Done", m)

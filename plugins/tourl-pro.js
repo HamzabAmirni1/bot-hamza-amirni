@@ -1,9 +1,8 @@
-const fs = require("fs")
-const path = require("path")
-const axios = require("axios")
-const FormData = require("form-data")
-const { fileTypeFromBuffer  } = require("file-type")
-
+const fs = require('fs');
+const path = require('path');
+const axios = require('axios');
+const FormData = require('form-data');
+const { fileTypeFromBuffer } = require('file-type');
 const handler = async (m, { conn, command }) => {
   const q = m.quoted || m
   const mime = (q.msg || q).mimetype || q.mediaType || ''
@@ -121,5 +120,4 @@ handler.help = ['tourl-pro']
 handler.tags = ['uploader']
 handler.command = /^(tourl-pro)$/i
 handler.limit = true
-
 module.exports = handler

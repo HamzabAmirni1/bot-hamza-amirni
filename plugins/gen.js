@@ -1,6 +1,6 @@
 // plugin by noureddine ouafy 
 // scrape by malik 
-const axios = require("axios"); // Assuming you have 'axios' installed: npm install axios
+const axios = require('axios');
 
 // Simple Google Translate API endpoint (no key needed)
 async function translateToEnglish(text) {
@@ -96,5 +96,4 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
 handler.help = handler.command = ['gen'];
 handler.tags = ['ai'];
 handler.limit = true;
-
 module.exports = handler;

@@ -1,9 +1,8 @@
 // @noureddine_ouafy
 //scrape by Shannz 
-const axios = require("axios")
-const cheerio = require("cheerio")
-const qs = require("qs")
-
+const axios = require('axios');
+const cheerio = require('cheerio');
+const qs = require('qs');
 async function igdl(urls) {
   const [baseUrl, paramsString] = urls.split('?')
   const params = new URLSearchParams(paramsString)

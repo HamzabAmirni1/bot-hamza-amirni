@@ -1,10 +1,9 @@
 // Instagram: noureddine_ouafy
 // AI Image & Video Generator (Ailabs)
 // Source: https://whatsapp.com/channel/0029Vb6gPQsEawdrP0k43635
-
-const axios = require("axios");
-const chalk = require("chalk");
-const FormData = require("form-data");
+const axios = require('axios');
+const chalk = require('chalk');
+const FormData = require('form-data');
 
 const aiLabs = {
     api: {

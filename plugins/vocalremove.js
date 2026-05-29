@@ -1,8 +1,7 @@
 // instagram.com/noureddine_ouafy
-
-const axios = require("axios");
-const cheerio = require("cheerio");
-const FormData = require("form-data");
+const axios = require('axios');
+const cheerio = require('cheerio');
+const FormData = require('form-data');
 
 class XMinus {
   async t() {
@@ -194,5 +193,4 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
 handler.help = handler.command = ["vocalremove"];
 handler.tags = ["ai"];
 handler.limit = true;
-
 module.exports = handler;

@@ -1,7 +1,7 @@
-const axios = require("axios");
-const FormData = require("form-data");
-const cheerio = require("cheerio");
-const { URL  } = require("url");
+const axios = require('axios');
+const FormData = require('form-data');
+const cheerio = require('cheerio');
+const { URL } = require('url');
 
 const base = {
     _token: "https://snapvn.com/id",

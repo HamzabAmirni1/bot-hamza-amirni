@@ -1,5 +1,5 @@
-const axios = require("axios");
-const FormData = require("form-data");
+const axios = require('axios');
+const FormData = require('form-data');
 
 async function uploadImage(imageBuffer) {
     try {

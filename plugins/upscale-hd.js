@@ -3,10 +3,8 @@
 • Source: https://whatsapp.com/channel/0029VakezCJDp2Q68C61RH2C
 • Source Scrape: https://whatsapp.com/channel/0029Vb5blhMEawdx2QFALZ1D
 */
-
-const fetch = require("node-fetch")
-const FormData = require("form-data")
-
+const fetch = require('node-fetch');
+const FormData = require('form-data');
 let handler = async (m, { conn, usedPrefix, command }) => {
   const quoted = m.quoted ? m.quoted : m
   const mime = quoted.mimetype || quoted.msg?.mimetype || ''

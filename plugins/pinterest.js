@@ -1,6 +1,6 @@
-const axios = require("axios");
-const cheerio = require("cheerio");
-const { generateWAMessageContent, generateWAMessageFromContent, proto } = (await import('@whiskeysockets/baileys')).default;
+const axios = require('axios');
+const cheerio = require('cheerio');
+const { generateWAMessageContent, generateWAMessageFromContent, proto } = require('@whiskeysockets/baileys');
 
 const base = "https://www.pinterest.com";
 const search = "/resource/BaseSearchResource/get/";
@@ -168,5 +168,4 @@ handler.help = ['pinterest'];
 handler.tags = ['downloader'];
 handler.command = /^(pinterest)$/i;
 handler.limit = true;
-
 module.exports = handler;

@@ -1,8 +1,7 @@
 // instagram.com/noureddine_ouafy
 // scrape by CR Ponta Sensei WEB https://codeteam.my.id
-const axios = require("axios")
-const cheerio = require("cheerio")
-
+const axios = require('axios');
+const cheerio = require('cheerio');
 const scrapeSavetik = async (tiktokUrl) => {
   try {
     const headers = {
@@ -93,5 +92,4 @@ handler.help = ['savetik']
 handler.command = ['savetik']
 handler.tags = ['downloader']
 handler.limit = true
-
 module.exports = handler

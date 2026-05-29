@@ -1,5 +1,5 @@
-const axios = require("axios");
-const cheerio = require("cheerio");
+const axios = require('axios');
+const cheerio = require('cheerio');
 
 async function ghTrending() {
     try {
@@ -59,5 +59,4 @@ const handler = async (m, { conn }) => {
 handler.help = ["githubtrend"];
 handler.tags = ["tools"];
 handler.command = /^(githubtrend)$/i;
-
 module.exports = handler;

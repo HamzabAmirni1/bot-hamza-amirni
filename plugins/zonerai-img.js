@@ -1,9 +1,8 @@
 // plugin by instagram.com/noureddine_ouafy
 // scrape by SaaOfc
-
-const axios = require("axios");
-const FormData = require("form-data");
-const https = require("https");
+const axios = require('axios');
+const FormData = require('form-data');
+const https = require('https');
 
 // Available resolutions for the image generation
 const resolutions = {
@@ -110,5 +109,4 @@ handler.help = ['zonerai-img'];
 handler.command = ['zonerai-img'];
 handler.tags = ['ai'];
 handler.limit = true;
-
 module.exports = handler;

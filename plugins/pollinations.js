@@ -4,10 +4,9 @@
  * scrape by gienetic
  * Base    : https://play.google.com/store/apps/details?id=com.sparksolutionz.genai
  */
-
-const axios = require("axios");
-const fs = require("fs");
-const path = require("path");
+const axios = require('axios');
+const fs = require('fs');
+const path = require('path');
 
 let handler = async (m, { conn, text }) => {
     if (!text) return conn.sendMessage(m.chat, { text: "❌ المرجو كتابة وصف للصورة." }, { quoted: m });
@@ -69,5 +68,4 @@ let handler = async (m, { conn, text }) => {
 handler.help = handler.command = ['pollinations'];
 handler.tags = ['ai'];
 handler.limit = true;
-
 module.exports = handler;

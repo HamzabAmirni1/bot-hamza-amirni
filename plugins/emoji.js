@@ -1,5 +1,5 @@
-const { fileTypeFromBuffer  } = require("file-type");
-const fetch = require("node-fetch");
+const { fileTypeFromBuffer } = require('file-type');
+const fetch = require('node-fetch');
 
 const handler = async (m, { args, conn }) => {
     if (!args[0]) return m.reply("Usage:\n!emoji <emoji>\n\nExample:\n!emoji 😅");

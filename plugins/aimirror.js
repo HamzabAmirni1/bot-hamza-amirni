@@ -1,8 +1,8 @@
 // instagram.com/noureddine_ouafy
 // scrape by Fahmi-XD
-const axios = require("axios");
-const crypto = require("crypto");
-const FormData = require("form-data");
+const axios = require('axios');
+const crypto = require('crypto');
+const FormData = require('form-data');
 
 class Helper {
   static BASE_URL = "https://be.aimirror.fun";

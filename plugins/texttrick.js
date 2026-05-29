@@ -197,5 +197,4 @@ let handler = async (m, { text }) => {
 handler.help    = ['texttrick'];
 handler.tags    = ['tools'];
 handler.command = ['texttrick'];
-
 module.exports = handler;

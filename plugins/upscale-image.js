@@ -1,7 +1,6 @@
-const axios = require("axios")
-const cheerio = require("cheerio")
-const FormData = require("form-data")
-
+const axios = require('axios');
+const cheerio = require('cheerio');
+const FormData = require('form-data');
 let handler = async (m, { conn, usedPrefix, command }) => {
   try {
     let quoted = m.quoted ? m.quoted : m
@@ -28,7 +27,6 @@ handler.help = ['upscale-image']
 handler.tags = ['editor']
 handler.command = /^(upscale-image)$/i
 handler.premium = false
-
 module.exports = handler
 
 

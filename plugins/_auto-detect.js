@@ -1,5 +1,4 @@
-const { WAMessageStubType  } = require("@whiskeysockets/baileys");
-
+const { WAMessageStubType } = require('@whiskeysockets/baileys');
 exports.before = async function before(m) {
   let chat = db.data.chats[m.chat];
   if (chat.detect) {
@@ -128,5 +127,4 @@ exports.before = async function before(m) {
     }
   }
 }
-
 exports.disabled = false;

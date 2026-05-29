@@ -1,11 +1,10 @@
 //plugin by noureddine_ouafy
 //scrape by SxyzVerse thanks Brother 
-
-const axios = require("axios");
-const cheerio = require("cheerio");
-const fs = require("fs");
-const { tmpdir  } = require("os");
-const path = require("path");
+const axios = require('axios');
+const cheerio = require('cheerio');
+const fs = require('fs');
+const { tmpdir } = require('os');
+const path = require('path');
 
 let handler = async (m, { conn }) => {
   try {

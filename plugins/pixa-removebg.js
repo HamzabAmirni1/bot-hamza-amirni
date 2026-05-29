@@ -1,10 +1,8 @@
 // plugin by noureddine ouafy 
 // scrape by Codeverse
-
-const fs = require("fs")
-const FormData = require("form-data")
-const fetch = require("node-fetch")
-
+const fs = require('fs');
+const FormData = require('form-data');
+const fetch = require('node-fetch');
 let handler = async (m, { conn }) => {
   try {
     let q = m.quoted ? m.quoted : m
@@ -61,5 +59,4 @@ handler.help = ['pixa-removebg']
 handler.command = ['pixa-removebg']
 handler.tags = ['editor']
 handler.limit = true
-
 module.exports = handler

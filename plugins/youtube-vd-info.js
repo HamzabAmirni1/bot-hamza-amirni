@@ -1,6 +1,5 @@
-const axios = require("axios")
-const cheerio = require("cheerio")
-
+const axios = require('axios');
+const cheerio = require('cheerio');
 const headers = {
   "origin": "https://imageyoutube.com",
   "referer": "https://imageyoutube.com/",

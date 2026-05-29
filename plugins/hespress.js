@@ -1,6 +1,6 @@
-const cheerio = require("cheerio");
-const fetch = require("node-fetch");
-const baileys = require("@whiskeysockets/baileys");
+const cheerio = require('cheerio');
+const fetch = require('node-fetch');
+const baileys = require('@whiskeysockets/baileys');
 
 const { proto, generateWAMessageFromContent } = baileys;
 

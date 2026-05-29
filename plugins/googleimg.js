@@ -1,5 +1,5 @@
-const axios = require("axios");
-const cheerio = require("cheerio");
+const axios = require('axios');
+const cheerio = require('cheerio');
 
 async function googleImg(query) {
   try {
@@ -38,5 +38,4 @@ handler.help = ['googleimg'];
 handler.tags = ['downloader'];
 handler.command = ['googleimg','gimage'];
 handler.limit = true;
-
 module.exports = handler;

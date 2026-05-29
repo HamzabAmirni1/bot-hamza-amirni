@@ -1,9 +1,7 @@
 // instagram.com/noureddine_ouafy
 // scrape by malik
-
-const axios = require("axios")
-const crypto = require("crypto")
-
+const axios = require('axios');
+const crypto = require('crypto');
 class MiraMuseAI {
   constructor() {
     this.baseUrl = "https://mjaiserver.erweima.ai"
@@ -143,5 +141,4 @@ flux, tamarin, superAnime, visiCanvas, realistic, oldRealistic, anime, 3danime
 handler.help = handler.command = ["miramuse"]
 handler.tags = ["ai"]
 handler.limit = true
-
 module.exports = handler

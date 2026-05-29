@@ -1,13 +1,12 @@
-const { tmpdir  } = require("os");
+const { tmpdir } = require('os');
 const path = require('path');
-const { join  } = require('path');;
+const { join } = require('path');
 const { readdirSync,
   statSync,
   unlinkSync,
   existsSync,
   readFileSync,
-  watch,
- } = require("fs");
+  watch, } = require('fs');
 let handler = async (m, { conn, usedPrefix: _p, __dirname, args }) => {
   conn.reply(m.chat, "Succes !", m);
 
@@ -26,5 +25,4 @@ handler.tags = ["owner"];
 handler.command = /^(clearwin)$/i;
 
 handler.rowner = true;
-
 module.exports = handler;

@@ -1,9 +1,7 @@
 // plugin by Dnn-Cuki
 // modified by noureddine ouafy
-
-const { createCanvas, loadImage  } = require("canvas")
-const fs = require("fs")
-
+const { createCanvas, loadImage } = require('canvas');
+const fs = require('fs');
 let handler = async (m, { text, conn, usedPrefix, command }) => {
   try {
     let [name, comment] = text.split('|')

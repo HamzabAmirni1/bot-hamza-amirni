@@ -1,8 +1,7 @@
 // instagram.com/noureddine_ouafy
 // scrape by malik 
-const axios = require("axios")
-const { Blob, FormData  } = require("formdata-node")
-
+const axios = require('axios');
+const { Blob, FormData } = require('formdata-node');
 class NoiseReducer {
   constructor() {
     this.uploadUrl = "https://apiv2.noise-reducer.com/denoiser/v3/noise-reductions/upload/"
@@ -115,5 +114,4 @@ handler.help = ['noiseremove']
 handler.tags = ['tools']
 handler.command = ['noiseremove']
 handler.limit = true
-
 module.exports = handler

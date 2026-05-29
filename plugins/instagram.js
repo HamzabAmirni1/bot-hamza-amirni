@@ -1,6 +1,6 @@
-const axios = require("axios");
-const cheerio = require("cheerio");
-const qs = require("qs");
+const axios = require('axios');
+const cheerio = require('cheerio');
+const qs = require('qs');
 
 let handler = async (m, { conn, usedPrefix, command, text }) => {
     if (!text) return m.reply(`• *Example*: ${usedPrefix + command} *[Instagram URL]*`);
@@ -33,7 +33,6 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
 handler.help = ["ig", "instagram"];
 handler.tags = ["downloader"];
 handler.command = ["ig", "instagram"];
-
 module.exports = handler;
 
 function formatShortNumber(number) {

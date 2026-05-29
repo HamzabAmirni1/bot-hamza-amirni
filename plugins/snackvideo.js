@@ -5,9 +5,8 @@
  * ├ Support us with a donation!
  * └─ 
  */
-const cheerio = require("cheerio")
-const fetch = require("node-fetch")
-
+const cheerio = require('cheerio');
+const fetch = require('node-fetch');
 let handler = async (m, {
     conn,
     usedPrefix,

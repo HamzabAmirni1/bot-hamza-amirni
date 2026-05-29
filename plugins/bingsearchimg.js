@@ -1,6 +1,5 @@
-const axios = require("axios")
-const cheerio = require("cheerio")
-
+const axios = require('axios');
+const cheerio = require('cheerio');
 let handler = async (m, { conn, text }) => {
   if (!text) {
     return conn.reply(m.chat, 'Please provide a search query.', m)

@@ -1,6 +1,6 @@
 // instagram.com/noureddine_ouafy
 // scrape by malik
-const axios = require("axios");
+const axios = require('axios');
 
 class GeminiAPI {
   constructor() {
@@ -93,5 +93,4 @@ let handler = async (m, { conn, text, quoted }) => {
 handler.help = handler.command = ["gemini-v2"];
 handler.tags = ["ai"];
 handler.limit = true;
-
 module.exports = handler;

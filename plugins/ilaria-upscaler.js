@@ -1,8 +1,8 @@
 // @instagram.com/noureddine_ouafy
 // Plugin: Illaria Upscaler
 // scrape by Rynn Hub
-const axios = require("axios");
-const FormData = require("form-data");
+const axios = require('axios');
+const FormData = require('form-data');
 
 class IllariaUpscaler {
   constructor() {
@@ -117,5 +117,4 @@ handler.help = ['ilaria-upscaler'];
 handler.tags = ['tools'];
 handler.command = ['ilaria-upscaler'];
 handler.limit = true;
-
 module.exports = handler;

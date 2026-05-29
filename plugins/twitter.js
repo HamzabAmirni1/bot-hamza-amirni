@@ -1,5 +1,4 @@
-
-const cheerio = require("cheerio");
+const cheerio = require('cheerio');
 
 async function downloadTwitterMedia(q) {
   let t = await fetch("https://x2twitter.com/api/userverify", {
@@ -131,5 +130,4 @@ handler.help    = ['twitter'];
 handler.command = ['twitter'];
 handler.tags    = ['downloader'];
 handler.limit   = true;
-
 module.exports = handler;

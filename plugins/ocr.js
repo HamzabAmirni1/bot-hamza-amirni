@@ -1,10 +1,9 @@
 // @noureddine_ouafy
 // Plugin: OCR / ToText
 // by Created by OwnBlox
-
-const axios = require("axios");
-const FormData = require("form-data");
-const fs = require("fs");
+const axios = require('axios');
+const FormData = require('form-data');
+const fs = require('fs');
 
 const handler = async (m, { conn }) => {
   const performOCR = async (imagePath) => {

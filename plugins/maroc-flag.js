@@ -1,10 +1,10 @@
 // plugin by Obito 
 // thanks ❤️
-const fs = require("fs");
-const fetch = require("node-fetch");
-const axios = require("axios");
-const FormData = require("form-data");
-const { fileTypeFromBuffer  } = require("file-type");
+const fs = require('fs');
+const fetch = require('node-fetch');
+const axios = require('axios');
+const FormData = require('form-data');
+const { fileTypeFromBuffer } = require('file-type');
 
 const handler = async (m, { conn }) => {
   const q = m.quoted ? m.quoted : m;
@@ -58,5 +58,4 @@ const handler = async (m, { conn }) => {
 handler.help = ["maroc-flag"];
 handler.tags = ["morocco"];
 handler.command = /^maroc-flag$/i;
-
 module.exports = handler;

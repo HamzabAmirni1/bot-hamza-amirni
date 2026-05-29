@@ -4,13 +4,11 @@
  * Usage: Reply to a photo with .picupscaler
  * scrape by GilangSan
  */
-
-const axios = require("axios")
-const FormData = require("form-data")
-const fs = require("fs")
-const { tmpdir  } = require("os")
-const path = require("path")
-
+const axios = require('axios');
+const FormData = require('form-data');
+const fs = require('fs');
+const { tmpdir } = require('os');
+const path = require('path');
 const upscale = async (buffer) => {
   if (!buffer) return { error: 'No image buffer received' }
 
@@ -66,5 +64,4 @@ handler.help = ['picupscaler']
 handler.tags = ['tools']
 handler.command = ['picupscaler']
 handler.limit = true
-
 module.exports = handler

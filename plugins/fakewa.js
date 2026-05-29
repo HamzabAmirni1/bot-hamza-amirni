@@ -1,8 +1,8 @@
 // Noroshi
 // recod by noureddine ouafy 
-const { loadImage, createCanvas  } = require("canvas");
-const fs = require("fs");
-const path = require("path");
+const { loadImage, createCanvas } = require('canvas');
+const fs = require('fs');
+const path = require('path');
 let handler = async (m, { conn, text, usedPrefix, command }) => {
   if (!text || !text.includes('|')) {
     return m.reply(

@@ -1,4 +1,4 @@
-const axios = require("axios");
+const axios = require('axios');
 
 async function fesnuk(postUrl, cookie = "", userAgent = "") {
     if (!postUrl || !postUrl.trim()) throw new Error("Please specify a valid Facebook URL.");
@@ -83,5 +83,4 @@ let handler = async (m, { args, conn }) => {
 
 handler.help = handler.command = ['fb'];
 handler.tags = ['downloader'];
-
 module.exports = handler;

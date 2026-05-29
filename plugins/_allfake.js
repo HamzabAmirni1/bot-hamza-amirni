@@ -1,8 +1,8 @@
-const fs = require("fs");
-const fetch = require("node-fetch");
-const moment = require("moment-timezone");
-const axios = require("axios");
-const speed = require("performance-now");
+const fs = require('fs');
+const fetch = require('node-fetch');
+const moment = require('moment-timezone');
+const axios = require('axios');
+const speed = require('performance-now');
 
 let handler = (m) => m;
 handler.all = async function (m) {
@@ -30,10 +30,10 @@ handler.all = async function (m) {
     global.fsizedoc = pickRandom([2000, 3000, 2023000, 2024000]);
 
     // módulos globales
-    global.axios = (await import("axios")).default;
-    global.fetch = (await import("node-fetch")).default;
-    global.cheerio = (await import("cheerio")).default;
-    global.fs = (await import("fs")).default;
+    global.axios = require("axios");
+    global.fetch = require("node-fetch");
+    global.cheerio = require("cheerio");
+    global.fs = require("fs");
 
     let timestamp = speed();
     let latensi = speed() - timestamp;
@@ -117,7 +117,6 @@ handler.all = async function (m) {
     };
   }
 };
-
 module.exports = handler;
 
 function date() {

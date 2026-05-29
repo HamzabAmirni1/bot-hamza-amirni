@@ -1,8 +1,6 @@
 // @noureddine_ouafy
-
-const WebSocket = require("ws")
-const fs = require("fs")
-
+const WebSocket = require('ws');
+const fs = require('fs');
 function generateRandomLetters(length = 6) {
   let result = ""
   const charCode = 26

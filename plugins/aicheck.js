@@ -6,9 +6,7 @@
 🔗 Base URL : https://reilaa.com
 👤 Creator : Hazel
 */
-
-const axios = require("axios")
-
+const axios = require('axios');
 const handler = async (m, { text, conn }) => {
     if (!text) throw 'Please input some text first 🥺\nExample: .aicheck hello world'
 
@@ -62,5 +60,4 @@ handler.help = ['aicheck']
 handler.tags = ['ai']
 handler.command = /^(aicheck)$/i
 handler.limit = false
-
 module.exports = handler

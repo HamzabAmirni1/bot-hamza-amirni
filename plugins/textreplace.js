@@ -8,13 +8,12 @@
   ✺ Command : textreplace | tr
   ✺ Feature : Replace text in images using AI (imgupscaler.ai)
 */
-
-const fs = require("fs");
-const FormData = require("form-data");
-const path = require("path");
-const axios = require("axios");
-const { tmpdir  } = require("os");
-const { fileURLToPath  } = require("url");
+const fs = require('fs');
+const FormData = require('form-data');
+const path = require('path');
+const axios = require('axios');
+const { tmpdir } = require('os');
+const { fileURLToPath } = require('url');
 
 // ─── Helpers ───────────────────────────────────────────────
 
@@ -191,5 +190,4 @@ handler.tags = ['editor'];
 handler.command = /^(textreplace)$/i;
 handler.limit = true;
 handler.register = false;
-
 module.exports = handler;

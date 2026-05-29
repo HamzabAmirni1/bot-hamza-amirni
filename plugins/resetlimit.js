@@ -15,5 +15,4 @@ handler.tags = ["owner"];
 handler.command = /^(resetlimit)$/i;
 
 handler.owner = true;
-
 module.exports = handler;

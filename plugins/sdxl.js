@@ -1,4 +1,4 @@
-const axios = require("axios");
+const axios = require('axios');
 
 /**
  * Sdxl Generate Image - Magic Eraser
@@ -76,5 +76,4 @@ handler.help = ['sdxl '];
 handler.command = ['sdxl'];
 handler.tags = ['ai'];
 handler.limit = true; // Assumes a limiter/premium system is in place
-
 module.exports = handler;

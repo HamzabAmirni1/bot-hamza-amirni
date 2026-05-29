@@ -1,9 +1,8 @@
 // scrape by hannuniverse 
 // plugin by noureddine ouafy
-const axios = require("axios")
-const cheerio = require("cheerio")
-const { URL  } = require("url")
-
+const axios = require('axios');
+const cheerio = require('cheerio');
+const { URL } = require('url');
 /* ================= MEDIAFIRE SCRAPER ================= */
 
 class MediaFireDownloader {
@@ -148,5 +147,4 @@ handler.help = ['mediafire2']
 handler.command = ['mediafire2']
 handler.tags = ['downloader']
 handler.limit = true
-
 module.exports = handler

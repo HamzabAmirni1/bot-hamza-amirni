@@ -1,8 +1,7 @@
 // instagram.com/noureddine_ouafy
 // scrape by shaanz thanks brother
-const axios = require("axios")
-const cheerio = require("cheerio")
-
+const axios = require('axios');
+const cheerio = require('cheerio');
 const mod = {
   search: async (query) => {
     try {

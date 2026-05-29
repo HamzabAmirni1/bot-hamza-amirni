@@ -1,5 +1,5 @@
-const FormData = require("form-data");
-const axios = require("axios");
+const FormData = require('form-data');
+const axios = require('axios');
 
 let handler = async (m, {
 conn,
@@ -49,10 +49,8 @@ handler.help = ['vocalremover']
 handler.tags = ['ai']
 handler.limit = true 
 handler.command = /^(vocalremover)$/i
-
 module.exports = handler
-
-const apii = await axios.create({ baseURL: 'https://aivocalremover.com' })
+const apii = axios.create({ baseURL: 'https://aivocalremover.com' })
 
 const getKey = async () => (await apii.get('/')).data.match(/key:"(\w+)/)[1]
 
@@ -70,7 +68,6 @@ const vocalRemove = async (audioBuffer) => {
 	const processFile = await apii.post('/api/v2/ProcessFile', new URLSearchParams({
 		file_name: fileUpload.data.file_name,
 		action: 'watermark_video', key, web: 'web' 
-	})).catch(e => e.response)
-	
+	})).catch(e => e.response);
 	return processFile.data
 }

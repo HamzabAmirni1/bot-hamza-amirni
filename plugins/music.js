@@ -1,10 +1,8 @@
 //translate and modified by noureddine
 //plugin by Izuku-mi
-
-const axios = require("axios")
-const crypto = require("crypto")
-const yts = require("yt-search")
-
+const axios = require('axios');
+const crypto = require('crypto');
+const yts = require('yt-search');
 const handler = async (m, { text, conn }) => {
     try {
         if (!text) return m.reply("⚠️ What music do you want to play?")

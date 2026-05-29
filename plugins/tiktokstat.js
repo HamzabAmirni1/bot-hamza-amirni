@@ -3,8 +3,7 @@
  * Scrape TikTok Earnings by Username
  * Author: SaaOfc's | Modified by: @noureddine_ouafy
  */
-
-const axios = require("axios");
+const axios = require('axios');
 
 async function getNonce() {
   const res = await axios.get('https://influencermarketinghub.com/tiktok-money-calculator/', {
@@ -86,5 +85,4 @@ let handler = async (m, { conn, args }) => {
 handler.help = handler.command = ['tiktokstat'];
 handler.tags = ['tools'];
 handler.limit = true;
-
 module.exports = handler;

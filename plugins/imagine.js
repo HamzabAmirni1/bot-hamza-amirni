@@ -1,7 +1,6 @@
 // plugin by noureddine ouafy 
 // scrape by malik
-
-const axios = require("axios");
+const axios = require('axios');
 
 // ========================
 // API Keys (Decoded inline)
@@ -271,7 +270,7 @@ You can specify a model at the end:
           // Fallback: download via conn
           const msg = quotedMsg.message?.imageMessage || quotedMsg.message?.stickerMessage;
           if (msg) {
-            const { downloadContentFromMessage } = await import("@whiskeysockets/baileys");
+            const { downloadContentFromMessage } = require("@whiskeysockets/baileys");
             const stream = await downloadContentFromMessage(msg, mime.startsWith("image/webp") ? "sticker" : "image");
             const chunks = [];
             for await (const chunk of stream) chunks.push(chunk);
@@ -317,5 +316,4 @@ You can specify a model at the end:
 handler.help = handler.command = ['imagine'];
 handler.tags = ['editor'];
 handler.limit = true;
-
 module.exports = handler;

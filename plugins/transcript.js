@@ -1,7 +1,7 @@
 // instagram.com/noureddine_ouafy
 // YouTube Transcript Plugin
 // scrape by SaaOffc
-const fetch = require("node-fetch");
+const fetch = require('node-fetch');
 
 async function getTranscript(videoUrl) {
   try {
@@ -47,5 +47,4 @@ handler.help = ['transcript'];
 handler.command = ['transcript'];
 handler.tags = ['tools'];
 handler.limit = true;
-
 module.exports = handler;

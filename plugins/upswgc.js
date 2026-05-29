@@ -1,8 +1,6 @@
 // plugin by Const Offmon = Lana;
 // instagram.com/noureddine_ouafy
-
-const { prepareWAMessageMedia  } = require("@whiskeysockets/baileys")
-
+const { prepareWAMessageMedia } = require('@whiskeysockets/baileys');
 const handler = async (m, { conn, text, usedPrefix, command }) => {
     if (!text && !m.quoted) {
         return m.reply(`Example: ${usedPrefix + command} <text>\nor reply to a photo/video/audio`)
@@ -78,5 +76,4 @@ handler.owner = true
 handler.group = true
 handler.help = ["upswgc"]
 handler.tags = ["owner"]
-
 module.exports = handler

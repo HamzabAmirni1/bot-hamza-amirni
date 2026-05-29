@@ -1,6 +1,6 @@
-const axios = require("axios");
-const FormData = require("form-data");
-const baileys = require("@whiskeysockets/baileys");
+const axios = require('axios');
+const FormData = require('form-data');
+const baileys = require('@whiskeysockets/baileys');
 
 const ttSearch = async (query, count = 3) => {
     try {

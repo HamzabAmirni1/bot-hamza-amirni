@@ -1,4 +1,4 @@
-const axios = require("axios");
+const axios = require('axios');
 
 // The KiveClient class handles the API interactions for image generation.
 class KiveClient {
@@ -200,5 +200,4 @@ handler.help = ['kive'];
 handler.command = ['kive'];
 handler.tags = ['ai'];
 handler.limit = true;
-
 module.exports = handler;

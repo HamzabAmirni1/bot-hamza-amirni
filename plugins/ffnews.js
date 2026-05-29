@@ -1,5 +1,5 @@
-const axios = require("axios");
-const cheerio = require("cheerio");
+const axios = require('axios');
+const cheerio = require('cheerio');
 
 let handler = async (m, { conn }) => {
     try {
@@ -37,5 +37,4 @@ handler.help = ["ffnews"];
 handler.tags = ["search"];
 handler.command = ["ffnews"];
 handler.limit = true;
-
 module.exports = handler;

@@ -1,8 +1,7 @@
 // plugin by noureddine ouafy
 // scrape by malik
-
-const axios = require("axios");
-const FormData = require("form-data");
+const axios = require('axios');
+const FormData = require('form-data');
 
 class NanoBanana {
   constructor() {

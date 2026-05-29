@@ -1,7 +1,6 @@
 // plugin by noureddine ouafy 
 // scrape by xbladev
-
-const axios = require("axios");
+const axios = require('axios');
 
 // ─── Core Scraper Function ────────────────────────────────────────────────────
 async function fvideodown(fbUrl) {

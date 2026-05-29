@@ -1,7 +1,6 @@
 // instagram.com/noureddine_ouafy
 // scrape by  Ponta Sensei
-const axios = require("axios")
-
+const axios = require('axios');
 let handler = async (m, { conn, args }) => {
   const url = args[0]
   if (!url) return m.reply('📌 من فضلك أرسل رابط CapCut:\nمثال:\n.capcut https://www.capcut.com/t/Zs8mRY2Xp/')

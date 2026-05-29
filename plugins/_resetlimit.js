@@ -1,5 +1,4 @@
-const cron = require("node-cron");
-
+const cron = require('node-cron');
 exports.before = async function before(m) {
   let bot = db.data.settings[conn.user.jid];
 

@@ -1,5 +1,5 @@
-const WSF = require("wa-sticker-formatter");
-const axios = require("axios");
+const WSF = require('wa-sticker-formatter');
+const axios = require('axios');
 
 let handler = async (m, { conn, args }) => {
     let text;
@@ -72,7 +72,6 @@ let handler = async (m, { conn, args }) => {
 handler.help = ['qc'];
 handler.tags = ['sticker'];
 handler.command = /^(qc|quotely)$/i;
-
 module.exports = handler;
 
 async function createSticker(img, packname, author, categories = ['']) {

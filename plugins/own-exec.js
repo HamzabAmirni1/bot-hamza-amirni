@@ -1,10 +1,9 @@
-const syntaxerror = require("syntax-error")
-const { format  } = require("util")
-const { fileURLToPath  } = require("url")
-const { dirname  } = require("path")
-const { createRequire  } = require("module")
-
-const __dirname = dirname(fileURLToPath(import.meta.url))
+const syntaxerror = require('syntax-error');
+const { format } = require('util');
+const { fileURLToPath } = require('url');
+const { dirname } = require('path');
+const { createRequire } = require('module');
+const __dirname = dirname(__filename)
 const require = createRequire(__dirname)
 
 let handler = async (m, _2) => {
@@ -42,7 +41,6 @@ handler.customPrefix = /^=?> /
 handler.command = /(?:)/i
 
 handler.rowner = true
-
 module.exports = handler
 
 class CustomArray extends Array {

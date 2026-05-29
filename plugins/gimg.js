@@ -1,7 +1,6 @@
 // instagram.com/noureddine_ouafy
 // scrape by wolfyflutter thanks brother 
-const fetch = require("node-fetch")
-
+const fetch = require('node-fetch');
 const googleSearchImage = async (query) => {
   if (!query) throw Error('Search query must not be empty')
   

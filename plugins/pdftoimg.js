@@ -1,9 +1,8 @@
 // PDF to Image Converter Plugin
 // Scraper core by claidex ( Alfi ) t.me/claidex
 // Adapted for Silana Bot by Noureddine Ouafy
-
-const fetch = require("node-fetch");
-const FormData = require("form-data");
+const fetch = require('node-fetch');
+const FormData = require('form-data');
 
 const base = "https://pdftoimage.com";
 

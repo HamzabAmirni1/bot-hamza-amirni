@@ -1,5 +1,5 @@
-const { exec  } = require("child_process");
-const fs = require("fs");
+const { exec } = require('child_process');
+const fs = require('fs');
 
 const handler = async (m, { conn, text, usedPrefix, command }) => {
   if (!text) return m.reply(`*Example* :\n ${usedPrefix + command} yt-search`);

@@ -1,6 +1,5 @@
-
-const axios = require("axios");
-const cheerio = require("cheerio");
+const axios = require('axios');
+const cheerio = require('cheerio');
 
 async function yt5sIo(url) {
     try {
@@ -77,5 +76,4 @@ let handler = async (m, { conn, text }) => {
 
 handler.help = handler.command = ['fb-ig'];
 handler.tags = ['downloader'];
-
 module.exports = handler;

@@ -1,4 +1,4 @@
-const axios = require("axios");
+const axios = require('axios');
 let handler = (m) => m;
 handler.all = async function (m) {
   // buat ambil buffer
@@ -865,5 +865,4 @@ global.style = async function (text, style = 1) {
   });
   return output.join("");
 };
-
 module.exports = handler;

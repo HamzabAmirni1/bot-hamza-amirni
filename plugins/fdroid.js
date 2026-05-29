@@ -1,8 +1,7 @@
 // plugin by noureddine ouafy
 // claud ai thanks hahahaha 
-
-const axios = require("axios");
-const baileys = require("@whiskeysockets/baileys");
+const axios = require('axios');
+const baileys = require('@whiskeysockets/baileys');
 
 const { generateWAMessageFromContent, proto } = baileys;
 
@@ -65,7 +64,7 @@ async function searchFDroid(query) {
 
   // Try cheerio first, fallback to regex
   let cheerio;
-  try { cheerio = (await import('cheerio')).default ?? (await import('cheerio')); } catch {}
+  try { cheerio = require('cheerio') ?? require('cheerio'); } catch {}
 
   if (cheerio) {
     const $ = cheerio.load(data);
@@ -341,6 +340,5 @@ handler.help    = ['fdroid'];
 handler.tags    = ['downloader'];
 handler.command = ['fdroid', 'fdr', 'f-droid', 'fdroidl'];
 handler.limit   = false;
-
 module.exports = handler;
         

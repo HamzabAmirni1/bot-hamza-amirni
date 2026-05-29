@@ -1,4 +1,4 @@
-const fetch = require("node-fetch");
+const fetch = require('node-fetch');
 
 /**
  * This code is provided for educational purposes.
@@ -127,5 +127,4 @@ handler.help = ['gemini'];
 handler.tags = ['ai'];
 handler.command = /^(gemini)$/i;
 handler.limit = true;
-
 module.exports = handler;

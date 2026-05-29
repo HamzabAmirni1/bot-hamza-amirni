@@ -1,6 +1,5 @@
-const axios = require("axios")
-const cheerio = require("cheerio")
-
+const axios = require('axios');
+const cheerio = require('cheerio');
 let handler = async (m, { conn, args }) => {
   if (!args[0]) {
     throw '❌ Please provide an SFile URL.\n\nExample:\n.sfile https://sfile.co/CwY59xc325C'
@@ -38,7 +37,6 @@ handler.help = ['sfile']
 handler.command = ['sfile']
 handler.tags = ['downloader']
 handler.limit = true
-
 module.exports = handler
 
 // =========================

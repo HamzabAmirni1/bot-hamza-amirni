@@ -1,4 +1,4 @@
-const { generateWAMessageContent  } = require("@whiskeysockets/baileys");
+const { generateWAMessageContent } = require('@whiskeysockets/baileys');
 
 const neura = async (m, { conn, usedPrefix, command }) => {
     const q = m.quoted ? m.quoted : m;
@@ -48,5 +48,4 @@ neura.help = ['broadcastptv'];
 neura.tags = ['owner'];
 neura.command = /^(broadcastptv)$/i;
 neura.owner = true;
-
 module.exports = neura;

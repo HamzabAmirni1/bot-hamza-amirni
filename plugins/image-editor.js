@@ -1,7 +1,6 @@
 // plugin from ARONA-MD sc thanks 
 // modified by instagram.com/noureddine_ouafy
-const fetch = require("node-fetch")
-
+const fetch = require('node-fetch');
 class ImgEditor {
   static base = "https://imgeditor.co/api"
 
@@ -133,5 +132,4 @@ handler.help = ["image-editor"]
 handler.tags = ["editor"]
 handler.command = /^(image-editor)$/i
 handler.limit = true
-
 module.exports = handler

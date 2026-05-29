@@ -1,7 +1,7 @@
 // plugin by noureddine ouafy
 // scrape by https://pastebin.com/bTbi66Zp
-const axios = require("axios");
-const cheerio = require("cheerio");
+const axios = require('axios');
+const cheerio = require('cheerio');
 
 let handler = async (m, { conn, text }) => {
     try {
@@ -110,5 +110,4 @@ handler.help = ["searchgroups"];
 handler.tags = ["search"];
 handler.command = ["searchgroups"];
 handler.limit = true;
-
 module.exports = handler;

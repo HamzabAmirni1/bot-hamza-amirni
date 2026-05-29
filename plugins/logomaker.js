@@ -1,5 +1,5 @@
-const axios = require("axios");
-const { parseStringPromise  } = require("xml2js");
+const axios = require('axios');
+const { parseStringPromise } = require('xml2js');
 
 const effects = [
   'sweetheart', 'flutter', 'pinkglow', 'volcano', 'petalprint', 'giftwrap', 'mrfrosty', 'littlehelper', 

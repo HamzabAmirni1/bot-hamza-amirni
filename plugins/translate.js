@@ -1,7 +1,6 @@
 // INSTAGRAM: instagram.com/noureddine_ouafy
 // TRANSLATE PLUGIN - DEFAULT TO ARABIC
-
-const fetch = require("node-fetch");
+const fetch = require('node-fetch');
 
 const handler = async (m, { args, usedPrefix, command, conn }) => {
   let lang, text;

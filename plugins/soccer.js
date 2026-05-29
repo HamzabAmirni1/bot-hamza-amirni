@@ -1,5 +1,5 @@
-const axios = require("axios");
-const cheerio = require("cheerio");
+const axios = require('axios');
+const cheerio = require('cheerio');
 
 let handler = async (m, { conn, text, command, usedPrefix }) => {
     if (!text) return m.reply(`Example: ${usedPrefix + command} Cristiano Ronaldo`);

@@ -1,5 +1,5 @@
-const axios = require("axios");
-const cheerio = require("cheerio");
+const axios = require('axios');
+const cheerio = require('cheerio');
 
 let handler = async (m, { conn }) => {
   const query = m.text.split(' ').slice(1).join(' ') || 'termux'; 
@@ -18,7 +18,6 @@ let handler = async (m, { conn }) => {
 
 handler.help = handler.command = ['f-droid'];
 handler.tags = ['search'];
-
 module.exports = handler;
 
 async function avzxxx(query) {

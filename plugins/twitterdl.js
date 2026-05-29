@@ -1,8 +1,7 @@
 // instagram.com/noureddine_ouafy
-
-const axios = require("axios");
-const FormData = require("form-data");
-const cheerio = require("cheerio");
+const axios = require('axios');
+const FormData = require('form-data');
+const cheerio = require('cheerio');
 
 const handler = async (m, { conn, text }) => {
   if (!text) return m.reply('المرجو إرسال رابط تغريدة يحتوي على فيديو');

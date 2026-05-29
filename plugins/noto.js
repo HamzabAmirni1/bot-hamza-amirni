@@ -1,5 +1,4 @@
-const axios = require("axios")
-
+const axios = require('axios');
 /**
  * Convert emoji to Unicode hex format
  */
@@ -52,5 +51,4 @@ handler.help = ['noto']
 handler.command = ['noto']
 handler.tags = ['sticker']
 handler.limit = true
-
 module.exports = handler

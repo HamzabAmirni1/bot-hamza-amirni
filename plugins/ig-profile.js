@@ -3,8 +3,7 @@
  * Scrape Instagram Stalk Info
  * Author: SaaOfc's | Modified by: @noureddine_ouafy
  */
-
-const axios = require("axios");
+const axios = require('axios');
 
 async function StalkIg(username) {
   const formData = new URLSearchParams();
@@ -96,5 +95,4 @@ let handler = async (m, { conn, args }) => {
 handler.help = handler.command = ['ig-profile'];
 handler.tags = ['tools'];
 handler.limit = true;
-
 module.exports = handler;

@@ -1,6 +1,5 @@
-const axios = require("axios")
-const cheerio = require("cheerio")
-
+const axios = require('axios');
+const cheerio = require('cheerio');
 let handler = async (m, { conn, args }) => {
   try {
     if (!args[0]) return m.reply('Where is the Pinterest link?')

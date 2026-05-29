@@ -5,11 +5,8 @@
  * CH https://whatsapp.com/channel/0029VagslooA89MdSX0d1X1z
  * WEB https://my.codeteam.web.id
 **/
-
-const axios = require("axios")
-const qs = require("qs")
-
-// ─────────────────────────────────────────────
+const axios = require('axios');
+const qs = require('qs');
 // CORE SCRAPER
 // ─────────────────────────────────────────────
 

@@ -1,5 +1,5 @@
-const axios = require("axios");
-const cheerio = require("cheerio");
+const axios = require('axios');
+const cheerio = require('cheerio');
 
 const handler = async (m, { conn, text }) => {
   if (!text || !text.startsWith('https://pastebin.com/')) {

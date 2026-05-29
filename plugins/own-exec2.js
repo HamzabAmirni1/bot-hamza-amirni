@@ -1,6 +1,6 @@
 const cp = require('child_process');
-const { exec as _exec  } = require('child_process');
-const { promisify  } = require("util")
+const { exec: _exec } = require('child_process');
+const { promisify } = require('util');
 let exec = promisify(_exec).bind(cp)
 let handler = async (m, { conn, isOwner, command, text }) => {
   if (global.conn.user.jid != conn.user.jid) return

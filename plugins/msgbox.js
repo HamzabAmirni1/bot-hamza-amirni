@@ -1,8 +1,7 @@
 // plugin by instagram.com/noureddine_ouafy
 // scrape by malik
-const axios = require("axios")
-const FormData = require("form-data")
-
+const axios = require('axios');
+const FormData = require('form-data');
 class KobaltGen {
   constructor() {
     this.url = "https://msgboxgen.kobalt.dev/submit/"
@@ -100,5 +99,4 @@ handler.help = ['msgbox']
 handler.tags = ['tools']
 handler.command = ['msgbox', 'winmsg']
 handler.limit = true
-
 module.exports = handler

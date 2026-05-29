@@ -1,7 +1,6 @@
 // scrape by daffa 
 // plugin by noureddine ouafy 
-
-const axios = require("axios");
+const axios = require('axios');
 
 /**
  * fstik object for interacting with the fstik.app API.

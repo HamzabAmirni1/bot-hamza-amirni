@@ -4,9 +4,7 @@ type : ESM plugin
 API : https://api.siputzx.my.id
 plugin modified by noureddine ouafy
 */
-
-const fetch = require("node-fetch")
-
+const fetch = require('node-fetch');
 let handler = async (m, { conn, text, command }) => {
   global.db.data.users = global.db.data.users || {}
   let user = global.db.data.users[m.sender] || {}
@@ -28,7 +26,6 @@ handler.help = ['pinterest-img']
 handler.tags = ['downloader']
 handler.command = /^pinterest-img$|^again$/i
 handler.limit = true
-
 module.exports = handler
 
 async function sendPinterestImage(m, conn, query) {

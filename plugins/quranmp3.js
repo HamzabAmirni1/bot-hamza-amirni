@@ -1,4 +1,4 @@
-const axios = require("axios");
+const axios = require('axios');
 
 const Murottal = {
     async list() {
@@ -70,5 +70,4 @@ let handler = async (m, { conn, text }) => {
 handler.help = ['quranmp3'];
 handler.tags = ['islamic'];
 handler.command = /^(quranmp3)$/i;
-
 module.exports = handler;

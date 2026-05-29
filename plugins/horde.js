@@ -1,7 +1,6 @@
 // Instagram: noureddine_ouafy
 // scrape by malik
-
-const axios = require("axios");
+const axios = require('axios');
 
 class StableHorde {
   constructor({ apiKey = "" }) {
@@ -73,5 +72,4 @@ let handler = async (m, { conn, text }) => {
 handler.help = handler.command = ["horde"];
 handler.tags = ["ai"];
 handler.limit = true;
-
 module.exports = handler;

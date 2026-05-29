@@ -1,9 +1,8 @@
 // Hecho por Ado
 // plugin by instagram.com/noureddine_ouafy
-const fetch = require("node-fetch")
-const fs = require("fs")
-const path = require("path")
-
+const fetch = require('node-fetch');
+const fs = require('fs');
+const path = require('path');
 let handler = async (m, { conn, args, usedPrefix, command }) => {
   if (!args[0]) {
     return conn.reply(
@@ -60,7 +59,6 @@ handler.help = ["spotifydl"]
 handler.command = ["spotifydl"]
 handler.tags = ["downloader"]
 handler.limit = true
-
 module.exports = handler
 
 // ================= FUNCTIONS =================

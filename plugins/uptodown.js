@@ -1,5 +1,5 @@
-const axios = require("axios");
-const cheerio = require("cheerio");
+const axios = require('axios');
+const cheerio = require('cheerio');
 
 /**
  * Scraper function for Uptodown
@@ -133,5 +133,4 @@ handler.command = ['uptodown'];
 handler.tags = ['downloader'];
 handler.limit = true;
 handler.private = false;
-
 module.exports = handler;

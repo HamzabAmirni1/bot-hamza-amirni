@@ -1,5 +1,4 @@
-const fs = require("fs")
-
+const fs = require('fs');
 const handler = async (m, { conn, text }) => {
   if (!text) return m.reply('Please enter the file name!')
   if (!m.quoted?.text) return m.reply('Reply to the file code!')
@@ -12,5 +11,4 @@ handler.command = /^(savefile)$/i
 handler.help = ['savefile']
 handler.tags = ['owner']
 handler.owner = true
-
 module.exports = handler

@@ -137,5 +137,4 @@ handler.command = /^(template)$/i
 
 handler.group = false
 handler.rowner = true
-
 module.exports = handler

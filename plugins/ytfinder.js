@@ -1,8 +1,6 @@
 // instagram.com/noureddine_ouafy
-const fetch = require("node-fetch")
-const { generateWAMessageFromContent
- } = require("@whiskeysockets/baileys")
-
+const fetch = require('node-fetch');
+const { generateWAMessageFromContent } = require('@whiskeysockets/baileys');
 let handler = async (m, { conn, text }) => {
   if (!text) throw "This command is for searching on YouTube, for example:\n.ytfinder noureddine ouafy"
 

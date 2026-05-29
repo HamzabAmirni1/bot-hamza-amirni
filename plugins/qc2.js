@@ -1,7 +1,7 @@
-const { sticker  } = require("../lib/silana/sticker.js");
-const axios = require("axios");
-const uploadImage = require("../lib/silana/uploadImage.js");
-const { webp2png  } = require("../lib/silana/webp2mp4.js");
+const { sticker } = require('../lib/silana/sticker.js');
+const axios = require('axios');
+const uploadImage = require('../lib/silana/uploadImage.js');
+const { webp2png } = require('../lib/silana/webp2mp4.js');
 
 let handler = async (m, { conn, text }) => {
     let q = m.quoted ? m.quoted : m;
@@ -144,7 +144,6 @@ handler.tags = ['sticker'];
 handler.command = /^(qc2|quotly2)$/i;
 
 handler.limit = true;
-
 module.exports = handler;
 
 async function Quotly(obj) {

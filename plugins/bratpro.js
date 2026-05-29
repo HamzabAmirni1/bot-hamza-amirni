@@ -32,5 +32,4 @@ handler.help = ["bratpro"];
 handler.tags = ["sticker"];
 handler.command = ["bratpro"];
 handler.limit = true;
-
 module.exports = handler;

@@ -3,12 +3,10 @@
 * Base: https://freeimage.host/
 * Author: Shannz
 */
-
-const axios = require("axios")
-const FormData = require("form-data")
-const fs = require("fs")
-const path = require("path")
-
+const axios = require('axios');
+const FormData = require('form-data');
+const fs = require('fs');
+const path = require('path');
 const freeimage = {
   getToken: async () => {
     try {
@@ -98,5 +96,4 @@ handler.help = ['uploadimage']
 handler.tags = ['uploader']
 handler.command = ['uploadimage']
 handler.limit = true
-
 module.exports = handler

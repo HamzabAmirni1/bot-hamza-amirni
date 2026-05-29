@@ -4,10 +4,8 @@
 - Transformed to plugin format by noureddine
 - Original by Lezz DcodeR
 */
-
-const axios = require("axios")
-const cheerio = require("cheerio")
-
+const axios = require('axios');
+const cheerio = require('cheerio');
 async function githubStalk(username) {
   try {
     const res = await axios.get(`https://github.com/${username}`)

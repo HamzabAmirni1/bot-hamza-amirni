@@ -24,10 +24,9 @@
 //     they may expire after some time.
 //   • One image per command.
 // ============================================================
-
-const { tmpdir  } = require("node:os");
-const { join  } = require("node:path");
-const { writeFile, unlink  } = require("node:fs/promises");
+const { tmpdir } = require('node:os');
+const { join } = require('node:path');
+const { writeFile, unlink } = require('node:fs/promises');
 
 let handler = async (m, { conn }) => {
   // ── 1. Locate the quoted or direct image message ──────────
@@ -107,5 +106,4 @@ handler.help = handler.command = ["imgupload"];
 handler.tags = ["uploader"];
 
 handler.limit = true;
-
 module.exports = handler;

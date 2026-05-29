@@ -1,8 +1,7 @@
 // plugin edit by instagram.com/noureddine_ouafy
 // code origine by https://github.com/mruniquehacker/Knightbot-MD/blob/main/commands/video.js thanks brother
-const axios = require("axios")
-const yts = require("yt-search")
-
+const axios = require('axios');
+const yts = require('yt-search');
 const AXIOS_DEFAULTS = {
     timeout: 60000,
     headers: {
@@ -137,5 +136,4 @@ handler.help = ['ytvideo']
 handler.tags = ['downloader']
 handler.command = ['ytvideo']
 handler.limit = true
-
 module.exports = handler

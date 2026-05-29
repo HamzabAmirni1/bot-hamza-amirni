@@ -13,5 +13,4 @@ handler.all = async function (m, { isBotAdmin }) {
     }).catch(console.log);
   }
 };
-
 module.exports = handler;

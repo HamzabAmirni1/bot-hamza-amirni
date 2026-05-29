@@ -1,9 +1,8 @@
 //plugin by @noureddine_ouafy
 //recode by Obito owner ( fix the scrape and make it support button) 🧠
 //scraped by my friend Malik
-
-const cheerio = require("cheerio");
-const fetch = require("node-fetch");
+const cheerio = require('cheerio');
+const fetch = require('node-fetch');
 
 let handler = async (m, { conn, text }) => {
   const listOptions = ["all", "download"];

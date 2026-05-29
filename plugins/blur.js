@@ -1,5 +1,4 @@
-const jimp = require("jimp")
-
+const jimp = require('jimp');
 let handler = async (m, { conn, text }) => {
 	let image = m.message?.imageMessage
 		? await m.download()

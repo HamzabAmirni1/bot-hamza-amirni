@@ -80,5 +80,4 @@ handler.command = ['ssweb2'];
 handler.tags = ['tools']; 
 
 handler.limit = true;
-
 module.exports = handler;

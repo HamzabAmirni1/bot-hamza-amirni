@@ -1,4 +1,4 @@
-const fetch = require("node-fetch");
+const fetch = require('node-fetch');
 
 const API_ENDPOINT = "https://code2img.vercel.app";
 
@@ -121,5 +121,4 @@ handler.help = ["code2img"];
 handler.tags = ["tools"];
 handler.command = /^(code2img)$/i;
 handler.limit = true;
-
 module.exports = handler;

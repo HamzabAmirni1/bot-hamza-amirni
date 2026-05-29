@@ -1,6 +1,6 @@
 //plugin by noureddine Ouafy 
 // scrape by wolfyflutter
-const fetch = require("node-fetch");
+const fetch = require('node-fetch');
 
 const yt = {
   headers: {
@@ -156,5 +156,4 @@ handler.help = ["y2meta"];
 handler.tags = ["downloader"];
 handler.command = ["y2meta"];
 handler.limit = true;
-
 module.exports = handler;
