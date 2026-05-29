@@ -320,34 +320,67 @@ async function videoCommand(sock, chatId, msg, args, commands, userLang, match) 
 
         let videoData = null;
 
-        // Try methods sequentially
-        const methods = [
-            () => getYtconvertVideo(videoUrl),
-            () => getVredenVideo(videoUrl),
-            () => getNekolabsVideo(videoUrl),
-            () => getCobaltVideo(videoUrl),
-            () => getY2MateVideo(videoUrl),
-            () => getSavetubeVideo(videoUrl),
-            () => getSavenowVideo(videoUrl),
-            () => getSiputzxVideo(videoUrl),
-            () => getYupraVideoByUrl(videoUrl),
-            () => getOkatsuVideoByUrl(videoUrl)
-        ];
+        // 1. Try the optimized unified helper first (very fast, under 2s)
+        try {
+            const { downloadYouTube } = require('../../lib/ytdl');
+            const resYtdl = await downloadYouTube(videoUrl, 'mp4');
+            if (resYtdl && resYtdl.downloadUrl) {
+                videoData = {
+                    download: resYtdl.downloadUrl,
+                    title: resYtdl.title || videoTitle
+                };
+            }
+        } catch (e) {
+            console.log(`[VIDEO] downloadYouTube helper failed: ${e.message}`);
+        }
 
-        for (const method of methods) {
-            try {
-                videoData = await method();
-                if (videoData) break;
-            } catch (e) {
-                console.log(`[VIDEO] Method failed: ${e.message}`);
+        // 2. Fallback to custom methods sequentially if the unified helper failed
+        if (!videoData) {
+            const methods = [
+                () => getYtconvertVideo(videoUrl),
+                () => getVredenVideo(videoUrl),
+                () => getNekolabsVideo(videoUrl),
+                () => getCobaltVideo(videoUrl),
+                () => getY2MateVideo(videoUrl),
+                () => getSavetubeVideo(videoUrl),
+                () => getSavenowVideo(videoUrl),
+                () => getSiputzxVideo(videoUrl),
+                () => getYupraVideoByUrl(videoUrl),
+                () => getOkatsuVideoByUrl(videoUrl)
+            ];
+
+            for (const method of methods) {
+                try {
+                    videoData = await method();
+                    if (videoData) break;
+                } catch (e) {
+                    console.log(`[VIDEO] Method failed: ${e.message}`);
+                }
             }
         }
 
         if (!videoData) throw new Error("All download methods failed.");
 
         const finalUrl = videoData.download || videoData.downloadUrl || videoData.url;
+
+        // Download video to buffer using native fetch to prevent Baileys streaming hangs
+        let videoBuffer;
+        try {
+            const resp = await fetch(finalUrl, {
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                }
+            });
+            if (resp.ok) {
+                const arrayBuf = await resp.arrayBuffer();
+                videoBuffer = Buffer.from(arrayBuf);
+            }
+        } catch (e) {
+            console.log(`[VIDEO] Failed to download video buffer: ${e.message}. Falling back to URL streaming.`);
+        }
+
         await sock.sendMessage(chatId, {
-            video: { url: finalUrl },
+            video: videoBuffer || { url: finalUrl },
             mimetype: 'video/mp4',
             fileName: `${videoData.title || videoTitle || 'video'}.mp4`,
             caption: t('video.success', { botName: settings.botName }, userLang)

@@ -167,24 +167,38 @@ async function playCommand(sock, chatId, msg, args, commands, userLang) {
         const audioUrl = audioData.downloadUrl || audioData.download;
         const finalTitle = audioData.title || video.title;
 
-        // Download audio to buffer accurately
+        // Download audio to buffer accurately using native fetch
         let audioBuffer;
         try {
-            const resp = await axios.get(audioUrl, {
-                responseType: 'arraybuffer',
-                timeout: 90000,
+            const resp = await fetch(audioUrl, {
                 headers: {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                    'Accept': '*/*',
-                    'Accept-Encoding': 'identity'
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
                 }
             });
-            audioBuffer = Buffer.from(resp.data);
+            if (!resp.ok) throw new Error(`HTTP error! status: ${resp.status}`);
+            const arrayBuf = await resp.arrayBuffer();
+            audioBuffer = Buffer.from(arrayBuf);
         } catch (e) {
-            throw new Error("Failed to download audio from provider.");
+            throw new Error(`Failed to download audio from provider: ${e.message}`);
         }
 
         if (!audioBuffer || audioBuffer.length === 0) throw new Error("Empty audio buffer.");
+
+        // Download thumbnail as buffer for the externalAdReply
+        let thumbBuffer;
+        try {
+            const thumbResp = await fetch(video.thumbnail, {
+                headers: {
+                    'User-Agent': 'Mozilla/5.0'
+                }
+            });
+            if (thumbResp.ok) {
+                const arrayBuf = await thumbResp.arrayBuffer();
+                thumbBuffer = Buffer.from(arrayBuf);
+            }
+        } catch (e) {
+            console.error("Failed to download thumbnail:", e.message);
+        }
 
         // Detect Format and Convert to MP3 if needed
         const { toAudio } = require('../../lib/converter');
@@ -203,7 +217,7 @@ async function playCommand(sock, chatId, msg, args, commands, userLang) {
             }
         }
 
-        // Send audio
+        // Send audio with buffer thumbnail to prevent Baileys string URL parsing hangs
         await sock.sendMessage(chatId, {
             audio: finalBuffer,
             mimetype: finalMimetype,
@@ -215,7 +229,7 @@ async function playCommand(sock, chatId, msg, args, commands, userLang) {
                     body: settings.botName,
                     mediaType: 2,
                     renderLargerThumbnail: true,
-                    thumbnailUrl: video.thumbnail
+                    thumbnail: thumbBuffer
                 }
             }
         }, { quoted: msg });
