@@ -1,5 +1,49 @@
 // plugin from  Toxic-v2/xhclintohn thanks 🌟
 // re-modified by instagram.com/noureddine_ouafy
+// fixed buffer download - no stream hanging
+
+const { downloadYouTube } = require('../../../lib/ytdl');
+const axios = require('axios');
+const https = require('https');
+
+const agent = new https.Agent({ rejectUnauthorized: false });
+
+// Helper: download a URL to a Buffer
+async function fetchBuffer(url) {
+  const res = await axios.get(url, {
+    responseType: 'arraybuffer',
+    timeout: 60000,
+    httpsAgent: agent,
+    headers: { 'User-Agent': 'Mozilla/5.0' }
+  });
+  return Buffer.from(res.data);
+}
+
+// Search YouTube and get a watch URL using yts
+async function searchYouTube(query) {
+  // Try a simple YT search API
+  try {
+    const res = await axios.get(
+      `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}&sp=EgIQAQ%253D%253D`,
+      { timeout: 15000, headers: { 'User-Agent': 'Mozilla/5.0' } }
+    );
+    const match = res.data.match(/"videoId":"([a-zA-Z0-9_-]{11})"/);
+    if (match) return `https://www.youtube.com/watch?v=${match[1]}`;
+  } catch (_) {}
+
+  // Fallback: nexray search only (no download)
+  try {
+    const res = await axios.get(
+      `https://api.nexray.web.id/downloader/ytplay?q=${encodeURIComponent(query)}`,
+      { timeout: 15000 }
+    );
+    const d = res.data;
+    if (d?.result?.url) return d.result.url;
+    if (d?.result?.download_url) return null; // already has audio
+  } catch (_) {}
+
+  return null;
+}
 
 let handler = async (m, { conn, text }) => {
 
@@ -8,15 +52,7 @@ let handler = async (m, { conn, text }) => {
   // ╰─────────────────────────────────────────╯
   //
   // 🎵 PLAY - YouTube Audio Downloader
-  // EN: This command searches YouTube and sends the audio (MP3) directly in chat.
-  //     You can provide a song name or a YouTube link.
-  //     Usage: .play <song name or YouTube URL>
-  //     Example: .play funk universo
-  //
-  // AR: هذا الأمر يبحث في يوتيوب ويرسل الصوت (MP3) مباشرة في المحادثة.
-  //     يمكنك كتابة اسم الأغنية أو رابط يوتيوب مباشرة.
-  //     الاستخدام: .play <اسم الأغنية أو رابط يوتيوب>
-  //     مثال: .play صوت الحرية
+  // Usage: .play <song name or YouTube URL>
 
   try {
     const query = text ? text.trim() : '';
@@ -37,19 +73,17 @@ let handler = async (m, { conn, text }) => {
 
     await conn.sendMessage(m.chat, { react: { text: '⌛', key: m.key } });
 
-    if (query.length > 100) {
-      return m.reply(
-        `╭───(    Silana Bot    )───\n` +
-        `├ 🇬🇧 Query too long! Max 100 characters.\n` +
-        `├ 🇲🇦 الطلب طويل بزاف! الحد الأقصى 100 حرف.\n` +
-        `╰──────────────────☉`
-      );
+    // Detect if it's already a YouTube link
+    const ytRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+/;
+    let youtubeUrl = ytRegex.test(query) ? query : null;
+
+    // If not a direct link, search YouTube
+    if (!youtubeUrl) {
+      console.log(`[play.js] Searching YouTube for: "${query}"`);
+      youtubeUrl = await searchYouTube(query);
     }
 
-    const response = await fetch(`https://api.nexray.web.id/downloader/ytplay?q=${encodeURIComponent(query)}`);
-    const data = await response.json();
-
-    if (!data.status || !data.result?.download_url) {
+    if (!youtubeUrl) {
       await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } });
       return m.reply(
         `╭───(    Silana Bot    )───\n` +
@@ -62,45 +96,84 @@ let handler = async (m, { conn, text }) => {
       );
     }
 
-    const result     = data.result;
-    const audioUrl   = result.download_url;
-    const filename   = result.title    || 'Unknown Song';
-    const thumbnail  = result.thumbnail || '';
-    const sourceUrl  = result.url       || '';
-    const duration   = result.duration  || '';
-    const views      = result.views     || '';
-    const channel    = result.channel   || '';
+    console.log(`[play.js] Downloading audio from: ${youtubeUrl}`);
+
+    // Download via downloadYouTube helper (mp3 mode)
+    const result = await downloadYouTube(youtubeUrl, 'mp3');
+
+    if (!result || !result.downloadUrl) {
+      await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } });
+      return m.reply(
+        `╭───(    Silana Bot    )───\n` +
+        `├ 🇬🇧 Download failed. Try again later.\n` +
+        `├─────────────────────\n` +
+        `├ 🇲🇦 فشل التحميل. حاول مرة أخرى.\n` +
+        `╰──────────────────☉`
+      );
+    }
+
+    const { downloadUrl, title: songTitle, thumbnail } = result;
+    const filename = (songTitle || query).replace(/[<>:"/\\|?*]/g, '_');
 
     await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
 
-    // Send as audio (voice note style)
+    console.log(`[play.js] Fetching audio buffer from: ${downloadUrl}`);
+
+    // Download audio as buffer (prevents Baileys stream hang)
+    let audioBuffer;
+    try {
+      audioBuffer = await fetchBuffer(downloadUrl);
+    } catch (bufErr) {
+      console.error('[play.js] Buffer fetch failed:', bufErr.message);
+      await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } });
+      return m.reply(
+        `╭───(    Silana Bot    )───\n` +
+        `├ 🇬🇧 Failed to load the audio file. Try again.\n` +
+        `├─────────────────────\n` +
+        `├ 🇲🇦 تعذر تحميل الملف الصوتي. حاول مرة أخرى.\n` +
+        `╰──────────────────☉`
+      );
+    }
+
+    // Fetch thumbnail as buffer (prevents Baileys external URL issues)
+    let thumbBuffer = null;
+    if (thumbnail) {
+      try {
+        thumbBuffer = await fetchBuffer(thumbnail);
+      } catch (_) {
+        thumbBuffer = null;
+      }
+    }
+
+    // Build contextInfo with thumbnail if available
+    const contextInfo = thumbBuffer ? {
+      externalAdReply: {
+        title: (songTitle || query).substring(0, 60),
+        body: `Silana Bot 🎵`,
+        thumbnail: thumbBuffer,
+        mediaType: 1,
+        renderLargerThumbnail: true,
+      }
+    } : undefined;
+
+    // Send audio as voice/audio message (buffer)
     await conn.sendMessage(m.chat, {
-      audio: { url: audioUrl },
+      audio: audioBuffer,
       mimetype: 'audio/mpeg',
       fileName: `${filename}.mp3`,
-      contextInfo: thumbnail ? {
-        externalAdReply: {
-          title: filename.substring(0, 30),
-          body: `Silana Bot • ${duration} • ${views} views`,
-          thumbnailUrl: thumbnail,
-          sourceUrl: sourceUrl,
-          mediaType: 1,
-          renderLargerThumbnail: true,
-        },
-      } : undefined,
+      contextInfo,
     }, { quoted: m });
 
-    // Send as downloadable document
+    // Also send as downloadable document
     await conn.sendMessage(m.chat, {
-      document: { url: audioUrl },
+      document: audioBuffer,
       mimetype: 'audio/mpeg',
-      fileName: `${filename.replace(/[<>:"/\\|?*]/g, '_')}.mp3`,
+      fileName: `${filename}.mp3`,
       caption:
         `╭───(    Silana Bot    )───\n` +
         `├───≫ 🎵 PLAY ≪───\n` +
         `├\n` +
-        `├ *${filename}*\n` +
-        `├ ⏱️ ${duration}  👁️ ${views}  📺 ${channel}\n` +
+        `├ *${songTitle || query}*\n` +
         `├─────────────────────\n` +
         `├ 🇬🇧 Enjoy your music!\n` +
         `├ 🇲🇦 استمتع بالموسيقى ديالك!\n` +
@@ -108,7 +181,7 @@ let handler = async (m, { conn, text }) => {
     }, { quoted: m });
 
   } catch (error) {
-    console.error('Play error:', error);
+    console.error('[play.js] Error:', error);
     await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } });
     await m.reply(
       `╭───(    Silana Bot    )───\n` +
