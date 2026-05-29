@@ -9,7 +9,7 @@ const sourceLibDir = path.join(SILANA_DIR, 'lib');
 const sourcePluginsDir = path.join(SILANA_DIR, 'plugins');
 
 const targetLibDir = path.join(BOT_DIR, 'lib', 'silana');
-const targetPluginsDir = path.join(BOT_DIR, 'plugins');
+const targetPluginsDir = path.join(BOT_DIR, 'commands', 'silana');
 
 // Plugins to SKIP entirely - they rely on silana's global DB or clash with native bot commands
 const BLACKLISTED_PLUGINS = new Set([
@@ -61,9 +61,9 @@ function convertESMToCJS(code, isPlugin) {
     // Pre-process: put semicolon-separated imports/requires on their own lines so that the ^import/const regexes can match them
     result = result.replace(/;\s*import\s+/g, ';\nimport ');
 
-    // 0. Redirect relative library imports inside plugins
+    // 0. Redirect relative library imports inside plugins (nested 3 levels deep under commands/silana/<category>/)
     if (isPlugin) {
-        result = result.replace(/['"]\.\.\/lib\/([^'"]+)['"]/g, "'../lib/silana/$1'");
+        result = result.replace(/['"]\.\.\/lib\/([^'"]+)['"]/g, "'../../../lib/silana/$1'");
     }
 
     // 1. Replace Baileys fork with official fork
@@ -207,18 +207,35 @@ if (fs.existsSync(sourcePluginsDir)) {
         const baseName = path.basename(file, '.js');
         // Skip blacklisted plugins
         if (BLACKLISTED_PLUGINS.has(baseName)) {
-            // Delete from target if exists
-            const targetPath = path.join(targetPluginsDir, baseName + '.js');
-            if (fs.existsSync(targetPath)) fs.unlinkSync(targetPath);
+            // Delete from all possible target categories if exists
+            const categories = ['downloader', 'ai', 'editor', 'morocco', 'search', 'tools', 'sticker', 'owner', 'uploader', 'islamic', 'info', 'others'];
+            categories.forEach(cat => {
+                const targetPath = path.join(targetPluginsDir, cat, baseName + '.js');
+                if (fs.existsSync(targetPath)) fs.unlinkSync(targetPath);
+            });
             skipped++;
             return;
         }
         if (file.endsWith('.js') || !path.extname(file)) {
             const relPath = path.relative(sourcePluginsDir, file);
-            const targetPath = path.join(targetPluginsDir, relPath.endsWith('.js') ? relPath : relPath + '.js');
-            fs.mkdirSync(path.dirname(targetPath), { recursive: true });
             try {
                 const code = fs.readFileSync(file, 'utf8');
+                
+                // Detect category based on handler.tags
+                let category = 'others';
+                const tagsMatch = code.match(/handler\.tags\s*=\s*\[\s*['"]([^'"]+)['"]/i);
+                if (tagsMatch) {
+                    const tag = tagsMatch[1].toLowerCase().trim();
+                    if (['downloader', 'ai', 'editor', 'morocco', 'search', 'tools', 'sticker', 'owner', 'uploader', 'islamic'].includes(tag)) {
+                        category = tag;
+                    } else if (tag === 'infobot') {
+                        category = 'info';
+                    }
+                }
+                
+                const targetPath = path.join(targetPluginsDir, category, relPath.endsWith('.js') ? relPath : relPath + '.js');
+                fs.mkdirSync(path.dirname(targetPath), { recursive: true });
+                
                 const converted = convertESMToCJS(code, true);
                 fs.writeFileSync(targetPath, converted, 'utf8');
                 ok++;

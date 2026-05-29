@@ -1,4 +1,4 @@
-const { addExif } = require('../lib/silana/sticker.js');
+const { addExif } = require('../../../lib/silana/sticker.js');
 
 let handler = async (m, { conn, text }) => {
   if (!m.quoted) throw "قم بالاشارة للملصق التي تريد تغيير حقوقه يا عزيزي!";

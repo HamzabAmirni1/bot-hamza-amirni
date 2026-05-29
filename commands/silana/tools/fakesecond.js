@@ -1,5 +1,5 @@
 const fetch = require('node-fetch');
-const uploadImage = require('../lib/silana/uploadImage.js');
+const uploadImage = require('../../../lib/silana/uploadImage.js');
 async function handler(m, { conn, usedPrefix, command, args, text }) {
   if (!text) return m.reply('send video/audio with caption .fakesecond <number>');
   const angka = args.join(' ');

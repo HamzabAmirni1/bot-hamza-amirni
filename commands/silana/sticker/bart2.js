@@ -1,8 +1,8 @@
 const fs = require('fs');
 const { createCanvas } = require('canvas');
 const Jimp = require('jimp');
-const { sticker } = require('../lib/silana/sticker.js');
-const uploadImage = require('../lib/silana/uploadImage.js');
+const { sticker } = require('../../../lib/silana/sticker.js');
+const uploadImage = require('../../../lib/silana/uploadImage.js');
 
 let handler = async (m, { text }) => {
   if (!text) return m.reply("Please provide the text!\nExample: .bart Hello World");

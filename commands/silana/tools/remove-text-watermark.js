@@ -105,7 +105,7 @@ let handler = async (m, { conn, text }) => {
   // If user replied to an image, get it
   if (!imageUrl && m.quoted && m.quoted.mimetype?.startsWith("image/")) {
     const media = await m.quoted.download();
-    const { default: uploadImage } = require('../lib/silana/uploadImage.js');
+    const { default: uploadImage } = require('../../../lib/silana/uploadImage.js');
     imageUrl = await uploadImage(media);
   }
 

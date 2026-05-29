@@ -1,7 +1,7 @@
 const cp = require('child_process');
 const { promisify } = require('util');
 const { createCanvas } = require('canvas');
-const uploadImage = require('../lib/silana/uploadImage.js');
+const uploadImage = require('../../../lib/silana/uploadImage.js');
 
 const exec = promisify(cp.exec).bind(cp);
 
