@@ -355,7 +355,7 @@ async function startBot(sessionPath = sessionDir, phoneNumber = null) {
         version,
         logger: pino({ level: 'fatal' }),
         printQRInTerminal: !pairingCode,
-        browser: ['Hamza', 'Chrome', '20.0.04'],
+        browser: Browsers.ubuntu('Chrome'),
         auth: {
             creds: state.creds,
             keys: makeCacheableSignalKeyStore(state.keys, pino({ level: "fatal" }).child({ level: "fatal" })),
@@ -427,16 +427,34 @@ async function startBot(sessionPath = sessionDir, phoneNumber = null) {
         if (pNum) pNum = pNum.replace(/[^0-9]/g, '');
 
         if (pNum) {
+            // Throttling logic: check if a code was requested in the last 120 seconds for this sessionPath
+            global.lastPairingRequestTime = global.lastPairingRequestTime || {};
+            const lastRequest = global.lastPairingRequestTime[sessionPath] || 0;
+            const now = Date.now();
+            if (now - lastRequest < 120_000) {
+                console.log(chalk.yellow(`\n⚠️ [${sessionPath}] A pairing code was recently requested. Skipping to avoid rate limits.`));
+                console.log(chalk.yellow(`   Please wait at least 2 minutes between attempts or check logs above for the code.\n`));
+                return;
+            }
+
             // Wait to ensure socket is ready before requesting code
             await delay(5000);
             try {
                 // Double check if registered after delay (it might have connected)
                 if (!sock.authState.creds.registered) {
+                    // Update timestamp right before requesting to prevent duplicate race conditions
+                    global.lastPairingRequestTime[sessionPath] = Date.now();
+
                     let code = await sock.requestPairingCode(pNum);
                     code = code?.match(/.{1,4}/g)?.join("-") || code;
 
                     console.log(chalk.black(chalk.bgGreen(`🚀 Requesting Pairing Code for: ${pNum}...`)));
-                    console.log(chalk.bold.green(`\n🔑 YOUR PAIRING CODE: `), chalk.bold.white.bgRed(` ${code} `));
+                    console.log(chalk.bold.green(`
+===================================================
+🔑 YOUR PAIRING CODE FOR ${pNum}:
+👉  ${code}  👈
+===================================================
+`));
                     console.log(chalk.cyan(`\n💡 If NO notification appears on your phone:`));
                     console.log(chalk.white(`   1. Open WhatsApp -> Linked Devices`));
                     console.log(chalk.white(`   2. Tap 'Link a Device'`));
