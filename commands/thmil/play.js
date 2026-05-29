@@ -167,18 +167,22 @@ async function playCommand(sock, chatId, msg, args, commands, userLang) {
         const audioUrl = audioData.downloadUrl || audioData.download;
         const finalTitle = audioData.title || video.title;
 
-        // Download audio to buffer accurately using native fetch
+        // Download audio to buffer using axios (supports Referer header — required by SaveTube)
         let audioBuffer;
         try {
-            const resp = await fetch(audioUrl, {
+            const resp = await axios.get(audioUrl, {
+                responseType: 'arraybuffer',
+                timeout: 120000,
                 headers: {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                    'Accept': '*/*',
+                    'Accept-Encoding': 'identity',
+                    ...(audioData.referer ? { 'Referer': audioData.referer } : {})
                 }
             });
-            if (!resp.ok) throw new Error(`HTTP error! status: ${resp.status}`);
-            const arrayBuf = await resp.arrayBuffer();
-            audioBuffer = Buffer.from(arrayBuf);
+            audioBuffer = Buffer.from(resp.data);
         } catch (e) {
+            console.error('[play] buffer fetch error:', e.message);
             throw new Error(`Failed to download audio from provider: ${e.message}`);
         }
 
@@ -187,15 +191,12 @@ async function playCommand(sock, chatId, msg, args, commands, userLang) {
         // Download thumbnail as buffer for the externalAdReply
         let thumbBuffer;
         try {
-            const thumbResp = await fetch(video.thumbnail, {
-                headers: {
-                    'User-Agent': 'Mozilla/5.0'
-                }
+            const thumbResp = await axios.get(video.thumbnail, {
+                responseType: 'arraybuffer',
+                timeout: 15000,
+                headers: { 'User-Agent': 'Mozilla/5.0' }
             });
-            if (thumbResp.ok) {
-                const arrayBuf = await thumbResp.arrayBuffer();
-                thumbBuffer = Buffer.from(arrayBuf);
-            }
+            thumbBuffer = Buffer.from(thumbResp.data);
         } catch (e) {
             console.error("Failed to download thumbnail:", e.message);
         }
