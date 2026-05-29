@@ -23,7 +23,10 @@ global.APIKeys = {
     'https://api-fgmods.ddns.net': 'fg-dylux'
 };
 
+const settings = require('./settings');
+
 module.exports = {
+    ...settings,
     WARN_COUNT: 3,
     APIs: global.APIs,
     APIKeys: global.APIKeys
