@@ -1,14 +1,14 @@
 // plugin by noureddine ouafy
 // scrape by synshin9
 // instagram.com/noureddine_ouafy
-const axios = require('axios');
-const cheerio = require('cheerio');
-const fs = require('fs');
-const path = require('path');
-const { fileURLToPath } = require('url');
+const { createRequire } = require('module');
+const _require = createRequire(__filename);
+const axios = _require('axios');
+const cheerio = _require('cheerio');
+const fs = _require('fs');
+const path = _require('path');
 
-const __filename = __filename;
-const __dirname = path.dirname(__filename);
+const __path = path.dirname(__filename);
 
 let handler = async (m, { conn, text, command }) => {
   // 🟢 Auto Guide Message for first use
@@ -148,7 +148,7 @@ Example:
 
       if (!info.downloadUrl) return m.reply("❌ Track not found or missing download link.");
 
-      const filePath = path.join(__dirname, `${info.title || "track"}.mp3`);
+      const filePath = path.join(__path, `${info.title || "track"}.mp3`);
       const writer = fs.createWriteStream(filePath);
       const response = await axios({
         url: info.downloadUrl,

@@ -6,14 +6,14 @@
 🧠 Instagram: @noureddine_ouafy
 scrape by Fruatre
 */
-const fs = require('fs');
-const path = require('path');
-const { createCanvas } = require('canvas');
-const Jimp = require('jimp');
-const { execSync } = require('child_process');
-const { fileURLToPath } = require('url');
-const __filename = __filename
-const __dirname = path.dirname(__filename)
+const { createRequire } = require('module');
+const _require = createRequire(__filename);
+const fs = _require('fs');
+const path = _require('path');
+const { createCanvas } = _require('canvas');
+const Jimp = _require('jimp');
+const { execSync } = _require('child_process');
+const __bdir = path.dirname(__filename);
 
 function colorize(ctx, width, colors) {
   if (Array.isArray(colors)) {
@@ -100,14 +100,14 @@ async function renderTextToBuffer(text, options = {}) {
 }
 
 async function makeBratVideo(text, {
-  output = path.join(__dirname, 'brat_output.mp4'),
+  output = path.join(__bdir, 'brat_output.mp4'),
   background = "white",
   color = "black",
   blur = 1,
   speed = "normal"
 } = {}) {
   const words = text.split(" ")
-  const tmpDir = path.join(__dirname, "tmp_brat")
+  const tmpDir = path.join(__bdir, "tmp_brat")
   if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir)
   const framePaths = []
   for (let i = 0; i < words.length; i++) {
