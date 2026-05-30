@@ -37,17 +37,17 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
         // 1. Define Category Mappings
         const catMap = {
             'new': ['hl', 'img2video', 'pinterest', 'ramadan', 'khatm', 'ytmp4v3', 'qwen', 'nanobanana', 'edit', 'genai', 'banana-ai', 'ghibli', 'tomp3', 'resetlink', 'apk', 'apk2', 'apk3', 'hidetag', 'imdb', 'simp'],
-            'religion': ['ramadan', 'khatm', 'qurancard', 'quranmp3', 'salat', 'prayertimes', 'adhan', 'hadith', 'asmaa', 'azkar', 'qibla', 'ad3iya', 'dua', 'athan', 'tafsir', 'surah', 'ayah', 'fadlsalat', 'hukm', 'qiyam', 'danb', 'nasiha', 'tadabbur', 'sahaba', 'faida', 'hasanat', 'jumaa', 'hajj', 'sira', 'mawt', 'shirk', 'hub', 'deen'],
-            'download': ['pinterest', 'ytmp4v3', 'facebook', 'instagram', 'tiktok', 'youtube', 'mediafire', 'github', 'play', 'song', 'video', 'ytplay', 'yts', 'apk'],
-            'ai': ['hl', 'img2video', 'gpt4o', 'gpt4om', 'gpt4', 'gpt3', 'o1', 'gemini-analyze', 'qwen', 'gpt', 'gemini', 'deepseek', 'imagine', 'aiart', 'miramuse', 'ghibli-art', 'faceswap', 'ai-enhance', 'colorize', 'colorize-v2', 'upscale-hd', 'cloth-change', 'image2sketch', 'airbrush', 'vocalremover', 'musicgen', 'hdvideo', 'winkvideo', 'unblur', 'brat-vd', 'removebg'],
-            'group': ['kick', 'promote', 'demote', 'tagall', 'hidetag', 'mute', 'unmute', 'close', 'open', 'delete', 'staff', 'groupinfo', 'welcome', 'goodbye', 'warn', 'warnings', 'antibadword', 'antilink', 'schedule'],
-            'tools': ['pdf2img', 'stt', 'sticker', 'sticker-alt', 'attp', 'ttp', 'ocr', 'tts', 'say', 'toimage', 'tovideo', 'togif', 'qrcode', 'ss', 'lyrics', 'calc', 'img-blur', 'blur', 'translate', 'readviewonce', 'upload'],
-            'news': ['news', 'akhbar', 'football', 'kora', 'weather', 'taqes'],
+            'religion': ['ramadan', 'khatm', 'qurancard', 'quranmp3', 'salat', 'prayertimes', 'adhan', 'hadith', 'asmaa', 'azkar', 'qibla', 'ad3iya', 'dua', 'athan', 'tafsir', 'surah', 'ayah', 'fadlsalat', 'hukm', 'qiyam', 'danb', 'nasiha', 'tadabbur', 'sahaba', 'faida', 'hasanat', 'jumaa', 'hajj', 'sira', 'mawt', 'shirk', 'hub', 'deen', 'deenquiz', 'kitab', 'quranpdf', 'quranread', 'tahlil-soura'],
+            'download': ['pinterest', 'ytmp4v3', 'facebook', 'instagram', 'tiktok', 'youtube', 'mediafire', 'github', 'gitrepo', 'play', 'song', 'video', 'ytplay', 'yts', 'apk', 'apk2', 'apk3', 'capcut', 'f-droid', 'likee', 'live', 'pinterestdl', 'play2', 'qdl', 'reddit', 'snapchat', 'song2', 'spotify', 'tahmil-app', 'twitter', 'ytdl', 'ytmp4', 'ytmp4v2', 'yts2'],
+            'ai': ['hl', 'img2video', 'gpt4o', 'gpt4om', 'gpt4', 'gpt3', 'o1', 'gemini-analyze', 'qwen', 'gpt', 'gemini', 'deepseek', 'imagine', 'aiart', 'miramuse', 'ghibli-art', 'faceswap', 'ai-enhance', 'colorize', 'colorize-v2', 'upscale-hd', 'cloth-change', 'image2sketch', 'airbrush', 'vocalremover', 'musicgen', 'hdvideo', 'winkvideo', 'unblur', 'brat-vd', 'removebg', 'veo-prompt', 'veo3-prompt', 'waterai', 'waterbot', 'banana-ai', 'nanobanana'],
+            'group': ['kick', 'promote', 'demote', 'tagall', 'hidetag', 'mute', 'unmute', 'close', 'open', 'delete', 'staff', 'groupinfo', 'welcome', 'goodbye', 'warn', 'warnings', 'antibadword', 'antilink', 'schedule', 'anticall', 'antidelete', 'antigroupcall', 'autoread', 'autostatus', 'autowelcome', 'ghosttag', 'setpp', 'tag'],
+            'tools': ['pdf2img', 'stt', 'sticker', 'sticker-alt', 'attp', 'ttp', 'ocr', 'tts', 'say', 'toimage', 'tovideo', 'togif', 'qrcode', 'ss', 'lyrics', 'calc', 'img-blur', 'blur', 'translate', 'readviewonce', 'upload', 'alloschool', 'carbon', 'carbonguide', 'checkimage', 'colorize', 'faceswap', 'gif', 'google', 'hazf-sawt', 'hdvideo', 'remind', 'remini', 'removebg', 'save', 'screenshot', 'simage', 'stickertelegram', 'take', 'textmaker', 'tomp3', 'trim', 'wiki'],
+            'news': ['news', 'akhbar', 'football', 'kora', 'weather', 'taqes', 'aljazeera', 'alwadifa', 'hespress', 'maroc-flag'],
             'daily': ['daily', 'top', 'shop', 'gamble', 'slots', 'profile'],
-            'fun': ['joke', 'fact', 'quote', 'meme', 'character', 'truth', 'dare', 'ship', 'ngl', '4kwallpaper'],
-            'games': ['menugame', 'xo', 'rps', 'math', 'guess', 'scramble', 'riddle', 'quiz', 'love', 'hangman', 'trivia'],
+            'fun': ['joke', 'fact', 'quote', 'meme', 'character', 'truth', 'dare', 'ship', 'ngl', '4kwallpaper', 'areact', 'cat', 'dog', 'eightball', 'flirt', 'ghibli', 'goodnight', 'insult', 'rate', 'simp', 'stupid', 'topmembers', 'wasted'],
+            'games': ['menugame', 'xo', 'rps', 'math', 'guess', 'scramble', 'riddle', 'quiz', 'love', 'hangman', 'trivia', 'blackjack', 'emojigame', 'guesswho', 'kalimat', 'tictactoe', 'truefalse', 'werewolf'],
             'general': ['alive', 'ping', 'owner', 'script', 'setlang', 'system', 'help', 'allmenu'],
-            'owner': ['mode', 'devmsg', 'autoreminder', 'pmblocker', 'backup', 'ban', 'unban', 'block', 'unblock', 'cleartmp', 'sudo', 'clear', 'clearsession', 'anticall', 'admin', 'addsudo', 'delsudo', 'listadmin']
+            'owner': ['mode', 'devmsg', 'autoreminder', 'pmblocker', 'backup', 'ban', 'unban', 'block', 'unblock', 'cleartmp', 'sudo', 'clear', 'clearsession', 'anticall', 'admin', 'addsudo', 'delsudo', 'listadmin', 'getsession', 'resetlink', 'setlang', 'upswgc']
         };
 
         const arCmds = {
@@ -72,7 +72,7 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
             'ytmp4v3': 'يوتيوب3', 'pinterest': 'بينترست',
             'mediafire': 'ميديافاير', 'play': 'شغل', 'song': 'أغنية', 'video': 'فيديو',
             'yts': 'بحث-يوتيوب', 'ytplay': 'تشغيل', 'apk': 'تطبيق', 'apk2': 'تطبيق2', 'apk3': 'تطبيق3',
-            'github': 'جيتهاب',
+            'github': 'جيتهاب', 'gitrepo': 'تحميل-مستودع',
             'sticker': 'ستيكر', 'translate': 'ترجمة', 'weather': 'طقس', 'calc': 'حساب',
             'pdf2img': 'صور-بي-دي-اف', 'ocr': 'استخراج-نص', 'tts': 'نطق', 'qrcode': 'كود-كيو-آر',
             'screenshot': 'سكرين', 'ss': 'لقطة', 'tomp3': 'صوت', 'toimage': 'صورة',
@@ -109,18 +109,18 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
         };
 
         const catImages = {
-            'new': path.join(process.cwd(), 'media/menu/bot_1.png'),
-            'religion': path.join(process.cwd(), 'media/menu/bot_2.png'),
-            'download': path.join(process.cwd(), 'media/menu/bot_3.png'),
-            'ai': path.join(process.cwd(), 'media/menu/bot_4.png'),
-            'group': path.join(process.cwd(), 'media/menu/bot_1.png'),
-            'tools': path.join(process.cwd(), 'media/menu/bot_2.png'),
-            'news': path.join(process.cwd(), 'media/menu/bot_3.png'),
-            'daily': path.join(process.cwd(), 'media/menu/bot_4.png'),
-            'fun': path.join(process.cwd(), 'media/menu/bot_1.png'),
-            'games': path.join(process.cwd(), 'media/menu/bot_2.png'),
-            'general': path.join(process.cwd(), 'media/menu/bot_3.png'),
-            'owner': path.join(process.cwd(), 'media/menu/bot_4.png')
+            'new': path.join(process.cwd(), 'media/menu/menu_light_1.png'),
+            'religion': path.join(process.cwd(), 'media/menu/menu_light_2.png'),
+            'download': path.join(process.cwd(), 'media/menu/menu_light_1.png'),
+            'ai': path.join(process.cwd(), 'media/menu/menu_light_1.png'),
+            'group': path.join(process.cwd(), 'media/menu/menu_light_1.png'),
+            'tools': path.join(process.cwd(), 'media/menu/menu_light_1.png'),
+            'news': path.join(process.cwd(), 'media/menu/menu_light_1.png'),
+            'daily': path.join(process.cwd(), 'media/menu/menu_light_1.png'),
+            'fun': path.join(process.cwd(), 'media/menu/menu_light_1.png'),
+            'games': path.join(process.cwd(), 'media/menu/menu_light_1.png'),
+            'general': path.join(process.cwd(), 'media/menu/menu_light_1.png'),
+            'owner': path.join(process.cwd(), 'media/menu/menu_light_1.png')
         };
 
         const sections = ['new', 'religion', 'ai', 'download', 'tools', 'fun', 'games', 'group', 'news', 'daily', 'general', 'owner'];
