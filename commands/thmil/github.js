@@ -3,6 +3,34 @@ const { t } = require('../../lib/language');
 const { sendWithChannelButton } = require('../../lib/channelButton');
 const settings = require('../../settings');
 
+const gitrepoCommand = require('./gitrepo');
+
+function parseGitHubInput(input) {
+    const clean = input.replace(/^(https?:\/\/)?(www\.)?github\.com\//i, '').trim();
+    
+    // Check clean for branch in tree/branch or @branch
+    // e.g. owner/repo/tree/branch or owner/repo@branch
+    const treeMatch = clean.match(/^([a-zA-Z0-9\-\_\.]+)\/([a-zA-Z0-9\-\_\.]+)\/tree\/([^\/\s#?]+)$/);
+    if (treeMatch) {
+        return {
+            owner: treeMatch[1],
+            repo: treeMatch[2],
+            branch: treeMatch[3]
+        };
+    }
+    
+    const shortMatch = clean.match(/^([a-zA-Z0-9\-\_\.]+)\/([a-zA-Z0-9\-\_\.]+)(?:@([a-zA-Z0-9\-\_\.\/]+))?$/);
+    if (shortMatch) {
+        return {
+            owner: shortMatch[1],
+            repo: shortMatch[2],
+            branch: shortMatch[3] || null
+        };
+    }
+    
+    return null;
+}
+
 async function githubCommand(sock, chatId, msg, args, commands, userLang) {
     try {
         const input = args.join(' ').trim();
@@ -12,14 +40,15 @@ async function githubCommand(sock, chatId, msg, args, commands, userLang) {
             return await showBotRepo(sock, chatId, msg, userLang);
         }
 
-        // ─── Detect if it's a repo (owner/repo) or a user ────────────
-        const repoMatch = input.match(/^([a-zA-Z0-9\-\_\.]+)\/([a-zA-Z0-9\-\_\.]+)$/);
-        if (repoMatch) {
-            return await showRepo(sock, chatId, msg, repoMatch[1], repoMatch[2], userLang);
+        // ─── Detect if it's a repo link or shorthand ─────────────────
+        const parsed = parseGitHubInput(input);
+        if (parsed) {
+            // Download repository and send it as ZIP
+            return await gitrepoCommand(sock, chatId, msg, args, commands, userLang);
         }
 
         // ─── Otherwise treat as username ──────────────────────────────
-        const username = input.replace(/^https?:\/\/github\.com\//, '').split('/')[0].trim();
+        const username = input.replace(/^(https?:\/\/)?(www\.)?github\.com\//i, '').split('/')[0].trim();
         return await showUser(sock, chatId, msg, username, userLang);
 
     } catch (error) {
