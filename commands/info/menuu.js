@@ -39,15 +39,12 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
             'new': ['hl', 'img2video', 'pinterest', 'ramadan', 'khatm', 'ytmp4v3', 'qwen', 'nanobanana', 'edit', 'genai', 'banana-ai', 'ghibli', 'tomp3', 'resetlink', 'apk', 'apk2', 'apk3', 'hidetag', 'imdb', 'simp'],
             'religion': ['ramadan', 'khatm', 'qurancard', 'quranmp3', 'salat', 'prayertimes', 'adhan', 'hadith', 'asmaa', 'azkar', 'qibla', 'ad3iya', 'dua', 'athan', 'tafsir', 'surah', 'ayah', 'fadlsalat', 'hukm', 'qiyam', 'danb', 'nasiha', 'tadabbur', 'sahaba', 'faida', 'hasanat', 'jumaa', 'hajj', 'sira', 'mawt', 'shirk', 'hub', 'deen'],
             'download': ['pinterest', 'ytmp4v3', 'facebook', 'instagram', 'tiktok', 'youtube', 'mediafire', 'github', 'play', 'song', 'video', 'ytplay', 'yts', 'apk'],
-            'ai': ['hl', 'img2video', 'gpt4o', 'gpt4om', 'gpt4', 'gpt3', 'o1', 'gemini-analyze', 'qwen', 'gpt', 'gemini', 'deepseek', 'imagine', 'aiart', 'miramuse', 'ghibli-art', 'faceswap', 'ai-enhance', 'colorize', 'vocalremover', 'musicgen', 'hdvideo', 'winkvideo', 'unblur', 'brat-vd', 'removebg'],
+            'ai': ['hl', 'img2video', 'gpt4o', 'gpt4om', 'gpt4', 'gpt3', 'o1', 'gemini-analyze', 'qwen', 'gpt', 'gemini', 'deepseek', 'imagine', 'aiart', 'miramuse', 'ghibli-art', 'faceswap', 'ai-enhance', 'colorize', 'colorize-v2', 'upscale-hd', 'cloth-change', 'image2sketch', 'airbrush', 'vocalremover', 'musicgen', 'hdvideo', 'winkvideo', 'unblur', 'brat-vd', 'removebg'],
             'group': ['kick', 'promote', 'demote', 'tagall', 'hidetag', 'mute', 'unmute', 'close', 'open', 'delete', 'staff', 'groupinfo', 'welcome', 'goodbye', 'warn', 'warnings', 'antibadword', 'antilink', 'schedule'],
-            'tools': ['pdf2img', 'stt', 'sticker', 'sticker-alt', 'attp', 'ttp', 'ocr', 'tts', 'say', 'toimage', 'tovideo', 'togif', 'qrcode', 'ss', 'lyrics', 'calc', 'img-blur', 'translate', 'readviewonce', 'upload'],
-            'news': ['news', 'akhbar', 'football', 'kora', 'weather', 'taqes'],
-            'daily': ['daily', 'top', 'shop', 'gamble', 'slots', 'profile'],
-            'fun': ['joke', 'fact', 'quote', 'meme', 'character', 'truth', 'dare', 'ship', 'ngl', '4kwallpaper'],
-            'games': ['menugame', 'xo', 'rps', 'math', 'guess', 'scramble', 'riddle', 'quiz', 'love', 'hangman', 'trivia'],
-            'general': ['alive', 'ping', 'owner', 'script', 'setlang', 'system', 'help', 'allmenu'],
-            'owner': ['mode', 'devmsg', 'autoreminder', 'pmblocker', 'backup', 'ban', 'unban', 'block', 'unblock', 'cleartmp', 'sudo', 'clear', 'clearsession', 'anticall', 'admin', 'addsudo', 'delsudo', 'listadmin']
+            'tools': ['pdf2img', 'stt', 'sticker', 'sticker-alt', 'attp', 'ttp', 'ocr', 'tts', 'say', 'toimage', 'tovideo', 'togif', 'qrcode', 'ss', 'lyrics', 'calc', 'img-blur', 'blur', 'translate', 'readviewonce', 'upload'],
+            'fun_games': ['joke', 'fact', 'quote', 'meme', 'character', 'truth', 'dare', 'ship', 'ngl', '4kwallpaper', 'menugame', 'xo', 'rps', 'math', 'guess', 'scramble', 'riddle', 'quiz', 'love', 'hangman', 'trivia'],
+            'economy_news': ['daily', 'top', 'shop', 'gamble', 'slots', 'profile', 'news', 'akhbar', 'football', 'kora', 'weather', 'taqes'],
+            'general_owner': ['alive', 'ping', 'owner', 'script', 'setlang', 'system', 'help', 'allmenu', 'mode', 'devmsg', 'autoreminder', 'pmblocker', 'backup', 'ban', 'unban', 'block', 'unblock', 'cleartmp', 'sudo', 'clear', 'clearsession', 'anticall', 'admin', 'addsudo', 'delsudo', 'listadmin']
         };
 
         const arCmds = {
@@ -111,7 +108,7 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
 
         const catIcons = {
             'new': '🔥', 'religion': '🕌', 'download': '📥', 'ai': '🤖', 'group': '👥', 'tools': '🛠️',
-            'news': '📡', 'daily': '💰', 'fun': '🎭', 'games': '🎮', 'general': '✨', 'owner': '👑'
+            'fun_games': '🎮', 'economy_news': '💰', 'general_owner': '👑'
         };
 
         const catImages = {
@@ -121,15 +118,12 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
             'ai': path.join(process.cwd(), 'media/menu/bot_4.png'),
             'group': path.join(process.cwd(), 'media/menu/bot_1.png'),
             'tools': path.join(process.cwd(), 'media/menu/bot_2.png'),
-            'news': path.join(process.cwd(), 'media/menu/bot_3.png'),
-            'daily': path.join(process.cwd(), 'media/menu/bot_4.png'),
-            'fun': path.join(process.cwd(), 'media/menu/bot_1.png'),
-            'games': path.join(process.cwd(), 'media/menu/bot_2.png'),
-            'general': path.join(process.cwd(), 'media/menu/bot_3.png'),
-            'owner': path.join(process.cwd(), 'media/menu/bot_4.png')
+            'fun_games': path.join(process.cwd(), 'media/menu/bot_3.png'),
+            'economy_news': path.join(process.cwd(), 'media/menu/bot_4.png'),
+            'general_owner': path.join(process.cwd(), 'media/menu/bot_1.png')
         };
 
-        const sections = ['new', 'religion', 'ai', 'download', 'tools', 'fun', 'games', 'group', 'news', 'daily', 'general', 'owner'];
+        const sections = ['new', 'religion', 'ai', 'download', 'group', 'tools', 'fun_games', 'economy_news', 'general_owner'];
 
         async function createHeaderImage(imagePath) {
             try {

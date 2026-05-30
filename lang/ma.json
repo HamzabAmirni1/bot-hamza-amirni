@@ -15,7 +15,10 @@
             "news": "📡 الخبار",
             "economy": "💰 الصرف",
             "daily": "💰 الصرف والألعاب",
-            "new": "🔥 الجديد"
+            "new": "🔥 الجديد",
+            "fun_games": "🎮 الضحك والألعاب",
+            "economy_news": "📡 الخبار والصرف",
+            "general_owner": "👑 مول الشي والعام"
         },
         "footer": "© Hamza Amirni 2026 | Bhal 3chirtek",
         "uptime": "النشاط",

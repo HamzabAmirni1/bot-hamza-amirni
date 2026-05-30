@@ -15,7 +15,10 @@
             "news": "📡 News",
             "economy": "💰 Economy",
             "daily": "💰 Daily & Economy",
-            "new": "🔥 New Commands"
+            "new": "🔥 New Commands",
+            "fun_games": "🎮 Games & Fun",
+            "economy_news": "📡 News & Economy",
+            "general_owner": "👑 Owner & General"
         },
         "footer": "© Hamza Amirni 2026",
         "uptime": "Uptime",
