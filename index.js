@@ -397,11 +397,12 @@ async function startBot(sessionPath = sessionDir, phoneNumber = null) {
             return msg?.message || { conversation: settings.botName || 'Hamza Amirni' };
         },
         msgRetryCounterCache,
-        defaultQueryTimeoutMs: 120000,
-        connectTimeoutMs: 120000,
-        keepAliveIntervalMs: 60000,
+        defaultQueryTimeoutMs: 180000,
+        connectTimeoutMs: 180000,
+        keepAliveIntervalMs: 30000,
         fireInitQueries: false,
         syncFullHistory: false,
+        shouldSyncHistoryMessage: () => false, // Disables historical chat syncing to save CPU and RAM
         markOnlineOnConnect: false,
         emitOwnEvents: true,
         generateHighQualityLinkPreview: true,
@@ -622,30 +623,36 @@ async function startBot(sessionPath = sessionDir, phoneNumber = null) {
             if (statusCode === DisconnectReason.loggedOut || statusCode === 401) {
                 if (fs.existsSync(sessionPath)) fs.rmSync(sessionPath, { recursive: true, force: true });
                 console.log(chalk.red(`⚠️ Session ${sessionPath} logged out. Deleted credentials.`));
-            } else if (global.retryCount[sessionPath] > 12 && (statusCode === 440 || statusCode === 428)) {
-                console.log(chalk.red(`🛑 [${sessionPath}] Critical error loop (440/428). Clearing session to fix.`));
-                if (fs.existsSync(sessionPath)) {
-                    try {
-                        fs.rmSync(sessionPath, { recursive: true, force: true });
-                        console.log(chalk.yellow(`✅ Corrupted session cleared. Restarting to request new pairing...`));
-                        setTimeout(() => startBot(sessionPath, phoneNumber), 5000);
-                    } catch (e) { }
+            } else if (statusCode === 440 || statusCode === 428) {
+                // ⚠️ 428 = connection replaced / server-side drop, 440 = conflict
+                // These are TRANSIENT errors on Koyeb — NEVER delete credentials for them.
+                // If we've retried many times, back off longer but keep credentials intact.
+                if (global.retryCount[sessionPath] > 12) {
+                    // Reset counter so we don't keep backing off forever
+                    global.retryCount[sessionPath] = 0;
+                    const retryDelay = 60000 + Math.floor(Math.random() * 30000);
+                    console.log(chalk.yellow(`⚠️ [${sessionPath}] High retry count for ${statusCode}. Resetting counter & backing off ${Math.round(retryDelay / 1000)}s (credentials kept safe).`));
+                    setTimeout(() => startBot(sessionPath, phoneNumber), retryDelay);
+                } else if (statusCode === 440) {
+                    const retryDelay = 45000 + Math.floor(Math.random() * 20000);
+                    console.log(chalk.cyan(`Conflict (440), reconnecting in ${Math.round(retryDelay / 1000)}s to avoid loop...`));
+                    setTimeout(() => startBot(sessionPath, phoneNumber), retryDelay);
+                } else {
+                    const retryDelay = 28000 + Math.floor(Math.random() * 12000);
+                    console.log(chalk.yellow(`Connection closed (428), retrying in ${Math.round(retryDelay / 1000)}s...`));
+                    setTimeout(() => startBot(sessionPath, phoneNumber), retryDelay);
                 }
             } else if (statusCode === 408 || statusCode === DisconnectReason.connectionLost) {
                 const retryDelay = 30000 + Math.floor(Math.random() * 15000);
-                console.log(chalk.yellow(`Connection lost (408), retrying in ${retryDelay / 1000}s...`));
+                console.log(chalk.yellow(`Connection lost (408), retrying in ${Math.round(retryDelay / 1000)}s...`));
                 setTimeout(() => startBot(sessionPath, phoneNumber), retryDelay);
-            } else if (statusCode === 500 || statusCode === DisconnectReason.connectionClosed || statusCode === 428) {
+            } else if (statusCode === 500 || statusCode === DisconnectReason.connectionClosed) {
                 const retryDelay = 25000 + Math.floor(Math.random() * 10000);
-                console.log(chalk.yellow(`Connection closed (428/500), retrying in ${retryDelay / 1000}s...`));
+                console.log(chalk.yellow(`Connection closed (500), retrying in ${Math.round(retryDelay / 1000)}s...`));
                 setTimeout(() => startBot(sessionPath, phoneNumber), retryDelay);
             } else if (statusCode === DisconnectReason.restartRequired) {
                 console.log(chalk.cyan(`[${sessionPath}] Restart required (515), reconnecting immediately...`));
                 setTimeout(() => startBot(sessionPath, phoneNumber), 1000);
-            } else if (statusCode === 440) {
-                const retryDelay = 40000 + Math.floor(Math.random() * 20000);
-                console.log(chalk.cyan(`Conflict (440), reconnecting in ${retryDelay / 1000}s to avoid loop...`));
-                setTimeout(() => startBot(sessionPath, phoneNumber), retryDelay);
             } else if (shouldReconnect) {
                 setTimeout(() => startBot(sessionPath, phoneNumber), 15000);
             }
