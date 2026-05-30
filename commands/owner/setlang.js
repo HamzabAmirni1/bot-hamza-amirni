@@ -31,65 +31,59 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
         }
 
         // Interactive Card Mode
-        async function createHeaderImage(url) {
-            try {
-                const { imageMessage } = await generateWAMessageContent({ image: { url } }, { upload: sock.waUploadToServer });
-                return imageMessage;
-            } catch (e) {
-                // Fallback
-                return null;
-            }
+        const fs = require('fs');
+        const path = require('path');
+        const imagePath = path.join(process.cwd(), 'media/hamza.jpg');
+        let imageMessage = null;
+        try {
+            const genImage = await generateWAMessageContent({ image: fs.readFileSync(imagePath) }, { upload: sock.waUploadToServer });
+            imageMessage = genImage.imageMessage;
+        } catch (e) {
+            console.error("setlang: failed to load local banner image:", e);
         }
 
-        const cards = [
+        const buttons = [
             {
-                title: "اللغة العربية",
-                body: "اضغط هنا لاختيار اللغة العربية",
-                id: ".setlang ar",
-                img: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Flag_of_the_Arab_League.svg/2560px-Flag_of_the_Arab_League.svg.png"
+                "name": "quick_reply",
+                "buttonParamsJson": JSON.stringify({
+                    display_text: "العربية 🇸🇦",
+                    id: ".setlang ar"
+                })
             },
             {
-                title: "English Language",
-                body: "Click here to select English",
-                id: ".setlang en",
-                img: "https://upload.wikimedia.org/wikipedia/en/thumb/a/a4/Flag_of_the_United_States.svg/1200px-Flag_of_the_United_States.svg.png"
+                "name": "quick_reply",
+                "buttonParamsJson": JSON.stringify({
+                    display_text: "English 🇺🇸",
+                    id: ".setlang en"
+                })
             },
             {
-                title: "الدارجة المغربية",
-                body: "ورك هنا باش تختار الدارجة",
-                id: ".setlang ma",
-                img: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Flag_of_Morocco.svg/2000px-Flag_of_Morocco.svg.png"
+                "name": "quick_reply",
+                "buttonParamsJson": JSON.stringify({
+                    display_text: "الدارجة 🇲🇦",
+                    id: ".setlang ma"
+                })
             }
         ];
-
-        let carouselCards = [];
-        for (let card of cards) {
-            const imageMessage = await createHeaderImage(card.img);
-            carouselCards.push({
-                body: proto.Message.InteractiveMessage.Body.fromObject({ text: card.body }),
-                header: proto.Message.InteractiveMessage.Header.fromObject({
-                    title: card.title,
-                    hasMediaAttachment: true,
-                    imageMessage
-                }),
-                nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
-                    buttons: [{ "name": "quick_reply", "buttonParamsJson": JSON.stringify({ display_text: "Select / اختيار", id: card.id }) }]
-                })
-            });
-        }
 
         const msgContent = generateWAMessageFromContent(chatId, {
             viewOnceMessage: {
                 message: {
-                    messageContextInfo: { deviceListMetadata: {}, deviceListMetadataVersion: 2 },
                     interactiveMessage: proto.Message.InteractiveMessage.fromObject({
                         body: proto.Message.InteractiveMessage.Body.create({
-                            text: `🌍 *Language Selection / اختيار اللغة*\n\n` +
-                                `Please select your preferred language below.\n` +
-                                `المرجو اختيار لغتك المفضلة أسفله.`
+                            text: `👋 *Welcome to ${settings.botName}*\n\n` +
+                                `🌍 Please choose your preferred language below:\n` +
+                                `🌍 المرجو اختيار لغتك المفضلة أسفله:`
                         }),
                         footer: proto.Message.InteractiveMessage.Footer.create({ text: `乂 ${settings.botName} 🌐` }),
-                        carouselMessage: proto.Message.InteractiveMessage.CarouselMessage.fromObject({ cards: carouselCards })
+                        header: proto.Message.InteractiveMessage.Header.create({
+                            title: `🌐 Language Selection / اختيار اللغة`,
+                            hasMediaAttachment: !!imageMessage,
+                            imageMessage: imageMessage || undefined
+                        }),
+                        nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
+                            buttons: buttons
+                        })
                     })
                 }
             }
