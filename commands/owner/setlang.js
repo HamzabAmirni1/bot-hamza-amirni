@@ -30,60 +30,88 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
             return;
         }
 
-        // Interactive Card Mode
+        // Interactive Card Mode (help.js carousel style)
         const fs = require('fs');
         const path = require('path');
-        const imagePath = path.join(process.cwd(), 'media/hamza.jpg');
-        let imageMessage = null;
-        try {
-            const genImage = await generateWAMessageContent({ image: fs.readFileSync(imagePath) }, { upload: sock.waUploadToServer });
-            imageMessage = genImage.imageMessage;
-        } catch (e) {
-            console.error("setlang: failed to load local banner image:", e);
+        const botName = settings.botName || 'HAMZA AMIRNI';
+
+        async function createHeaderImage(imagePath) {
+            try {
+                const { imageMessage } = await generateWAMessageContent({ image: fs.readFileSync(imagePath) }, { upload: sock.waUploadToServer });
+                return imageMessage;
+            } catch (e) {
+                console.error(`Failed to load setlang image: ${imagePath}. Error: ${e.message}`);
+                const fallbackPath = path.join(process.cwd(), 'media/hamza.jpg');
+                try {
+                    const { imageMessage } = await generateWAMessageContent({ image: fs.readFileSync(fallbackPath) }, { upload: sock.waUploadToServer });
+                    return imageMessage;
+                } catch (err) {
+                    return null;
+                }
+            }
         }
 
-        const buttons = [
+        const langCardsData = [
             {
-                "name": "quick_reply",
-                "buttonParamsJson": JSON.stringify({
-                    display_text: "العربية 🇸🇦",
-                    id: ".setlang ar"
-                })
+                title: "اللغة العربية",
+                body: "اختر اللغة العربية لتشغيل البوت باللغة الفصحى وبأزرار عربية بالكامل.",
+                buttonText: "العربية 🇸🇦",
+                id: ".setlang ar",
+                img: path.join(process.cwd(), 'media/menu/bot_1.png')
             },
             {
-                "name": "quick_reply",
-                "buttonParamsJson": JSON.stringify({
-                    display_text: "English 🇺🇸",
-                    id: ".setlang en"
-                })
+                title: "English Language",
+                body: "Select English to configure the bot with full English interface and menus.",
+                buttonText: "English 🇺🇸",
+                id: ".setlang en",
+                img: path.join(process.cwd(), 'media/menu/bot_2.png')
             },
             {
-                "name": "quick_reply",
-                "buttonParamsJson": JSON.stringify({
-                    display_text: "الدارجة 🇲🇦",
-                    id: ".setlang ma"
-                })
+                title: "الدارجة المغربية",
+                body: "اختار الدارجة المغربية باش يولي البوت يهضر معاك بالدارجة المغربية ويصيفط ليك الميساجات بالدارجة.",
+                buttonText: "الدارجة 🇲🇦",
+                id: ".setlang ma",
+                img: path.join(process.cwd(), 'media/menu/bot_3.png')
             }
         ];
+
+        let cards = [];
+        for (let lCard of langCardsData) {
+            const imageMessage = await createHeaderImage(lCard.img);
+            cards.push({
+                body: proto.Message.InteractiveMessage.Body.fromObject({ text: lCard.body }),
+                footer: proto.Message.InteractiveMessage.Footer.fromObject({ text: `乂 ${botName} 🌐` }),
+                header: proto.Message.InteractiveMessage.Header.fromObject({
+                    title: lCard.title,
+                    hasMediaAttachment: true,
+                    imageMessage: imageMessage
+                }),
+                nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
+                    buttons: [
+                        {
+                            "name": "quick_reply",
+                            "buttonParamsJson": JSON.stringify({ display_text: lCard.buttonText, id: lCard.id })
+                        }
+                    ]
+                })
+            });
+        }
 
         const msgContent = generateWAMessageFromContent(chatId, {
             viewOnceMessage: {
                 message: {
+                    messageContextInfo: { deviceListMetadata: {}, deviceListMetadataVersion: 2 },
                     interactiveMessage: proto.Message.InteractiveMessage.fromObject({
                         body: proto.Message.InteractiveMessage.Body.create({
-                            text: `👋 *Welcome to ${settings.botName}*\n\n` +
-                                `🌍 Please choose your preferred language below:\n` +
-                                `🌍 المرجو اختيار لغتك المفضلة أسفله:`
+                            text: `👋 *Welcome to ${botName}*\n\n` +
+                                `🌍 Please select your preferred language below:\n` +
+                                `🌍 المرجو اختيار لغتك المفضلة أسفله:\n\n` +
+                                `⬅️ Swipe left to see options\n` +
+                                `⬅️ اسحب لليمين أو اليسار لرؤية اللغات`
                         }),
-                        footer: proto.Message.InteractiveMessage.Footer.create({ text: `乂 ${settings.botName} 🌐` }),
-                        header: proto.Message.InteractiveMessage.Header.create({
-                            title: `🌐 Language Selection / اختيار اللغة`,
-                            hasMediaAttachment: !!imageMessage,
-                            imageMessage: imageMessage || undefined
-                        }),
-                        nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
-                            buttons: buttons
-                        })
+                        footer: proto.Message.InteractiveMessage.Footer.create({ text: `© ${botName} 2026` }),
+                        header: proto.Message.InteractiveMessage.Header.create({ hasMediaAttachment: false }),
+                        carouselMessage: proto.Message.InteractiveMessage.CarouselMessage.fromObject({ cards: cards })
                     })
                 }
             }
