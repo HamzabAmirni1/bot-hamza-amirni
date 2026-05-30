@@ -157,7 +157,9 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
             let bodyText = `✨ *${icon} قسم ${title}* ✨\n\n`;
             cmds.forEach(cmd => {
                 const displayName = (isArabic && arCmds[cmd]) ? arCmds[cmd] : cmd;
-                bodyText += `▫️ ${prefix}${displayName}\n`;
+                const desc = t(`command_desc.${cmd}`, {}, forcedLang);
+                const descText = desc.startsWith('command_desc.') ? '' : ` : _${desc}_`;
+                bodyText += `▫️ *${prefix}${displayName}*${descText}\n`;
             });
 
             cards.push({

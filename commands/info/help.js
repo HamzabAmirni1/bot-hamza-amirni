@@ -148,10 +148,12 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
             const icon = catIcons[section] || '🔹';
             const imageUrl = catImages[section] || 'https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=1000&auto=format&fit=crop';
 
-            let bodyText = `✨ *${icon} قسم ${title}* ✨\n\n`;
+            let bodyText = `✨ *${icon} Section: ${title}* ✨\n\n`;
             cmds.forEach(cmd => {
                 const displayName = (isArabic && arCmds[cmd]) ? arCmds[cmd] : cmd;
-                bodyText += `▫️ ${prefix}${displayName}\n`;
+                const desc = t(`command_desc.${cmd}`, {}, forcedLang);
+                const descText = desc.startsWith('command_desc.') ? '' : ` : _${desc}_`;
+                bodyText += `▫️ *${prefix}${displayName}*${descText}\n`;
             });
 
             cards.push({
