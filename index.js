@@ -15,11 +15,42 @@ const {
 } = Baileys;
 
 // --- GLOBAL CRASH PROTECTION ---
+const IGNORED_ERRORS = [
+    'Timed Out',
+    'timed out',
+    'Connection Closed',
+    'connection closed',
+    'uploadPreKeysToServerIfRequired',
+    'getAvailablePreKeysOnServer',
+    'waitForMessage',
+    'ECONNRESET',
+    'ETIMEDOUT',
+    'ENOTFOUND',
+    'socket hang up',
+    'read ECONNRESET',
+    'write ECONNRESET',
+    'Could not decode',
+    'Conflict',
+    'conflict'
+];
+
 process.on('unhandledRejection', (reason, promise) => {
-    console.error('🛑 Unhandled Rejection at:', promise, 'reason:', reason);
+    const msg = reason?.message || reason?.toString() || '';
+    const stack = reason?.data?.stack || reason?.stack || '';
+    const isIgnored = IGNORED_ERRORS.some(e =>
+        msg.includes(e) || stack.includes(e)
+    );
+    if (!isIgnored) {
+        console.error('🛑 Unhandled Rejection at:', promise, 'reason:', reason);
+    }
 });
+
 process.on('uncaughtException', (err) => {
-    console.error('🛑 Uncaught Exception:', err);
+    const msg = err?.message || err?.toString() || '';
+    const isIgnored = IGNORED_ERRORS.some(e => msg.includes(e));
+    if (!isIgnored) {
+        console.error('🛑 Uncaught Exception:', err);
+    }
 });
 const makeInMemoryStore = typeof makeInMemoryStoreFunc === 'function' ? makeInMemoryStoreFunc : () => ({
     bind: () => { },
