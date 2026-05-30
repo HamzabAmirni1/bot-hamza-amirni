@@ -186,7 +186,7 @@ async function songCommand(sock, chatId, message, args, commands, userLang, matc
         else if (audioBuffer.toString('ascii', 0, 3) === 'ID3' ||
             (audioBuffer[0] === 0xFF && (audioBuffer[1] & 0xE0) === 0xE0)) {
             detectedFormat = 'MP3';
-            actualMimetype = 'audio/mpeg';
+            actualMimetype = 'audio/mp4';
             fileExtension = 'mp3';
         }
         // Check for OGG/Opus
@@ -218,7 +218,7 @@ async function songCommand(sock, chatId, message, args, commands, userLang, matc
                 const convertedBuffer = await toAudio(audioBuffer, fileExtension);
                 if (Buffer.isBuffer(convertedBuffer) && convertedBuffer.length > 0) {
                     finalBuffer = convertedBuffer;
-                    finalMimetype = 'audio/mpeg';
+                    finalMimetype = 'audio/mp4';
                     finalExtension = 'mp3';
                 } else {
                     console.warn('[Song] Conversion failed or returned invalid buffer. Sending original.');

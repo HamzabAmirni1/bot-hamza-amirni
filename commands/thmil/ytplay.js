@@ -89,7 +89,7 @@ async function ytplayCommand(sock, chatId, msg, args, commands, userLang) {
         // Detect Format and Convert to MP3 if needed (safest for WhatsApp)
         const { toAudio } = require('../../lib/converter');
         let finalBuffer = audioBuffer;
-        let finalMimetype = "audio/mpeg";
+        let finalMimetype = "audio/mp4";
 
         // Simple detection based on first bytes
         const firstBytes = audioBuffer.slice(0, 12).toString('hex');

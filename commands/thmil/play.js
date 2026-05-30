@@ -201,10 +201,9 @@ async function playCommand(sock, chatId, msg, args, commands, userLang) {
             console.error("Failed to download thumbnail:", e.message);
         }
 
-        // Detect Format and Convert to MP3 if needed
         const { toAudio } = require('../../lib/converter');
         let finalBuffer = audioBuffer;
-        let finalMimetype = "audio/mpeg";
+        let finalMimetype = "audio/mp4";
 
         const isMp3 = audioBuffer.slice(0, 3).toString() === 'ID3' || audioBuffer[0] === 0xFF;
         if (!isMp3) {
