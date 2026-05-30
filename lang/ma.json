@@ -33,6 +33,28 @@
         "welcome": "مرحباً بيك يا",
         "swipe": "دوز ليمين ولا ليسار باش تشوف الأقسام..."
     },
+    "gitrepo": {
+        "title": "تحميل مستودع GitHub",
+        "usage_label": "كيفاش تخدم",
+        "example_label": "مثال",
+        "loading": "⏳ كنجيب معلومات المستودع *{repo}*... صبر شوية 😅",
+        "invalid": "❌ الرابط ولا الاسم ماشي صحيح!\n\nمثال:\n▫️ `.gitrepo HamzabAmirni1/bot-hamza-amirni`\n▫️ `.gitrepo facebook/react@main`\n▫️ `.gitrepo https://github.com/owner/repo`",
+        "not_found": "❌ المستودع *{repo}* ماكاينش ولا خاص!",
+        "too_large": "⚠️ المستودع كبير بزاف ({size} MB)!\nالحد الأقصى: {max} MB.",
+        "desc": "الوصف",
+        "branch": "الفرع",
+        "visibility": "الرؤية",
+        "stars": "النجوم",
+        "forks": "الفروع",
+        "watchers": "المتابعين",
+        "issues": "المشاكل المفتوحة",
+        "size": "الحجم",
+        "lang": "لغة الكود",
+        "license": "الرخصة",
+        "topics": "المواضيع",
+        "updated": "آخر تحديث",
+        "error": "❌ وقع مشكل فتحميل المستودع.\n⚠️ السبب: {error}"
+    },
     "command_desc": {
         "ai": "هضر مع خوك اللي عارف كلشي (بالذكاء)",
         "ai-image": "رسم ليك شي عجب بالكتابة",

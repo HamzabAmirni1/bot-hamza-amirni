@@ -33,6 +33,28 @@
         "welcome": "Welcome",
         "swipe": "Swipe the cards below to explore all commands..."
     },
+    "gitrepo": {
+        "title": "Download GitHub Repository",
+        "usage_label": "Usage",
+        "example_label": "Example",
+        "loading": "⏳ Fetching repository info for *{repo}*...",
+        "invalid": "❌ Invalid GitHub URL or repo name!\n\nExamples:\n▫️ `.gitrepo HamzabAmirni1/bot-hamza-amirni`\n▫️ `.gitrepo facebook/react@main`\n▫️ `.gitrepo https://github.com/owner/repo`",
+        "not_found": "❌ Repository *{repo}* not found or is private!",
+        "too_large": "⚠️ Repository is too large ({size} MB)!\nMax allowed: {max} MB.",
+        "desc": "Description",
+        "branch": "Branch",
+        "visibility": "Visibility",
+        "stars": "Stars",
+        "forks": "Forks",
+        "watchers": "Watchers",
+        "issues": "Open Issues",
+        "size": "Size",
+        "lang": "Language",
+        "license": "License",
+        "topics": "Topics",
+        "updated": "Last Updated",
+        "error": "❌ Error downloading repository.\n⚠️ Reason: {error}"
+    },
     "command_desc": {
         "ai": "Ask AI assistant (GPT-5)",
         "ai-image": "Generate image from text",
