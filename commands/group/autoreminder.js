@@ -4,6 +4,25 @@ const path = require('path');
 const { getAllUsers } = require('../../lib/userLogger');
 const { isOwner } = require('../../lib/ownerCheck');
 
+function isConnectionError(error) {
+    return error?.output?.statusCode === 428
+        || String(error?.message || error).includes('Connection Closed')
+        || String(error?.message || error).includes('connection closed');
+}
+
+function isSocketReady(sock) {
+    return !!(sock
+        && typeof sock.sendMessage === 'function'
+        && !sock.isClosed
+        && sock.ws?.readyState === 1);
+}
+
+function getActiveSocket(preferredSock) {
+    if (isSocketReady(preferredSock)) return preferredSock;
+    if (isSocketReady(global.sock)) return global.sock;
+    return null;
+}
+
 // Path to store auto reminder config
 const REMINDER_CONFIG = path.join(__dirname, '../data/autoreminder.json');
 
@@ -349,12 +368,21 @@ ${config.message.substring(0, 200)}${config.message.length > 200 ? '...' : ''}
 ⚠️ قد يستغرق هذا بضع دقائق...`
             }, { quoted: message });
 
+            const activeSock = getActiveSocket(sock);
+            if (!activeSock) {
+                return await sendWithChannelButton(sock, chatId, `❌ البوت غير متصل حالياً!
+
+⏳ انتظر حتى يتصل البوت ثم أعد المحاولة: .autoreminder sendnow
+
+⚔️ Hamza Amirni Bot`, message);
+            }
+
             let successCount = 0;
             let failCount = 0;
 
             for (const user of users) {
                 try {
-                    await sock.sendMessage(user.id, {
+                    await activeSock.sendMessage(user.id, {
                         text: config.message
                     });
                     successCount++;
@@ -363,17 +391,22 @@ ${config.message.substring(0, 200)}${config.message.length > 200 ? '...' : ''}
                     const delay = 2000 + Math.random() * 2000;
                     await new Promise(resolve => setTimeout(resolve, delay));
                 } catch (error) {
-                    console.error(`Failed to send reminder to ${user.id}:`, error);
+                    if (!isConnectionError(error)) {
+                        console.error(`Failed to send reminder to ${user.id}:`, error);
+                    }
                     failCount++;
+                    if (isConnectionError(error)) break;
                 }
             }
 
-            config.lastSent = new Date().toISOString();
-            config.totalSent++;
-            saveReminderConfig(config);
+            if (successCount > 0) {
+                config.lastSent = new Date().toISOString();
+                config.totalSent++;
+                saveReminderConfig(config);
+            }
 
-            return await sock.sendMessage(chatId, {
-                text: `✅ *تم إرسال التذكير!*
+            return await activeSock.sendMessage(chatId, {
+                text: `${successCount > 0 ? '✅' : '⚠️'} *${successCount > 0 ? 'تم إرسال التذكير' : 'لم يُرسل التذكير'}!*
 
 📊 *النتائج:*
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -434,6 +467,12 @@ async function checkAndSendReminder(sock) {
             }
         }
 
+        const activeSock = getActiveSocket(sock);
+        if (!activeSock) {
+            console.log(`🔔 Auto reminder skipped at ${currentTime} — WhatsApp not connected`);
+            return;
+        }
+
         console.log(`🔔 Time to send auto reminder! (${currentTime})`);
 
         const users = getAllUsers().filter(u =>
@@ -449,10 +488,11 @@ async function checkAndSendReminder(sock) {
 
         console.log(`Sending reminder to ${users.length} users...`);
         let successCount = 0;
+        let hadConnectionError = false;
 
         for (const user of users) {
             try {
-                await sock.sendMessage(user.id, {
+                await activeSock.sendMessage(user.id, {
                     text: config.message
                 });
                 successCount++;
@@ -460,17 +500,29 @@ async function checkAndSendReminder(sock) {
                 const delay = 2000 + Math.random() * 2000;
                 await new Promise(resolve => setTimeout(resolve, delay));
             } catch (error) {
+                if (isConnectionError(error)) {
+                    hadConnectionError = true;
+                    console.warn(`🔔 Auto reminder paused at ${currentTime} — connection dropped`);
+                    break;
+                }
                 console.error(`Failed to send reminder to ${user.id}:`, error);
             }
         }
 
+        if (successCount === 0 && hadConnectionError) {
+            console.log(`⚠️ Reminder not marked as sent (${currentTime}) — will retry while still in send window`);
+            return;
+        }
+
         config.lastSent = now.toISOString();
-        config.totalSent++;
+        if (successCount > 0) config.totalSent++;
         saveReminderConfig(config);
 
         console.log(`✅ Reminder sent to ${successCount}/${users.length} users at ${currentTime}`);
     } catch (error) {
-        console.error('Error in checkAndSendReminder:', error);
+        if (!isConnectionError(error)) {
+            console.error('Error in checkAndSendReminder:', error);
+        }
     }
 }
 
