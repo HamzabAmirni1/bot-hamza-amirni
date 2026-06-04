@@ -38,20 +38,8 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
             `┃ 🤖 *${t('menu.version', {}, userLang)}:* ${settings.version || '2.0.0'}\n` +
             `┗━━━━━━━━━━━━━━━━━━┛\n\n`;
 
-        const catMap = {
-            'new': ['hl', 'img2video', 'pinterest', 'ramadan', 'khatm', 'ytmp4v3', 'qwen', 'nanobanana', 'edit', 'genai', 'banana-ai', 'ghibli', 'tomp3', 'resetlink', 'apk', 'apk2', 'apk3', 'hidetag', 'imdb', 'simp'],
-            'religion': ['ramadan', 'khatm', 'qurancard', 'quranmp3', 'salat', 'prayertimes', 'adhan', 'hadith', 'asmaa', 'azkar', 'qibla', 'ad3iya', 'dua', 'athan', 'tafsir', 'surah', 'ayah', 'fadlsalat', 'hukm', 'qiyam', 'danb', 'nasiha', 'tadabbur', 'sahaba', 'faida', 'hasanat', 'jumaa', 'hajj', 'sira', 'mawt', 'shirk', 'hub', 'deen'],
-            'download': ['pinterest', 'ytmp4v3', 'facebook', 'instagram', 'tiktok', 'youtube', 'mediafire', 'github', 'gitrepo', 'play', 'song', 'video', 'ytplay', 'yts', 'apk'],
-            'ai': ['hl', 'img2video', 'gpt4o', 'gpt4om', 'gpt4', 'gpt3', 'o1', 'gemini-analyze', 'qwen', 'gpt', 'gemini', 'deepseek', 'imagine', 'aiart', 'miramuse', 'ghibli-art', 'faceswap', 'ai-enhance', 'colorize', 'colorize-v2', 'upscale-hd', 'cloth-change', 'image2sketch', 'airbrush', 'vocalremover', 'musicgen', 'hdvideo', 'winkvideo', 'unblur', 'brat-vd', 'removebg'],
-            'group': ['kick', 'promote', 'demote', 'tagall', 'hidetag', 'mute', 'unmute', 'close', 'open', 'delete', 'staff', 'groupinfo', 'welcome', 'goodbye', 'warn', 'warnings', 'antibadword', 'antilink', 'schedule'],
-            'tools': ['pdf2img', 'stt', 'sticker', 'sticker-alt', 'attp', 'ttp', 'ocr', 'tts', 'say', 'toimage', 'tovideo', 'togif', 'qrcode', 'ss', 'lyrics', 'calc', 'img-blur', 'blur', 'translate', 'readviewonce', 'upload'],
-            'news': ['news', 'akhbar', 'football', 'kora', 'weather', 'taqes'],
-            'daily': ['daily', 'top', 'shop', 'gamble', 'slots', 'profile'],
-            'fun': ['joke', 'fact', 'quote', 'meme', 'character', 'truth', 'dare', 'ship', 'ngl', '4kwallpaper'],
-            'games': ['menugame', 'xo', 'rps', 'math', 'guess', 'scramble', 'riddle', 'quiz', 'love', 'hangman', 'trivia'],
-            'general': ['alive', 'ping', 'owner', 'script', 'setlang', 'system', 'help', 'allmenu'],
-            'owner': ['mode', 'devmsg', 'autoreminder', 'pmblocker', 'backup', 'ban', 'unban', 'block', 'unblock', 'cleartmp', 'sudo', 'clear', 'clearsession', 'anticall', 'admin', 'addsudo', 'delsudo', 'listadmin']
-        };
+        const { getMenuCategories } = require('../../lib/menuCatalog');
+        const catMap = getMenuCategories();
 
         const cmdIcons = {
             'brat-vd': '🎬', 'hdvideo': '📀', 'winkvideo': '📹', 'musicgen': '🎵', 'removebg': '🖼️', 'unblur': '✨', 'upload': '📤', 'readviewonce': '👁️', 'pdf2img': '📄', 'stt': '🎙️',

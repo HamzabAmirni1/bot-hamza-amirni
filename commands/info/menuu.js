@@ -34,76 +34,13 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
         const isArabic = true;
         const prefix = settings.prefix;
 
-        // 1. Define Category Mappings
-        const catMap = {
-            'new': ['hl', 'img2video', 'pinterest', 'ramadan', 'khatm', 'ytmp4v3', 'qwen', 'nanobanana', 'edit', 'genai', 'banana-ai', 'ghibli', 'tomp3', 'resetlink', 'apk', 'apk2', 'apk3', 'hidetag', 'imdb', 'simp'],
-            'religion': ['ramadan', 'khatm', 'qurancard', 'quranmp3', 'salat', 'prayertimes', 'adhan', 'hadith', 'asmaa', 'azkar', 'qibla', 'ad3iya', 'dua', 'athan', 'tafsir', 'surah', 'ayah', 'fadlsalat', 'hukm', 'qiyam', 'danb', 'nasiha', 'tadabbur', 'sahaba', 'faida', 'hasanat', 'jumaa', 'hajj', 'sira', 'mawt', 'shirk', 'hub', 'deen', 'deenquiz', 'kitab', 'quranpdf', 'quranread', 'tahlil-soura'],
-            'download': ['pinterest', 'ytmp4v3', 'facebook', 'instagram', 'tiktok', 'youtube', 'mediafire', 'github', 'gitrepo', 'play', 'song', 'video', 'ytplay', 'yts', 'apk', 'apk2', 'apk3', 'capcut', 'f-droid', 'likee', 'live', 'pinterestdl', 'play2', 'qdl', 'reddit', 'snapchat', 'song2', 'spotify', 'tahmil-app', 'twitter', 'ytdl', 'ytmp4', 'ytmp4v2', 'yts2'],
-            'ai': ['hl', 'img2video', 'gpt4o', 'gpt4om', 'gpt4', 'gpt3', 'o1', 'gemini-analyze', 'qwen', 'gpt', 'gemini', 'deepseek', 'imagine', 'aiart', 'miramuse', 'ghibli-art', 'faceswap', 'ai-enhance', 'colorize', 'colorize-v2', 'upscale-hd', 'cloth-change', 'image2sketch', 'airbrush', 'vocalremover', 'musicgen', 'hdvideo', 'winkvideo', 'unblur', 'brat-vd', 'removebg', 'veo-prompt', 'veo3-prompt', 'waterai', 'waterbot', 'banana-ai', 'nanobanana'],
-            'group': ['kick', 'promote', 'demote', 'tagall', 'hidetag', 'mute', 'unmute', 'close', 'open', 'delete', 'staff', 'groupinfo', 'welcome', 'goodbye', 'warn', 'warnings', 'antibadword', 'antilink', 'schedule', 'anticall', 'antidelete', 'antigroupcall', 'autoread', 'autostatus', 'autowelcome', 'ghosttag', 'setpp', 'tag'],
-            'tools': ['pdf2img', 'stt', 'sticker', 'sticker-alt', 'attp', 'ttp', 'ocr', 'tts', 'say', 'toimage', 'tovideo', 'togif', 'qrcode', 'ss', 'lyrics', 'calc', 'img-blur', 'blur', 'translate', 'readviewonce', 'upload', 'alloschool', 'carbon', 'carbonguide', 'checkimage', 'colorize', 'faceswap', 'gif', 'google', 'hazf-sawt', 'hdvideo', 'remind', 'remini', 'removebg', 'save', 'screenshot', 'simage', 'stickertelegram', 'take', 'textmaker', 'tomp3', 'trim', 'wiki'],
-            'fun_games': ['joke', 'fact', 'quote', 'meme', 'character', 'truth', 'dare', 'ship', 'ngl', '4kwallpaper', 'areact', 'cat', 'dog', 'eightball', 'flirt', 'ghibli', 'goodnight', 'insult', 'rate', 'simp', 'stupid', 'topmembers', 'wasted', 'menugame', 'xo', 'rps', 'math', 'guess', 'scramble', 'riddle', 'quiz', 'love', 'hangman', 'trivia', 'blackjack', 'emojigame', 'guesswho', 'kalimat', 'tictactoe', 'truefalse', 'werewolf'],
-            'economy_news': ['daily', 'top', 'shop', 'gamble', 'slots', 'profile', 'news', 'akhbar', 'football', 'kora', 'weather', 'taqes', 'aljazeera', 'alwadifa', 'hespress', 'maroc-flag'],
-            'general_owner': ['alive', 'ping', 'owner', 'script', 'setlang', 'system', 'help', 'allmenu', 'mode', 'devmsg', 'autoreminder', 'pmblocker', 'backup', 'ban', 'unban', 'block', 'unblock', 'cleartmp', 'sudo', 'clear', 'clearsession', 'anticall', 'admin', 'addsudo', 'delsudo', 'listadmin', 'getsession', 'resetlink', 'setlang', 'upswgc']
-        };
-
+        const { getMenuuCategories, arCmds: menuArCmds } = require('../../lib/menuCatalog');
+        const catMap = getMenuuCategories();
         const arCmds = {
-            'gpt': 'ذكاء', 'gpt4': 'ذكاء4', 'gpt4o': 'ذكاء-برو', 'gpt4om': 'ذكاء-ميني', 'gpt3': 'ذكاء3', 'o1': 'ذكاء-متقدم',
-            'gemini': 'جيميني', 'gemini-analyze': 'تحليل-صور', 'deepseek': 'بحث-عميق',
-            'imagine': 'تخيل', 'aiart': 'رسم', 'genai': 'توليد-صور', 'nanobanana': 'نانو', 'banana-ai': 'موز',
-            'ghibli': 'جيبلي', 'ghibli-art': 'فن-جيبلي', 'faceswap': 'تبديل-وجه',
-            'ai-enhance': 'تحسين', 'colorize': 'تلوين', 'remini': 'ريميني', 'unblur': 'توضيح',
-            'vocalremover': 'عزل-صوت', 'musicgen': 'توليد-موسيقى', 'removebg': 'حذف-خلفية',
-            'qwen': 'كوين', 'miramuse': 'ميرا', 'edit': 'تعديل',
-            'quran': 'قرآن', 'salat': 'صلاة', 'prayertimes': 'مواقيت', 'adhan': 'أذان',
-            'hadith': 'حديث', 'ad3iya': 'أدعية', 'azkar': 'أذكار', 'qibla': 'قبلة',
-            'tafsir': 'تفسير', 'surah': 'سورة', 'ayah': 'آية', 'dua': 'دعاء',
-            'asmaa': 'أسماء-الله', 'fadlsalat': 'فضل-صلاة', 'hukm': 'حكم', 'qiyam': 'قيام',
-            'danb': 'ذنب', 'nasiha': 'نصيحة', 'tadabbur': 'تدبر', 'sahaba': 'صحابة',
-            'faida': 'فائدة', 'hasanat': 'حسنات', 'jumaa': 'جمعة', 'hajj': 'حج',
-            'sira': 'سيرة', 'mawt': 'موت', 'shirk': 'شرك', 'hub': 'حب', 'deen': 'دين',
-            'quranmp3': 'قراء-القرآن', 'qurancard': 'آية-اليوم',
-            'ramadan': 'رمضان', 'khatm': 'ختمة',
-            'hl': 'تحليل-صور', 'img2video': 'تحويل-لفيديو',
-            'facebook': 'فيسبوك', 'instagram': 'انستا', 'youtube': 'يوتيوب', 'tiktok': 'تيكتوك',
-            'ytmp4v3': 'يوتيوب3', 'pinterest': 'بينترست',
-            'mediafire': 'ميديافاير', 'play': 'شغل', 'song': 'أغنية', 'video': 'فيديو',
-            'yts': 'بحث-يوتيوب', 'ytplay': 'تشغيل', 'apk': 'تطبيق', 'apk2': 'تطبيق2', 'apk3': 'تطبيق3',
-            'github': 'جيتهاب', 'gitrepo': 'تحميل-مستودع',
-            'sticker': 'ستيكر', 'translate': 'ترجمة', 'weather': 'طقس', 'calc': 'حساب',
-            'pdf2img': 'صور-بي-دي-اف', 'ocr': 'استخراج-نص', 'tts': 'نطق', 'qrcode': 'كود-كيو-آر',
-            'screenshot': 'سكرين', 'ss': 'لقطة', 'tomp3': 'صوت', 'toimage': 'صورة',
-            'tovideo': 'فيديو', 'togif': 'جيف', 'attp': 'نص-متحرك', 'ttp': 'نص-ملون',
-            'lyrics': 'كلمات', 'upload': 'رفع', 'readviewonce': 'قراءة-مرة', 'stt': 'كتابة-أوديو',
-            'img-blur': 'طمس', 'say': 'قول', 'sticker-alt': 'ستيكر2',
-            'kick': 'طرد', 'promote': 'ترقية', 'demote': 'تخفيض', 'ban': 'حظر',
-            'tagall': 'منشن', 'hidetag': 'اخفاء', 'mute': 'كتم', 'unmute': 'الغاء-كتم',
-            'close': 'اغلاق', 'open': 'فتح', 'antilink': 'منع-روابط', 'warn': 'تحذير',
-            'antibadword': 'منع-شتائم', 'welcome': 'ترحيب', 'goodbye': 'وداع',
-            'groupinfo': 'معلومات-مجموعة', 'staff': 'طاقم', 'delete': 'حذف',
-            'warnings': 'تحذيرات',
-            'joke': 'نكتة', 'fact': 'حقيقة', 'quote': 'اقتباس', 'meme': 'ميم',
-            'truth': 'صراحة', 'dare': 'تحدي', 'ship': 'توافق', 'ngl': 'صراحة-مجهولة',
-            '4kwallpaper': 'خلفيات', 'character': 'شخصية', 'goodnight': 'نعاس',
-            'stupid': 'مكلخ', 'flirt': 'غزل', 'compliment': 'مدح', 'insult': 'سب',
-            'menugame': 'قائمة-ألعاب', 'xo': 'اكس-او', 'tictactoe': 'اكس-او',
-            'rps': 'حجر-ورقة', 'math': 'رياضيات', 'guess': 'تخمين', 'scramble': 'خلط-كلمات',
-            'riddle': 'لغز', 'quiz': 'مسابقة', 'love': 'حب', 'hangman': 'مشنقة',
-            'trivia': 'ثقافة', 'eightball': 'كرة-سحرية', 'guesswho': 'شكون-انا',
-            'profile': 'بروفايل', 'daily': 'يومي', 'top': 'ترتيب', 'shop': 'متجر',
-            'gamble': 'قمار', 'slots': 'ماكينة', 'blackjack': 'بلاك-جاك',
-            'ping': 'بينغ', 'owner': 'المالك', 'help': 'مساعدة', 'alive': 'حي',
-            'system': 'نظام', 'setlang': 'لغة', 'script': 'سكريبت', 'allmenu': 'كل-الأوامر',
-            'mode': 'وضع', 'devmsg': 'بث', 'pmblocker': 'حظر-خاص', 'anticall': 'منع-مكالمات',
-            'backup': 'نسخة-احتياطية', 'unban': 'الغاء-حظر', 'block': 'بلوك', 'unblock': 'فك-بلوك',
-            'cleartmp': 'مسح-مؤقت', 'sudo': 'مشرف', 'clear': 'مسح', 'clearsession': 'مسح-جلسة',
-            'autoreminder': 'تذكير-تلقائي', 'admin': 'أدمن', 'addsudo': 'إضافة-مشرف', 'delsudo': 'حذف-مشرف', 'listadmin': 'قائمة-المشرفين', 'schedule': 'توقيت-المجموعة', 'autogroup': 'أوتو-قروب',
-            'news': 'أخبار', 'akhbar': 'أخبار', 'football': 'كرة-قدم', 'kora': 'كورة',
-            'taqes': 'طقس',
-            'imdb': 'فيلم', 'resetlink': 'اعادة-رابط', 'hdvideo': 'فيديو-عالي',
-            'winkvideo': 'وينك', 'brat-vd': 'برات', 'car': 'سيارة', 'recipe': 'وصفة',
-            'currency': 'صرف', 'alloschool': 'مدرسة', 'checkimage': 'فحص-صورة',
-            'pdf': 'بي-دي-اف', 'google': 'جوجل', 'wiki': 'ويكي'
+            ...menuArCmds,
+            edit: 'تعديل',
+            imdb: 'فيلم',
+            autogroup: 'أوتو-قروب'
         };
 
         const catIcons = {

@@ -1,34 +1,35 @@
-const axios = require('axios');
 const settings = require('../../settings');
+const { downloadLikee } = require('../../lib/socialDownload');
 
 module.exports = async (sock, chatId, msg, args) => {
     try {
         const url = args[0];
-        if (!url || !/likee/.test(url)) {
-            return await sock.sendMessage(chatId, { text: '❌ Please provide a valid Likee link!' }, { quoted: msg });
+        if (!url || !/likee\.(video|com)/i.test(url)) {
+            return await sock.sendMessage(chatId, { text: '❌ عطيني رابط Likee صحيح!' }, { quoted: msg });
         }
 
         await sock.sendMessage(chatId, { react: { text: '⏳', key: msg.key } });
 
-        // Using a universal downloader for Likee
-        const response = await axios.get(`https://api.vreden.web.id/api/likee?url=${encodeURIComponent(url)}`);
-        
-        if (!response.data || !response.data.status) {
-            throw new Error('Failed to fetch from API');
+        const result = await downloadLikee(url);
+        if (!result?.url) throw new Error('No media found');
+
+        if (result.type === 'image') {
+            await sock.sendMessage(chatId, {
+                image: { url: result.url },
+                caption: `✅ *Likee Downloader*\n\n© ${settings.botName}`
+            }, { quoted: msg });
+        } else {
+            await sock.sendMessage(chatId, {
+                video: { url: result.url },
+                caption: `✅ *Likee Downloader*\n\n© ${settings.botName}`,
+                mimetype: 'video/mp4'
+            }, { quoted: msg });
         }
 
-        const result = response.data.result;
-
-        await sock.sendMessage(chatId, {
-            video: { url: result.video_url || result.no_watermark || result.url },
-            caption: `✅ *Likee Downloader*\n\n© ${settings.botName}`,
-            mimetype: 'video/mp4'
-        }, { quoted: msg });
-
         await sock.sendMessage(chatId, { react: { text: '✅', key: msg.key } });
-
     } catch (error) {
-        console.error('Error in likee command:', error);
-        await sock.sendMessage(chatId, { text: '❌ Failed to download Likee video.' }, { quoted: msg });
+        console.error('Error in likee command:', error.message);
+        await sock.sendMessage(chatId, { text: '❌ ما قدرتش نحمل فيديو Likee.' }, { quoted: msg });
+        await sock.sendMessage(chatId, { react: { text: '❌', key: msg.key } });
     }
 };

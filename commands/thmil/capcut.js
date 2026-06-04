@@ -1,34 +1,34 @@
-const axios = require('axios');
 const settings = require('../../settings');
+const { downloadCapcut } = require('../../lib/socialDownload');
 
 module.exports = async (sock, chatId, msg, args) => {
     try {
         const url = args[0];
-        if (!url || !/capcut\.com/.test(url)) {
-            return await sock.sendMessage(chatId, { text: '❌ Please provide a valid CapCut link!' }, { quoted: msg });
+        if (!url || !/capcut\.(com|net)/i.test(url)) {
+            return await sock.sendMessage(chatId, { text: '❌ عطيني رابط CapCut صحيح!' }, { quoted: msg });
         }
 
         await sock.sendMessage(chatId, { react: { text: '⏳', key: msg.key } });
 
-        const response = await axios.get(`https://api.vreden.web.id/api/capcut?url=${encodeURIComponent(url)}`);
-        
-        if (!response.data || !response.data.status) {
-            throw new Error('Failed to fetch from API');
+        const result = await downloadCapcut(url);
+        if (!result?.url) throw new Error('No media found');
+
+        const caption = `✅ *CapCut Downloader*\n\n📌 *Title:* ${result.title || 'N/A'}\n👤 *Author:* ${result.author || 'N/A'}\n\n© ${settings.botName}`;
+
+        if (result.type === 'image') {
+            await sock.sendMessage(chatId, { image: { url: result.url }, caption }, { quoted: msg });
+        } else {
+            await sock.sendMessage(chatId, {
+                video: { url: result.url },
+                caption,
+                mimetype: 'video/mp4'
+            }, { quoted: msg });
         }
 
-        const result = response.data.result;
-
-        await sock.sendMessage(chatId, {
-            video: { url: result.video_url },
-            caption: `✅ *CapCut Downloader*\n\n📌 *Title:* ${result.title || 'N/A'}\n👤 *Author:* ${result.author || 'N/A'}\n\n© ${settings.botName}`,
-            mimetype: 'video/mp4'
-        }, { quoted: msg });
-
         await sock.sendMessage(chatId, { react: { text: '✅', key: msg.key } });
-
     } catch (error) {
-        console.error('Error in capcut command:', error);
-        await sock.sendMessage(chatId, { text: '❌ Failed to download CapCut video.' }, { quoted: msg });
+        console.error('Error in capcut command:', error.message);
+        await sock.sendMessage(chatId, { text: '❌ ما قدرتش نحمل فيديو CapCut.' }, { quoted: msg });
         await sock.sendMessage(chatId, { react: { text: '❌', key: msg.key } });
     }
 };
