@@ -295,14 +295,7 @@ app.get('/api/status', (req, res) => {
             ok: true,
             sessions,
             commandCount: global._commandCount || 566,
-            apkLimit: (() => {
-                try {
-                    const lf = path.join(__dirname, 'lib/apkLimiter.js');
-                    const src = fs.readFileSync(lf, 'utf-8');
-                    const m = src.match(/DAILY_LIMIT\s*=\s*(\d+)/);
-                    return m ? parseInt(m[1]) : 5;
-                } catch { return 5; }
-            })(),
+            apkLimit: settings.apkLimit || 5,
             settings: {
                 botName: settings.botName,
                 botOwner: settings.botOwner,
@@ -322,9 +315,7 @@ app.get('/api/status', (req, res) => {
 app.get('/api/settings', (req, res) => {
     try {
         const s = require('./settings');
-        const apkLimiterSrc = fs.readFileSync(path.join(__dirname, 'lib/apkLimiter.js'), 'utf-8');
-        const apkMatch = apkLimiterSrc.match(/DAILY_LIMIT\s*=\s*(\d+)/);
-        res.json({ ...s, apkLimit: apkMatch ? parseInt(apkMatch[1]) : 5 });
+        res.json({ ...s, apkLimit: s.apkLimit || 5 });
     } catch (e) {
         res.status(500).json({ error: e.message });
     }
@@ -408,12 +399,25 @@ app.post('/api/apk-limit', (req, res) => {
             return res.status(400).json({ success: false, error: 'قيمة غير صالحة' });
         }
 
-        const limiterPath = path.join(__dirname, 'lib/apkLimiter.js');
-        let src = fs.readFileSync(limiterPath, 'utf-8');
-        src = src.replace(/const DAILY_LIMIT\s*=\s*\d+;/, `const DAILY_LIMIT = ${limit};`);
-        fs.writeFileSync(limiterPath, src, 'utf-8');
+        // Save to settings.js file
+        const settingsPath = path.join(__dirname, 'settings.js');
+        let src = fs.readFileSync(settingsPath, 'utf-8');
 
-        delete require.cache[require.resolve('./lib/apkLimiter')];
+        if (src.includes('apkLimit:')) {
+            src = src.replace(/(apkLimit\s*:\s*)(\d+)/, `$1${limit}`);
+        } else {
+            // Insert it right after settings declaration
+            src = src.replace(/(const settings = \{)/, `$1\n  apkLimit: ${limit},`);
+        }
+        fs.writeFileSync(settingsPath, src, 'utf-8');
+
+        // Update in-memory cache
+        try {
+            const currentSettings = require('./settings');
+            currentSettings.apkLimit = limit;
+        } catch (e) {}
+
+        delete require.cache[require.resolve('./settings')];
 
         res.json({ success: true, limit });
     } catch (e) {

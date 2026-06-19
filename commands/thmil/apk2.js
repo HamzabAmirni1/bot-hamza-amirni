@@ -1,16 +1,16 @@
 const { generateWAMessageContent, generateWAMessageFromContent, proto } = require('@whiskeysockets/baileys');
 const settings = require('../../settings');
 const { t } = require('../../lib/language');
-const { canDownload, DAILY_LIMIT } = require('../../lib/apkLimiter');
+const apkLimiter = require('../../lib/apkLimiter');
 const aptoide = require('../../lib/aptoide');
 
 async function apk2Command(sock, chatId, msg, args, commands, userLang) {
     const senderId = msg.key.participant || msg.key.remoteJid;
     const text = args.join(' ').trim();
 
-    const limitCheck = canDownload(senderId);
+    const limitCheck = apkLimiter.canDownload(senderId);
     if (!limitCheck.allowed) {
-        return await sock.sendMessage(chatId, { text: t('apk.limit_reached', { limit: DAILY_LIMIT }, userLang) }, { quoted: msg });
+        return await sock.sendMessage(chatId, { text: t('apk.limit_reached', { limit: apkLimiter.DAILY_LIMIT }, userLang) }, { quoted: msg });
     }
 
     if (!text) {
