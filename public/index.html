@@ -994,6 +994,10 @@
           <label class="form-label">رقم الإقران الرئيسي</label>
           <input type="tel" id="s-pairingNumber" class="form-input" placeholder="212XXXXXXXXX" />
         </div>
+        <div class="form-group" style="grid-column: 1 / -1;">
+          <label class="form-label">وصف البوت</label>
+          <textarea id="s-description" class="form-input" placeholder="وصف البوت..." rows="3" style="resize:vertical;"></textarea>
+        </div>
       </div>
     </div>
 
@@ -1016,7 +1020,11 @@
         </div>
         <label class="toggle"><input type="checkbox" id="s-autoStatusReply" /><span class="toggle-slider"></span></label>
       </div>
-      <div class="toggle-row">
+      <div class="form-group" style="margin-top:12px;padding: 0 10px;">
+        <label class="form-label">رسالة الرد التلقائي على الحالات</label>
+        <input type="text" id="s-autoStatusMsg" class="form-input" placeholder="Status Viewed by Bot" />
+      </div>
+      <div class="toggle-row" style="margin-top:12px;">
         <div class="toggle-info">
           <div class="toggle-title">تسجيل صوتي تلقائي</div>
           <div class="toggle-desc">يظهر البوت كأنه يسجل رسالة صوتية</div>
@@ -1029,6 +1037,77 @@
           <div class="toggle-desc">يظهر البوت كأنه يكتب عند معالجة الأوامر</div>
         </div>
         <label class="toggle"><input type="checkbox" id="s-autoType" /><span class="toggle-slider"></span></label>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-title">تسجيل صوتي وكتابة معاً</div>
+          <div class="toggle-desc">يظهر البوت كأنه يكتب ويسجل في نفس الوقت</div>
+        </div>
+        <label class="toggle"><input type="checkbox" id="s-autoRecordType" /><span class="toggle-slider"></span></label>
+      </div>
+    </div>
+
+    <!-- Stickers & Newsletters Settings -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon purple"><i class="fas fa-sticky-note"></i></div>
+        <div class="card-title">إعدادات الملصقات والقنوات الإخبارية</div>
+      </div>
+      <div class="grid grid-2">
+        <div class="form-group">
+          <label class="form-label">اسم حزمة الملصقات (Pack Name)</label>
+          <input type="text" id="s-packname" class="form-input" placeholder="Pack Name" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">حقوق الملصق (Author)</label>
+          <input type="text" id="s-author" class="form-input" placeholder="Author Name" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">اسم القناة الإخبارية (Newsletter Name)</label>
+          <input type="text" id="s-newsletterName" class="form-input" placeholder="Newsletter Name" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">JID القناة الإخبارية (Newsletter JID)</label>
+          <input type="text" id="s-newsletterJid" class="form-input" placeholder="xxxxxxxxxx@newsletter" />
+        </div>
+      </div>
+    </div>
+
+    <!-- API Keys & Database Connections -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon yellow"><i class="fas fa-key"></i></div>
+        <div class="card-title">مفاتيح API والربط الخارجي</div>
+      </div>
+      <div class="grid grid-2">
+        <div class="form-group">
+          <label class="form-label">مفتاح Giphy API Key</label>
+          <input type="password" id="s-giphyApiKey" class="form-input" placeholder="Giphy API Key" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">مفتاح HuggingFace AI (hfToken)</label>
+          <input type="password" id="s-hfToken" class="form-input" placeholder="HuggingFace Token" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Supabase URL</label>
+          <input type="text" id="s-supabaseUrl" class="form-input" placeholder="https://xxxxxx.supabase.co" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Supabase API Key (supabaseKey)</label>
+          <input type="password" id="s-supabaseKey" class="form-input" placeholder="Supabase Key" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">توكن بوت تيليجرام (Telegram Token)</label>
+          <input type="password" id="s-telegramToken" class="form-input" placeholder="Telegram Bot Token" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">معرّف صفحة فيسبوك (Facebook Page ID)</label>
+          <input type="text" id="s-fbPageId" class="form-input" placeholder="Facebook Page ID" />
+        </div>
+        <div class="form-group" style="grid-column: 1 / -1;">
+          <label class="form-label">توكن صفحة فيسبوك (Facebook Page Access Token)</label>
+          <textarea id="s-fbPageAccessToken" class="form-input" placeholder="Facebook Page Access Token..." rows="2" style="resize:vertical;"></textarea>
+        </div>
       </div>
     </div>
 
@@ -1117,11 +1196,23 @@
       </div>
       <div class="grid grid-2">
         <div class="form-group">
-          <label class="form-label"><i class="fab fa-instagram"></i> انستغرام</label>
+          <label class="form-label"><i class="fab fa-instagram"></i> انستغرام 1</label>
           <input type="url" id="s-instagram" class="form-input" placeholder="https://instagram.com/..." />
         </div>
         <div class="form-group">
-          <label class="form-label"><i class="fab fa-facebook"></i> فيسبوك</label>
+          <label class="form-label"><i class="fab fa-instagram"></i> انستغرام 2</label>
+          <input type="url" id="s-instagram2" class="form-input" placeholder="https://instagram.com/..." />
+        </div>
+        <div class="form-group">
+          <label class="form-label"><i class="fab fa-instagram"></i> قناة انستغرام</label>
+          <input type="url" id="s-instagramChannel" class="form-input" placeholder="https://instagram.com/j/..." />
+        </div>
+        <div class="form-group">
+          <label class="form-label"><i class="fab fa-facebook"></i> فيسبوك الشخصي</label>
+          <input type="url" id="s-facebook" class="form-input" placeholder="https://facebook.com/..." />
+        </div>
+        <div class="form-group">
+          <label class="form-label"><i class="fab fa-facebook"></i> صفحة فيسبوك</label>
           <input type="url" id="s-facebookPage" class="form-input" placeholder="https://facebook.com/..." />
         </div>
         <div class="form-group">
@@ -1333,15 +1424,36 @@
       document.getElementById('s-commandMode').value = data.commandMode || 'public';
       document.getElementById('s-timezone').value = data.timezone || '';
       document.getElementById('s-pairingNumber').value = data.pairingNumber || '';
+      document.getElementById('s-description').value = data.description || '';
 
       // Toggles
       document.getElementById('s-autoStatusReact').checked = data.AUTO_STATUS_REACT === 'true';
       document.getElementById('s-autoStatusReply').checked = data.AUTO_STATUS_REPLY === 'true';
+      document.getElementById('s-autoStatusMsg').value = data.AUTO_STATUS_MSG || '';
       document.getElementById('s-autoRecord').checked = data.AUTORECORD === 'true';
       document.getElementById('s-autoType').checked = data.AUTOTYPE === 'true';
+      document.getElementById('s-autoRecordType').checked = data.AUTORECORDTYPE === 'true';
+
+      // Stickers & Newsletters
+      document.getElementById('s-packname').value = data.packname || '';
+      document.getElementById('s-author').value = data.author || '';
+      document.getElementById('s-newsletterName').value = data.newsletterName || '';
+      document.getElementById('s-newsletterJid').value = data.newsletterJid || '';
+
+      // API Keys & Databases
+      document.getElementById('s-giphyApiKey').value = data.giphyApiKey || '';
+      document.getElementById('s-hfToken').value = data.hfToken || '';
+      document.getElementById('s-supabaseUrl').value = data.supabaseUrl || '';
+      document.getElementById('s-supabaseKey').value = data.supabaseKey || '';
+      document.getElementById('s-telegramToken').value = data.telegramToken || '';
+      document.getElementById('s-fbPageId').value = data.fbPageId || '';
+      document.getElementById('s-fbPageAccessToken').value = data.fbPageAccessToken || '';
 
       // Social links
       document.getElementById('s-instagram').value = data.instagram || '';
+      document.getElementById('s-instagram2').value = data.instagram2 || '';
+      document.getElementById('s-instagramChannel').value = data.instagramChannel || '';
+      document.getElementById('s-facebook').value = data.facebook || '';
       document.getElementById('s-facebookPage').value = data.facebookPage || '';
       document.getElementById('s-youtube').value = data.youtube || '';
       document.getElementById('s-telegram').value = data.telegram || '';
@@ -1422,10 +1534,28 @@
       commandMode: document.getElementById('s-commandMode').value,
       timezone: document.getElementById('s-timezone').value,
       pairingNumber: document.getElementById('s-pairingNumber').value.replace(/[^0-9]/g, ''),
+      description: document.getElementById('s-description').value,
+
       AUTO_STATUS_REACT: document.getElementById('s-autoStatusReact').checked ? 'true' : 'false',
       AUTO_STATUS_REPLY: document.getElementById('s-autoStatusReply').checked ? 'true' : 'false',
+      AUTO_STATUS_MSG: document.getElementById('s-autoStatusMsg').value,
       AUTORECORD: document.getElementById('s-autoRecord').checked ? 'true' : 'false',
       AUTOTYPE: document.getElementById('s-autoType').checked ? 'true' : 'false',
+      AUTORECORDTYPE: document.getElementById('s-autoRecordType').checked ? 'true' : 'false',
+
+      packname: document.getElementById('s-packname').value,
+      author: document.getElementById('s-author').value,
+      newsletterName: document.getElementById('s-newsletterName').value,
+      newsletterJid: document.getElementById('s-newsletterJid').value,
+
+      giphyApiKey: document.getElementById('s-giphyApiKey').value,
+      hfToken: document.getElementById('s-hfToken').value,
+      supabaseUrl: document.getElementById('s-supabaseUrl').value,
+      supabaseKey: document.getElementById('s-supabaseKey').value,
+      telegramToken: document.getElementById('s-telegramToken').value,
+      fbPageId: document.getElementById('s-fbPageId').value,
+      fbPageAccessToken: document.getElementById('s-fbPageAccessToken').value,
+
       ownerNumber: settingsData.ownerNumber || [],
       extraNumbers: settingsData.extraNumbers || [],
     };
@@ -1451,6 +1581,9 @@
   async function saveSocialLinks() {
     const payload = {
       instagram: document.getElementById('s-instagram').value,
+      instagram2: document.getElementById('s-instagram2').value,
+      instagramChannel: document.getElementById('s-instagramChannel').value,
+      facebook: document.getElementById('s-facebook').value,
       facebookPage: document.getElementById('s-facebookPage').value,
       youtube: document.getElementById('s-youtube').value,
       telegram: document.getElementById('s-telegram').value,

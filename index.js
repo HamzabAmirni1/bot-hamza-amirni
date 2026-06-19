@@ -336,11 +336,15 @@ app.post('/api/settings', (req, res) => {
         const settingsPath = path.join(__dirname, 'settings.js');
         let src = fs.readFileSync(settingsPath, 'utf-8');
 
-        const strFields = ['botName', 'botOwner', 'prefix', 'commandMode', 'timezone',
-            'pairingNumber', 'AUTO_STATUS_REACT', 'AUTO_STATUS_REPLY', 'AUTORECORD',
-            'AUTOTYPE', 'AUTO_STATUS_MSG', 'instagram', 'instagram2', 'instagramChannel',
+        const strFields = [
+            'botName', 'botOwner', 'prefix', 'commandMode', 'timezone',
+            'pairingNumber', 'AUTO_STATUS_REACT', 'AUTO_STATUS_REPLY', 'AUTO_STATUS_MSG',
+            'AUTORECORD', 'AUTOTYPE', 'AUTORECORDTYPE', 'instagram', 'instagram2', 'instagramChannel',
             'facebook', 'facebookPage', 'youtube', 'telegram', 'waGroups', 'portfolio',
-            'officialChannel', 'packname', 'author', 'newsletterName'];
+            'officialChannel', 'packname', 'author', 'newsletterName', 'newsletterJid',
+            'giphyApiKey', 'hfToken', 'supabaseUrl', 'supabaseKey', 'telegramToken',
+            'fbPageAccessToken', 'fbPageId', 'description'
+        ];
 
         const arrFields = ['ownerNumber', 'extraNumbers'];
 
@@ -348,8 +352,8 @@ app.post('/api/settings', (req, res) => {
             if (req.body[key] !== undefined) {
                 const val = req.body[key].replace(/'/g, "\\'");
                 src = src.replace(
-                    new RegExp(`(${key}\\s*:\\s*)(['"\`])([^'"\`]*)(['"\`])`),
-                    `$1'${val}'`
+                    new RegExp(`(^\\s*${key}\\s*:\\s*)(.+?)(,?\\s*$)`, 'm'),
+                    `$1'${val}'$3`
                 );
             }
         }
@@ -404,25 +408,64 @@ app.post('/api/pair', async (req, res) => {
             return res.status(400).json({ success: false, error: 'رقم غير صالح' });
         }
 
-        // Use first available connected socket
-        const sock = (global.clients || []).find(s => s?.requestPairingCode);
-        if (!sock) {
-            return res.status(503).json({ success: false, error: 'لا يوجد اتصال نشط بالبوت' });
+        const cleanNumber = number.replace(/[^0-9]/g, '');
+
+        // 1. Determine if this number is already active
+        const existingSock = (global.clients || []).find(c => {
+            const userNum = c?.user?.id?.split(':')[0] || (c?.sessionPath ? path.basename(c.sessionPath).replace('session_', '') : null);
+            return userNum === cleanNumber;
+        });
+
+        if (existingSock && existingSock.user) {
+            return res.status(400).json({ success: false, error: 'هذا الرقم متصل بالفعل' });
         }
 
-        // Throttle: 120s between attempts
+        // Determine session path
+        const isCore = cleanNumber === settings.pairingNumber;
+        const sessionPath = isCore ? sessionDir : path.join(sessionsRoot, `session_${cleanNumber}`);
+
+        // If a socket is already active for this path, we can reuse or stop it first
+        const activeClient = (global.clients || []).find(c => c.sessionPath === sessionPath);
+        if (activeClient) {
+            // Close active client if not registered to allow fresh pairing attempt
+            if (!activeClient.user) {
+                try {
+                    activeClient.end();
+                } catch (e) {}
+                global.clients = global.clients.filter(c => c.sessionPath !== sessionPath);
+            } else {
+                return res.status(400).json({ success: false, error: 'هذا الرقم لديه جلسة نشطة بالفعل' });
+            }
+        }
+
+        // Clear any previous code for this number
+        global.pendingPairingCodes = global.pendingPairingCodes || {};
+        delete global.pendingPairingCodes[cleanNumber];
+
+        // Reset last request time to bypass the 120s check
         global.lastPairingRequestTime = global.lastPairingRequestTime || {};
-        const last = global.lastPairingRequestTime[`api_${number}`] || 0;
-        if (Date.now() - last < 120_000) {
-            return res.status(429).json({ success: false, error: 'انتظر دقيقتين بين كل طلب' });
+        delete global.lastPairingRequestTime[sessionPath];
+
+        // Start the bot session in background
+        console.log(`[API/Pair] Starting session for ${cleanNumber} at ${sessionPath}`);
+        startBot(sessionPath, cleanNumber).catch(err => {
+            console.error(`[API/Pair] startBot error for ${cleanNumber}:`, err.message);
+        });
+
+        // Poll for the code to be generated (max 25 seconds)
+        let attempts = 0;
+        const maxAttempts = 50; // 50 * 500ms = 25 seconds
+        while (attempts < maxAttempts) {
+            await new Promise(r => setTimeout(r, 500));
+            if (global.pendingPairingCodes[cleanNumber]) {
+                const { code } = global.pendingPairingCodes[cleanNumber];
+                console.log(`[API/Pair] Code successfully retrieved for ${cleanNumber}: ${code}`);
+                return res.json({ success: true, code, number: cleanNumber });
+            }
+            attempts++;
         }
-        global.lastPairingRequestTime[`api_${number}`] = Date.now();
 
-        let code = await sock.requestPairingCode(number);
-        code = code?.match(/.{1,4}/g)?.join('-') || code;
-
-        console.log(chalk.bgGreen(`🔑 [API] Pairing code for ${number}: ${code}`));
-        res.json({ success: true, code, number });
+        return res.status(504).json({ success: false, error: 'انتهت مهلة طلب الكود. يرجى المحاولة مرة أخرى.' });
     } catch (e) {
         console.error('[API] Pair error:', e.message);
         res.status(500).json({ success: false, error: e.message });
@@ -648,6 +691,10 @@ async function startBot(sessionPath = sessionDir, phoneNumber = null) {
                     let code = await sock.requestPairingCode(pNum);
                     code = code?.match(/.{1,4}/g)?.join("-") || code;
 
+                    // Save code to global storage for API retrieval
+                    global.pendingPairingCodes = global.pendingPairingCodes || {};
+                    global.pendingPairingCodes[pNum] = { code, timestamp: Date.now() };
+
                     console.log(chalk.black(chalk.bgGreen(`🚀 Requesting Pairing Code for: ${pNum}...`)));
                     console.log(chalk.bold.green(`
 ===================================================
@@ -679,6 +726,28 @@ async function startBot(sessionPath = sessionDir, phoneNumber = null) {
 
         if (connection === 'open') {
             console.log(chalk.green(`\n🌿 [${sessionPath}] Connected => ${sock.user?.id}`));
+
+            // Automatically add new connected session to extraNumbers in settings.js if not already present
+            try {
+                const connectedNumber = sock.user?.id?.split(':')[0] || sock.user?.id?.split('@')[0];
+                if (connectedNumber && connectedNumber !== settings.pairingNumber) {
+                    if (!settings.extraNumbers.includes(connectedNumber)) {
+                        console.log(chalk.green(`[${sessionPath}] Auto-adding new connected number ${connectedNumber} to extraNumbers`));
+                        settings.extraNumbers.push(connectedNumber);
+                        const settingsPath = path.join(__dirname, 'settings.js');
+                        let src = fs.readFileSync(settingsPath, 'utf-8');
+                        const arrStr = JSON.stringify(settings.extraNumbers);
+                        src = src.replace(
+                            new RegExp(`(extraNumbers\\s*:\\s*)\\[[^\\]]*\\]`),
+                            `$1${arrStr}`
+                        );
+                        fs.writeFileSync(settingsPath, src, 'utf-8');
+                        delete require.cache[require.resolve('./settings')];
+                    }
+                }
+            } catch (e) {
+                console.error('Failed to auto-save extraNumbers:', e.message);
+            }
 
             // Send Session Code to Owner upon connection (Limit to once per session path per run)
             const sessionEnvVarName = sessionPath === sessionDir ? 'SESSION_ID' : `SESSION_${path.basename(sessionPath)}`;
@@ -791,6 +860,24 @@ async function startBot(sessionPath = sessionDir, phoneNumber = null) {
             if (statusCode === DisconnectReason.loggedOut || statusCode === 401) {
                 if (fs.existsSync(sessionPath)) fs.rmSync(sessionPath, { recursive: true, force: true });
                 console.log(chalk.red(`⚠️ Session ${sessionPath} logged out. Deleted credentials.`));
+
+                // Remove from extraNumbers in settings.js if logged out
+                try {
+                    const loggedOutNumber = path.basename(sessionPath).replace('session_', '');
+                    if (settings.extraNumbers.includes(loggedOutNumber)) {
+                        settings.extraNumbers = settings.extraNumbers.filter(n => n !== loggedOutNumber);
+                        const settingsPath = path.join(__dirname, 'settings.js');
+                        let src = fs.readFileSync(settingsPath, 'utf-8');
+                        const arrStr = JSON.stringify(settings.extraNumbers);
+                        src = src.replace(
+                            new RegExp(`(extraNumbers\\s*:\\s*)\\[[^\\]]*\\]`),
+                            `$1${arrStr}`
+                        );
+                        fs.writeFileSync(settingsPath, src, 'utf-8');
+                        delete require.cache[require.resolve('./settings')];
+                        console.log(chalk.red(`⚠️ Removed logged out number ${loggedOutNumber} from settings.extraNumbers`));
+                    }
+                } catch (e) { }
             } else if (statusCode === 440 || statusCode === 428) {
                 // ⚠️ 428 = connection replaced / server-side drop, 440 = conflict
                 // These are TRANSIENT errors on Koyeb — NEVER delete credentials for them.
