@@ -497,6 +497,56 @@ app.post('/api/pair', async (req, res) => {
     }
 });
 
+// POST /api/pair-cancel — cancel a pending pairing process
+app.post('/api/pair-cancel', async (req, res) => {
+    try {
+        const { number } = req.body;
+        if (!number) {
+            return res.status(400).json({ success: false, error: 'رقم غير صالح' });
+        }
+
+        const cleanNumber = number.replace(/[^0-9]/g, '');
+        const sessionPath = cleanNumber === settings.pairingNumber ? sessionDir : path.join(sessionsRoot, `session_${cleanNumber}`);
+
+        // Find the active client socket for this session path
+        const activeClient = (global.clients || []).find(c => c.sessionPath === sessionPath);
+        if (activeClient) {
+            try {
+                activeClient.end();
+            } catch (e) {}
+            global.clients = global.clients.filter(c => c.sessionPath !== sessionPath);
+        }
+
+        // Delete the session folder if it has no creds or is unregistered
+        const credsFile = path.join(sessionPath, 'creds.json');
+        const credsExist = fs.existsSync(credsFile);
+        
+        let isRegistered = false;
+        if (credsExist) {
+            try {
+                const creds = JSON.parse(fs.readFileSync(credsFile, 'utf-8'));
+                isRegistered = !!creds.registered;
+            } catch (e) {}
+        }
+
+        // If it was not successfully registered/paired, clean it up!
+        if (!isRegistered && fs.existsSync(sessionPath)) {
+            fs.rmSync(sessionPath, { recursive: true, force: true });
+            console.log(`[API/Pair-Cancel] Cleaned up unregistered session: ${sessionPath}`);
+        }
+
+        // Remove from pending pairing codes
+        if (global.pendingPairingCodes) {
+            delete global.pendingPairingCodes[cleanNumber];
+        }
+
+        res.json({ success: true, message: 'تم إلغاء طلب الإقران وتنظيف الجلسة بنجاح' });
+    } catch (e) {
+        console.error('[API] Cancel error:', e.message);
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
 // POST /api/restart — graceful process exit (host auto-restarts)
 app.post('/api/restart', (req, res) => {
     res.json({ success: true, message: 'جاري إعادة التشغيل...' });

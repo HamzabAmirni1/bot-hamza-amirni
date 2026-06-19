@@ -912,6 +912,11 @@
             <div class="code-label">🔑 كود الإقران الخاص بك</div>
             <div class="code-value" id="code-value">----</div>
             <div class="code-timer" id="code-timer">أدخل الكود خلال دقيقتين</div>
+            <div style="margin-top:16px;">
+              <button class="btn btn-danger" id="cancel-pairing-btn" onclick="cancelPairingRequest()" style="width:100%;justify-content:center;">
+                <i class="fas fa-times-circle"></i> إلغاء الطلب
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -1249,6 +1254,8 @@
   // =================== STATE ===================
   const API = ''; // Same origin
   let settingsData = {};
+  let countdownInterval;
+  let currentPairingNumber = '';
 
   // =================== INIT ===================
   window.onload = async () => {
@@ -1373,6 +1380,7 @@
     btn.innerHTML = '<span class="spinner"></span> جاري الطلب...';
     display.classList.remove('visible');
     showAlert(alert, 'info', `⏳ جاري طلب كود الإقران للرقم ${num}...`);
+    currentPairingNumber = num;
 
     try {
       const res = await fetch('/api/pair', {
@@ -1390,11 +1398,12 @@
         // Countdown
         let secs = 120;
         const timer = document.getElementById('code-timer');
-        const countdown = setInterval(() => {
+        clearInterval(countdownInterval);
+        countdownInterval = setInterval(() => {
           secs--;
           timer.textContent = `⏱️ ينتهي الكود خلال ${secs} ثانية`;
           if (secs <= 0) {
-            clearInterval(countdown);
+            clearInterval(countdownInterval);
             timer.textContent = '❌ انتهت صلاحية الكود - أعد الطلب';
             display.classList.remove('visible');
           }
@@ -1407,6 +1416,38 @@
     } finally {
       btn.disabled = false;
       btn.innerHTML = '<i class="fas fa-key"></i> طلب كود الإقران';
+    }
+  }
+
+  async function cancelPairingRequest() {
+    if (!currentPairingNumber) return;
+    const alert = document.getElementById('alert-pairing');
+    const btn = document.getElementById('cancel-pairing-btn');
+    const display = document.getElementById('pairing-code-display');
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> جاري الإلغاء...';
+
+    try {
+      const res = await fetch('/api/pair-cancel', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ number: currentPairingNumber })
+      });
+      const data = await res.json();
+      if (data.success) {
+        clearInterval(countdownInterval);
+        display.classList.remove('visible');
+        showAlert(alert, 'info', 'ℹ️ تم إلغاء طلب الإقران وتنظيف الجلسة بنجاح.');
+        currentPairingNumber = '';
+      } else {
+        showToast(data.error || 'فشل إلغاء الطلب', 'error');
+      }
+    } catch (e) {
+      showToast('خطأ في الاتصال', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-times-circle"></i> إلغاء الطلب';
     }
   }
 
