@@ -31,8 +31,12 @@ async function apk2Command(sock, chatId, msg, args, commands, userLang) {
                 return imageMessage;
             } catch (e) {
                 const fallback = 'https://ui-avatars.com/api/?name=APK&background=random&size=512';
-                const { imageMessage } = await generateWAMessageContent({ image: { url: fallback } }, { upload: sock.waUploadToServer });
-                return imageMessage;
+                try {
+                    const { imageMessage } = await generateWAMessageContent({ image: { url: fallback } }, { upload: sock.waUploadToServer });
+                    return imageMessage;
+                } catch (err) {
+                    return null;
+                }
             }
         }
 
@@ -46,15 +50,19 @@ async function apk2Command(sock, chatId, msg, args, commands, userLang) {
             const pkg = app.package || app.id || 'N/A';
             const size = app.sizeMB || (app.size ? (app.size / (1024 * 1024)).toFixed(2) : 'N/A');
 
+            const headerObj = {
+                title: app.name,
+                hasMediaAttachment: !!imageMessage
+            };
+            if (imageMessage) {
+                headerObj.imageMessage = imageMessage;
+            }
+
             cards.push({
                 body: proto.Message.InteractiveMessage.Body.fromObject({
                     text: t('apk.item_desc', { name: app.name, size, package: pkg }, userLang)
                 }),
-                header: proto.Message.InteractiveMessage.Header.fromObject({
-                    title: app.name,
-                    hasMediaAttachment: true,
-                    imageMessage
-                }),
+                header: proto.Message.InteractiveMessage.Header.fromObject(headerObj),
                 nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
                     buttons: [{ "name": "quick_reply", "buttonParamsJson": JSON.stringify({ display_text: L_DOWNLOAD, id: `.apk ${pkg}` }) }]
                 })

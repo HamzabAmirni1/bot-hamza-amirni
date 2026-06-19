@@ -97,13 +97,18 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
             }
             bodyText += rows.join('\n');
 
+            const imageMessage = await createHeaderImage(imageUrl);
+            const headerObj = {
+                title: `قائمة ${title}`,
+                hasMediaAttachment: !!imageMessage
+            };
+            if (imageMessage) {
+                headerObj.imageMessage = imageMessage;
+            }
+
             cards.push({
                 body: proto.Message.InteractiveMessage.Body.fromObject({ text: bodyText }),
-                header: proto.Message.InteractiveMessage.Header.fromObject({
-                    title: `قائمة ${title}`,
-                    hasMediaAttachment: true,
-                    imageMessage: await createHeaderImage(imageUrl)
-                }),
+                header: proto.Message.InteractiveMessage.Header.fromObject(headerObj),
                 nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
                     buttons: [
                         {
