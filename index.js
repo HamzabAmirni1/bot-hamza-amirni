@@ -370,6 +370,27 @@ app.post('/api/settings', (req, res) => {
 
         fs.writeFileSync(settingsPath, src, 'utf-8');
 
+        // Update the cached settings object in memory so all files importing it get the new settings instantly!
+        try {
+            const currentSettings = require('./settings');
+            for (const key of strFields) {
+                if (req.body[key] !== undefined) {
+                    currentSettings[key] = req.body[key];
+                }
+            }
+            for (const key of arrFields) {
+                if (req.body[key] !== undefined && Array.isArray(req.body[key])) {
+                    currentSettings[key] = req.body[key];
+                }
+            }
+            // Keep global variables in sync as well
+            if (req.body.pairingNumber !== undefined) {
+                global.phoneNumber = req.body.pairingNumber;
+            }
+        } catch (e) {
+            console.error('Failed to update in-memory settings:', e.message);
+        }
+
         // Invalidate require cache so next read gets fresh data
         delete require.cache[require.resolve('./settings')];
 
