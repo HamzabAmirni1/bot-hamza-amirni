@@ -1,4 +1,4 @@
-'onst settings = {
+const settings = {
   packname: 'حمزة اعمرني',
   author: 'حمزة اعمرني',
   botName: "حمزة اعمرني",
