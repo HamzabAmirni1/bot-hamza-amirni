@@ -264,8 +264,176 @@ const useMobile = process.argv.includes("--mobile");
 const sessionDir = './session';
 // const msgRetryCounterCache = new NodeCache(); // Moved to per-session
 
-// Setup Express for Keep-Alive
-app.get('/', (req, res) => res.send('Bot is running successfully! 🚀'));
+// =================== DASHBOARD & API ROUTES ===================
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Serve dashboard
+app.get('/', (req, res) => {
+    const dashPath = path.join(__dirname, 'public/index.html');
+    if (fs.existsSync(dashPath)) {
+        res.sendFile(dashPath);
+    } else {
+        res.send('Bot is running successfully! 🚀');
+    }
+});
+
+// GET /api/status — bot status, sessions, settings snapshot
+app.get('/api/status', (req, res) => {
+    try {
+        const sessions = (global.clients || []).map(sock => {
+            const user = sock?.user;
+            return {
+                jid: user?.id || null,
+                number: user?.id?.split(':')[0] || null,
+                connected: !!user,
+                path: sock?._sessionPath || null
+            };
+        });
+
+        res.json({
+            ok: true,
+            sessions,
+            commandCount: global._commandCount || 566,
+            apkLimit: (() => {
+                try {
+                    const lf = path.join(__dirname, 'lib/apkLimiter.js');
+                    const src = fs.readFileSync(lf, 'utf-8');
+                    const m = src.match(/DAILY_LIMIT\s*=\s*(\d+)/);
+                    return m ? parseInt(m[1]) : 5;
+                } catch { return 5; }
+            })(),
+            settings: {
+                botName: settings.botName,
+                botOwner: settings.botOwner,
+                prefix: settings.prefix,
+                commandMode: settings.commandMode,
+                timezone: settings.timezone,
+                pairingNumber: settings.pairingNumber,
+                version: settings.version
+            }
+        });
+    } catch (e) {
+        res.status(500).json({ ok: false, error: e.message });
+    }
+});
+
+// GET /api/settings — full settings
+app.get('/api/settings', (req, res) => {
+    try {
+        const s = require('./settings');
+        const apkLimiterSrc = fs.readFileSync(path.join(__dirname, 'lib/apkLimiter.js'), 'utf-8');
+        const apkMatch = apkLimiterSrc.match(/DAILY_LIMIT\s*=\s*(\d+)/);
+        res.json({ ...s, apkLimit: apkMatch ? parseInt(apkMatch[1]) : 5 });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// POST /api/settings — write settings.js
+app.post('/api/settings', (req, res) => {
+    try {
+        const settingsPath = path.join(__dirname, 'settings.js');
+        let src = fs.readFileSync(settingsPath, 'utf-8');
+
+        const strFields = ['botName', 'botOwner', 'prefix', 'commandMode', 'timezone',
+            'pairingNumber', 'AUTO_STATUS_REACT', 'AUTO_STATUS_REPLY', 'AUTORECORD',
+            'AUTOTYPE', 'AUTO_STATUS_MSG', 'instagram', 'instagram2', 'instagramChannel',
+            'facebook', 'facebookPage', 'youtube', 'telegram', 'waGroups', 'portfolio',
+            'officialChannel', 'packname', 'author', 'newsletterName'];
+
+        const arrFields = ['ownerNumber', 'extraNumbers'];
+
+        for (const key of strFields) {
+            if (req.body[key] !== undefined) {
+                const val = req.body[key].replace(/'/g, "\\'");
+                src = src.replace(
+                    new RegExp(`(${key}\\s*:\\s*)(['"\`])([^'"\`]*)(['"\`])`),
+                    `$1'${val}'`
+                );
+            }
+        }
+
+        for (const key of arrFields) {
+            if (req.body[key] !== undefined && Array.isArray(req.body[key])) {
+                const arrStr = JSON.stringify(req.body[key]);
+                src = src.replace(
+                    new RegExp(`(${key}\\s*:\\s*)\\[[^\\]]*\\]`),
+                    `$1${arrStr}`
+                );
+            }
+        }
+
+        fs.writeFileSync(settingsPath, src, 'utf-8');
+
+        // Invalidate require cache so next read gets fresh data
+        delete require.cache[require.resolve('./settings')];
+
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
+// POST /api/apk-limit — update daily APK limit
+app.post('/api/apk-limit', (req, res) => {
+    try {
+        const limit = parseInt(req.body.limit);
+        if (isNaN(limit) || limit < 1 || limit > 100) {
+            return res.status(400).json({ success: false, error: 'قيمة غير صالحة' });
+        }
+
+        const limiterPath = path.join(__dirname, 'lib/apkLimiter.js');
+        let src = fs.readFileSync(limiterPath, 'utf-8');
+        src = src.replace(/const DAILY_LIMIT\s*=\s*\d+;/, `const DAILY_LIMIT = ${limit};`);
+        fs.writeFileSync(limiterPath, src, 'utf-8');
+
+        delete require.cache[require.resolve('./lib/apkLimiter')];
+
+        res.json({ success: true, limit });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
+// POST /api/pair — request a WhatsApp pairing code for a number
+app.post('/api/pair', async (req, res) => {
+    try {
+        const { number } = req.body;
+        if (!number || !/^\d{10,15}$/.test(number)) {
+            return res.status(400).json({ success: false, error: 'رقم غير صالح' });
+        }
+
+        // Use first available connected socket
+        const sock = (global.clients || []).find(s => s?.requestPairingCode);
+        if (!sock) {
+            return res.status(503).json({ success: false, error: 'لا يوجد اتصال نشط بالبوت' });
+        }
+
+        // Throttle: 120s between attempts
+        global.lastPairingRequestTime = global.lastPairingRequestTime || {};
+        const last = global.lastPairingRequestTime[`api_${number}`] || 0;
+        if (Date.now() - last < 120_000) {
+            return res.status(429).json({ success: false, error: 'انتظر دقيقتين بين كل طلب' });
+        }
+        global.lastPairingRequestTime[`api_${number}`] = Date.now();
+
+        let code = await sock.requestPairingCode(number);
+        code = code?.match(/.{1,4}/g)?.join('-') || code;
+
+        console.log(chalk.bgGreen(`🔑 [API] Pairing code for ${number}: ${code}`));
+        res.json({ success: true, code, number });
+    } catch (e) {
+        console.error('[API] Pair error:', e.message);
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
+// POST /api/restart — graceful process exit (host auto-restarts)
+app.post('/api/restart', (req, res) => {
+    res.json({ success: true, message: 'جاري إعادة التشغيل...' });
+    setTimeout(() => process.exit(0), 500);
+});
 app.listen(port, () => {
     console.log(`Port ${port} is open`);
 
