@@ -1,5 +1,6 @@
 const settings = require('./settings');
 global.settings = settings;
+const { initSync } = require('./lib/databaseSync');
 const Baileys = require('@whiskeysockets/baileys');
 let makeInMemoryStoreFunc = Baileys.makeInMemoryStore || (Baileys.default && Baileys.default.makeInMemoryStore);
 
@@ -1291,6 +1292,9 @@ async function startBot(sessionPath = sessionDir, phoneNumber = null) {
 (async () => {
     // Restore session credentials from Environment Variables (SESSION_ID, SESSION_2, etc.)
     await syncSession();
+
+    // Restore and synchronize database files
+    await initSync();
 
     console.log(chalk.cyan(`\n🚀 Starting bot multi-session manager...`));
 
