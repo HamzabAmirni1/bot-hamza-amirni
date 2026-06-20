@@ -28,6 +28,30 @@ async function tryRequest(getter, attempts = 3) {
     throw lastError;
 }
 
+// ─── PRIMARY: @distube/ytdl-core (local, no external API needed) ──────────────
+async function getDistubeVideo(url) {
+    const ytdl = require('@distube/ytdl-core');
+    const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
+    const info = await ytdl.getInfo(url, { requestOptions: { headers: { 'User-Agent': UA } } });
+    const title = info.videoDetails.title;
+    // prefer progressive mp4 (video+audio in one stream)
+    const formats = info.formats.filter(f => f.hasVideo && f.hasAudio && f.container === 'mp4');
+    let format;
+    if (formats.length > 0) {
+        formats.sort((a, b) => (parseInt(b.qualityLabel) || 0) - (parseInt(a.qualityLabel) || 0));
+        format = formats[0];
+    } else {
+        format = ytdl.chooseFormat(info.formats, { quality: 'highest', filter: 'videoandaudio' });
+    }
+    if (!format || !format.url) throw new Error('Distube: no suitable format found');
+    return {
+        download: format.url,
+        title,
+        thumb: info.videoDetails.thumbnails?.slice(-1)[0]?.url,
+        referer: 'https://www.youtube.com/'
+    };
+}
+
 // --- NEW SCRAMPERS ---
 
 async function getSiputzxVideo(url) {
@@ -320,30 +344,37 @@ async function videoCommand(sock, chatId, msg, args, commands, userLang, match) 
 
         let videoData = null;
 
-        // 1. Try the optimized unified helper first (very fast, under 2s)
+        // 1. Try distube/ytdl-core directly first (local library, most reliable)
         try {
-            const { downloadYouTube } = require('../../lib/ytdl');
-            const resYtdl = await downloadYouTube(videoUrl, 'mp4');
-            if (resYtdl && resYtdl.downloadUrl) {
-                videoData = {
-                    download: resYtdl.downloadUrl,
-                    title: resYtdl.title || videoTitle
-                };
-            }
+            videoData = await getDistubeVideo(videoUrl);
+            if (videoData) console.log('[VIDEO] ✅ Success via Distube (local)');
         } catch (e) {
-            console.log(`[VIDEO] downloadYouTube helper failed: ${e.message}`);
+            console.log(`[VIDEO] Distube failed: ${e.message}`);
         }
 
-        // 2. Fallback to custom methods sequentially if the unified helper failed
+        // 2. Try the unified ytdl helper (also tries distube + external APIs)
+        if (!videoData) {
+            try {
+                const { downloadYouTube } = require('../../lib/ytdl');
+                const resYtdl = await downloadYouTube(videoUrl, 'mp4');
+                if (resYtdl && resYtdl.downloadUrl) {
+                    videoData = {
+                        download: resYtdl.downloadUrl,
+                        title: resYtdl.title || videoTitle,
+                        referer: resYtdl.referer
+                    };
+                }
+            } catch (e) {
+                console.log(`[VIDEO] downloadYouTube helper failed: ${e.message}`);
+            }
+        }
+
+        // 3. Fallback to remaining custom methods
         if (!videoData) {
             const methods = [
-                () => getYtconvertVideo(videoUrl),
-                () => getVredenVideo(videoUrl),
-                () => getNekolabsVideo(videoUrl),
-                () => getCobaltVideo(videoUrl),
-                () => getY2MateVideo(videoUrl),
                 () => getSavetubeVideo(videoUrl),
                 () => getSavenowVideo(videoUrl),
+                () => getYtconvertVideo(videoUrl),
                 () => getSiputzxVideo(videoUrl),
                 () => getYupraVideoByUrl(videoUrl),
                 () => getOkatsuVideoByUrl(videoUrl)
@@ -362,19 +393,24 @@ async function videoCommand(sock, chatId, msg, args, commands, userLang, match) 
         if (!videoData) throw new Error("All download methods failed.");
 
         const finalUrl = videoData.download || videoData.downloadUrl || videoData.url;
+        const referer = videoData.referer || 'https://www.youtube.com/';
 
-        // Download video to buffer using native fetch to prevent Baileys streaming hangs
+        // Download video to buffer (pass Referer for YouTube CDN URLs from distube)
         let videoBuffer;
         try {
-            const resp = await fetch(finalUrl, {
+            const videoResp = await axios.get(finalUrl, {
+                responseType: 'arraybuffer',
+                timeout: 180000,
+                maxContentLength: Infinity,
+                maxBodyLength: Infinity,
                 headers: {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+                    'Referer': referer,
+                    'Accept': '*/*',
+                    'Accept-Encoding': 'identity'
                 }
             });
-            if (resp.ok) {
-                const arrayBuf = await resp.arrayBuffer();
-                videoBuffer = Buffer.from(arrayBuf);
-            }
+            videoBuffer = Buffer.from(videoResp.data);
         } catch (e) {
             console.log(`[VIDEO] Failed to download video buffer: ${e.message}. Falling back to URL streaming.`);
         }
