@@ -278,6 +278,45 @@ app.get('/', (req, res) => {
     }
 });
 
+// Authentication Middleware for API
+const AUTH_TOKEN = 'hamza-auth-token-2005';
+
+app.use('/api', (req, res, next) => {
+    if (req.path === '/login') {
+        return next();
+    }
+    
+    // Check Authorization header or Cookie
+    const authHeader = req.headers['authorization'];
+    let token = '';
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.substring(7);
+    } else if (req.headers.cookie) {
+        const cookies = req.headers.cookie.split(';').reduce((acc, c) => {
+            const [k, v] = c.trim().split('=');
+            if (k) acc[k] = v;
+            return acc;
+        }, {});
+        token = cookies['auth_token'];
+    }
+
+    if (token === AUTH_TOKEN) {
+        return next();
+    }
+
+    return res.status(401).json({ ok: false, error: 'Unauthorized' });
+});
+
+// Login API
+app.post('/api/login', (req, res) => {
+    const { username, password } = req.body;
+    if (username === 'hamza' && password === '2005') {
+        res.json({ success: true, token: AUTH_TOKEN });
+    } else {
+        res.status(401).json({ success: false, error: 'اسم المستخدم أو كلمة المرور غير صحيحة' });
+    }
+});
+
 // GET /api/status — bot status, sessions, settings snapshot
 app.get('/api/status', (req, res) => {
     try {

@@ -727,6 +727,99 @@
       0% { width: 0%; }
       100% { width: 100%; }
     }
+
+    /* Login overlay */
+    #login-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9998;
+      flex-direction: column;
+      gap: 20px;
+      transition: opacity 0.5s;
+      padding: 20px;
+    }
+    #login-overlay.hide { opacity: 0; pointer-events: none; }
+    
+    .login-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 400px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5), var(--glow);
+      text-align: center;
+      position: relative;
+    }
+    
+    .login-header {
+      margin-bottom: 24px;
+    }
+    
+    .login-logo {
+      width: 70px;
+      height: 70px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      font-size: 32px;
+      box-shadow: var(--glow);
+    }
+    
+    .login-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    
+    .login-subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+    
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    
+    .input-group {
+      text-align: right;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    
+    .input-group label {
+      font-size: 13px;
+      color: var(--text);
+      font-weight: 600;
+    }
+    
+    .input-group input {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      color: var(--text);
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.3s;
+      width: 100%;
+      text-align: right;
+    }
+    
+    .input-group input:focus {
+      border-color: var(--accent);
+    }
   </style>
 </head>
 <body>
@@ -736,6 +829,34 @@
   <div class="loading-logo">🤖</div>
   <div class="loading-text">جاري تحميل لوحة التحكم...</div>
   <div class="loading-bar"><div class="loading-bar-inner"></div></div>
+</div>
+
+<!-- Login screen -->
+<div id="login-overlay" class="hide">
+  <div class="login-card">
+    <div class="login-header">
+      <div class="login-logo">🤖</div>
+      <h2 class="login-title">تسجيل الدخول للوحة التحكم</h2>
+      <p class="login-subtitle">يرجى إدخال اسم المستخدم وكلمة المرور للمتابعة</p>
+    </div>
+    <form class="login-form" id="login-form" onsubmit="handleLogin(event)">
+      <div id="login-alert" class="alert alert-error" style="display:none; margin-bottom:12px;"></div>
+      
+      <div class="input-group">
+        <label for="username"><i class="fas fa-user"></i> اسم المستخدم</label>
+        <input type="text" id="username" required placeholder="مثال: hamza" autocomplete="username">
+      </div>
+      
+      <div class="input-group">
+        <label for="password"><i class="fas fa-lock"></i> كلمة المرور</label>
+        <input type="password" id="password" required placeholder="••••••••" autocomplete="current-password">
+      </div>
+      
+      <button type="submit" class="btn btn-primary" id="login-btn" style="width:100%; padding:14px; font-size:15px; font-weight:700; margin-top:8px;">
+        <i class="fas fa-sign-in-alt"></i> تسجيل الدخول
+      </button>
+    </form>
+  </div>
 </div>
 
 <!-- Sidebar -->
@@ -785,7 +906,10 @@
     </a>
   </nav>
 
-  <div style="margin-top:auto;padding:12px;">
+  <div style="margin-top:auto;padding:12px;display:flex;flex-direction:column;gap:8px;">
+    <button class="btn btn-danger" onclick="handleLogout()" style="width:100%;padding:10px;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;border-radius:10px;">
+      <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
+    </button>
     <div style="font-size:11px;color:var(--text-muted);text-align:center;padding:10px;">
       <i class="fas fa-code"></i> تم البناء بواسطة حمزة اعمرني<br/>
       <span id="current-time" style="color:var(--accent);"></span>
@@ -1392,6 +1516,88 @@
 </main>
 
 <script>
+  // =================== AUTHENTICATION INTERCEPTOR ===================
+  const originalFetch = window.fetch;
+  window.fetch = async function (...args) {
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+      if (!args[1]) args[1] = {};
+      if (!args[1].headers) args[1].headers = {};
+      if (args[1].headers instanceof Headers) {
+        args[1].headers.set('Authorization', 'Bearer ' + token);
+      } else if (Array.isArray(args[1].headers)) {
+        args[1].headers.push(['Authorization', 'Bearer ' + token]);
+      } else {
+        args[1].headers['Authorization'] = 'Bearer ' + token;
+      }
+    }
+    
+    const response = await originalFetch(...args);
+    if (response.status === 401 && !args[0].includes('/api/login')) {
+      localStorage.removeItem('auth_token');
+      document.cookie = "auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+      showLoginOverlay();
+    }
+    return response;
+  };
+
+  function showLoginOverlay() {
+    document.getElementById('login-overlay').classList.remove('hide');
+  }
+
+  function hideLoginOverlay() {
+    document.getElementById('login-overlay').classList.add('hide');
+  }
+
+  async function handleLogin(e) {
+    e.preventDefault();
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value.trim();
+    const alertEl = document.getElementById('login-alert');
+    const btn = document.getElementById('login-btn');
+    
+    alertEl.style.display = 'none';
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> جاري التحقق...';
+    
+    try {
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      const data = await res.json();
+      if (res.ok && data.success && data.token) {
+        localStorage.setItem('auth_token', data.token);
+        document.cookie = "auth_token=" + data.token + "; path=/; max-age=31536000; SameSite=Strict";
+        hideLoginOverlay();
+        await loadDashboard();
+        await loadSettings();
+        showToast('تم تسجيل الدخول بنجاح', 'success');
+      } else {
+        alertEl.style.display = 'block';
+        alertEl.className = 'alert alert-error show';
+        alertEl.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${data.error || 'اسم المستخدم أو كلمة المرور غير صحيحة'}`;
+      }
+    } catch(err) {
+      alertEl.style.display = 'block';
+      alertEl.className = 'alert alert-error show';
+      alertEl.innerHTML = `<i class="fas fa-exclamation-circle"></i> خطأ في الاتصال بالخادم`;
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> تسجيل الدخول';
+    }
+  }
+
+  function handleLogout() {
+    if (confirm('هل أنت متأكد من تسجيل الخروج؟')) {
+      localStorage.removeItem('auth_token');
+      document.cookie = "auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+      showLoginOverlay();
+      showToast('تم تسجيل الخروج بنجاح', 'info');
+    }
+  }
+
   // =================== STATE ===================
   const API = ''; // Same origin
   let settingsData = {};
@@ -1402,6 +1608,15 @@
   window.onload = async () => {
     updateClock();
     setInterval(updateClock, 1000);
+    
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      showLoginOverlay();
+      setTimeout(() => {
+        document.getElementById('loading-overlay').classList.add('hide');
+      }, 500);
+      return;
+    }
     
     await loadDashboard();
     await loadSettings();
