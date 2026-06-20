@@ -948,9 +948,6 @@ async function startBot(sessionPath = sessionDir, phoneNumber = null) {
         }
     }
 
-    // Add to global clients
-    global.clients.push(sock);
-
     // Backward compatibility: Set global.sock to the FIRST connected bot
     if (!global.sock) global.sock = sock;
 
