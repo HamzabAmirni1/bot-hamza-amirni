@@ -552,7 +552,126 @@ app.post('/api/restart', (req, res) => {
     res.json({ success: true, message: 'جاري إعادة التشغيل...' });
     setTimeout(() => process.exit(0), 500);
 });
+
+// GET /api/users — list all registered users and banned list
+app.get('/api/users', (req, res) => {
+    try {
+        const usersPath = path.join(__dirname, 'data/users.json');
+        const bannedPath = path.join(__dirname, 'data/banned.json');
+        let users = [], banned = [];
+        try { users = JSON.parse(fs.readFileSync(usersPath, 'utf-8')); } catch(e) { users = []; }
+        try { banned = JSON.parse(fs.readFileSync(bannedPath, 'utf-8')); } catch(e) { banned = []; }
+        const activeCount = global._activeUsers ? global._activeUsers.size : 0;
+        res.json({ ok: true, users, banned, activeCount, total: users.length });
+    } catch(e) {
+        res.status(500).json({ ok: false, error: e.message });
+    }
+});
+
+// POST /api/ban — ban a user
+app.post('/api/ban', (req, res) => {
+    try {
+        const { number } = req.body;
+        if (!number) return res.status(400).json({ ok: false, error: 'رقم مطلوب' });
+        const bannedPath = path.join(__dirname, 'data/banned.json');
+        let banned = [];
+        try { banned = JSON.parse(fs.readFileSync(bannedPath, 'utf-8')); } catch(e) { banned = []; }
+        const jid = number.includes('@') ? number : `${number}@s.whatsapp.net`;
+        if (!banned.includes(jid)) banned.push(jid);
+        fs.writeFileSync(bannedPath, JSON.stringify(banned, null, 2));
+        if (global._bannedUsers) global._bannedUsers = new Set(banned);
+        res.json({ ok: true, message: 'تم حظر المستخدم بنجاح' });
+    } catch(e) {
+        res.status(500).json({ ok: false, error: e.message });
+    }
+});
+
+// POST /api/unban — unban a user
+app.post('/api/unban', (req, res) => {
+    try {
+        const { number } = req.body;
+        if (!number) return res.status(400).json({ ok: false, error: 'رقم مطلوب' });
+        const bannedPath = path.join(__dirname, 'data/banned.json');
+        let banned = [];
+        try { banned = JSON.parse(fs.readFileSync(bannedPath, 'utf-8')); } catch(e) { banned = []; }
+        const jid = number.includes('@') ? number : `${number}@s.whatsapp.net`;
+        banned = banned.filter(b => b !== jid);
+        fs.writeFileSync(bannedPath, JSON.stringify(banned, null, 2));
+        if (global._bannedUsers) global._bannedUsers = new Set(banned);
+        res.json({ ok: true, message: 'تم رفع الحظر بنجاح' });
+    } catch(e) {
+        res.status(500).json({ ok: false, error: e.message });
+    }
+});
+
+// GET /api/cmd-stats — command usage statistics
+app.get('/api/cmd-stats', (req, res) => {
+    try {
+        const { ALL_COMMANDS } = require('./lib/commandMap');
+        const stats = global._cmdStats || {};
+        // Unique command files (deduplicated)
+        const cmdFiles = [...new Set(Object.values(ALL_COMMANDS))];
+        const unusedFiles = cmdFiles.filter(f => {
+            const cmdsForFile = Object.entries(ALL_COMMANDS).filter(([,v]) => v === f).map(([k]) => k);
+            return !cmdsForFile.some(c => stats[c]);
+        });
+        const topCommands = Object.entries(stats)
+            .sort((a,b) => b[1]-a[1])
+            .slice(0, 20)
+            .map(([cmd, count]) => ({ cmd, count }));
+        res.json({
+            ok: true,
+            total: cmdFiles.length,
+            usedCount: cmdFiles.length - unusedFiles.length,
+            unusedCount: unusedFiles.length,
+            unusedFiles,
+            topCommands,
+            stats
+        });
+    } catch(e) {
+        res.status(500).json({ ok: false, error: e.message });
+    }
+});
+
+// GET /api/activity — recent bot activity log (last 50)
+app.get('/api/activity', (req, res) => {
+    try {
+        const log = (global._activityLog || []).slice(0, 50);
+        res.json({ ok: true, log });
+    } catch(e) {
+        res.status(500).json({ ok: false, error: e.message });
+    }
+});
+
+// POST /api/broadcast — send message to all registered users
+app.post('/api/broadcast', async (req, res) => {
+    try {
+        const { message } = req.body;
+        if (!message) return res.status(400).json({ ok: false, error: 'رسالة مطلوبة' });
+        const usersPath = path.join(__dirname, 'data/users.json');
+        let users = [];
+        try { users = JSON.parse(fs.readFileSync(usersPath, 'utf-8')); } catch(e) {}
+        const clients = global.clients || [];
+        if (!clients.length) return res.status(503).json({ ok: false, error: 'لا توجد جلسات متصلة' });
+        const sock = clients.find(c => c?.user) || clients[0];
+        let sent = 0, failed = 0;
+        for (const user of users) {
+            try {
+                const jid = user.id || user.jid;
+                if (!jid || jid === 'test@s.whatsapp.net') continue;
+                await sock.sendMessage(jid, { text: message });
+                sent++;
+                await new Promise(r => setTimeout(r, 500));
+            } catch(e) { failed++; }
+        }
+        res.json({ ok: true, sent, failed, total: users.length });
+    } catch(e) {
+        res.status(500).json({ ok: false, error: e.message });
+    }
+});
+
 app.listen(port, () => {
+
     console.log(`Port ${port} is open`);
 
     // Keep-Alive Self-Ping (to prevent sleeping on Koyeb Eco)
