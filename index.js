@@ -130,6 +130,31 @@ function setupSilencer() {
 
 setupSilencer();
 
+// ====== GLOBAL SYSLOG INTERCEPTOR ======
+// Captures all console output into a ring buffer for the dashboard
+(function patchConsole() {
+    const ICONS = { log: '📋', error: '🔴', warn: '🟡', info: '🔵' };
+    const _orig = {
+        log: console.log.bind(console),
+        error: console.error.bind(console),
+        warn: console.warn.bind(console),
+        info: console.info.bind(console)
+    };
+    function strip(s) { return typeof s === 'string' ? s.replace(/\x1B\[[0-9;]*m/g, '') : String(s); }
+    ['log','error','warn','info'].forEach(level => {
+        console[level] = (...args) => {
+            _orig[level](...args);
+            try {
+                const msg = args.map(strip).join(' ');
+                global._sysLog = global._sysLog || [];
+                global._sysLog.unshift({ t: Date.now(), level, icon: ICONS[level] || '📋', msg: msg.slice(0, 300) });
+                if (global._sysLog.length > 200) global._sysLog.length = 200;
+            } catch(_) {}
+        };
+    });
+})();
+// ====== END SYSLOG INTERCEPTOR ======
+
 const app = express();
 const port = process.env.PORT || 8000;
 
@@ -334,6 +359,8 @@ app.get('/api/status', (req, res) => {
         res.json({
             ok: true,
             sessions,
+            telegramBots: [],
+            facebookPages: [],
             commandCount: global._commandCount || 566,
             apkLimit: settings.apkLimit || 5,
             settings: {
@@ -602,7 +629,24 @@ app.get('/api/users', (req, res) => {
         try { users = JSON.parse(fs.readFileSync(usersPath, 'utf-8')); } catch(e) { users = []; }
         try { banned = JSON.parse(fs.readFileSync(bannedPath, 'utf-8')); } catch(e) { banned = []; }
         const activeCount = global._activeUsers ? global._activeUsers.size : 0;
-        res.json({ ok: true, users, banned, activeCount, total: users.length });
+        
+        const mappedUsers = users.map(u => ({
+            id: u.id || u.jid || '',
+            name: u.name || '',
+            platform: 'whatsapp',
+            lastSeen: u.lastSeen || new Date().toISOString()
+        }));
+
+        res.json({
+            ok: true,
+            users: mappedUsers,
+            waCount: mappedUsers.length,
+            tgCount: 0,
+            fbCount: 0,
+            total: mappedUsers.length,
+            banned,
+            activeCount
+        });
     } catch(e) {
         res.status(500).json({ ok: false, error: e.message });
     }
@@ -673,42 +717,662 @@ app.get('/api/cmd-stats', (req, res) => {
     }
 });
 
+function getPlatformFromJid(jid) {
+    if (!jid) return 'whatsapp';
+    if (jid.startsWith('tg:')) return 'telegram';
+    if (jid.startsWith('fb:')) return 'facebook';
+    if (jid.includes('@')) return 'whatsapp';
+    if (/^\d+$/.test(jid)) {
+        return jid.length >= 15 ? 'facebook' : 'telegram';
+    }
+    return 'whatsapp';
+}
+
 // GET /api/activity — recent bot activity log (last 50)
-app.get('/api/activity', (req, res) => {
+app.get('/api/activity', async (req, res) => {
     try {
-        const log = (global._activityLog || []).slice(0, 50);
-        res.json({ ok: true, log });
+        const { db } = require('./lib/supabase');
+        const memoryActivity = [];
+        try {
+            const rows = await db.getRecentActivity(50);
+            for (const row of rows) {
+                const jid = row.jid;
+                if (!jid) continue;
+                let platform = 'whatsapp';
+                let user = jid.split('@')[0];
+                if (jid.startsWith('tg:')) {
+                    platform = 'telegram';
+                    user = jid.replace('tg:', '');
+                } else if (jid.startsWith('fb:')) {
+                    platform = 'facebook';
+                    user = jid.replace('fb:', '');
+                }
+                
+                let message = '[No message history]';
+                let cmd = '';
+                if (row.history && row.history.length > 0) {
+                    const lastMsg = row.history[row.history.length - 1];
+                    message = lastMsg.content || lastMsg.text || '[Media]';
+                    if (message.startsWith('.') || message.startsWith('/')) {
+                        cmd = message.split(' ')[0].substring(1);
+                    }
+                }
+                
+                memoryActivity.push({
+                    time: row.updated_at || new Date().toISOString(),
+                    platform,
+                    user,
+                    message: message.length > 60 ? message.substring(0, 60) + '...' : message,
+                    cmd
+                });
+            }
+        } catch (e) {
+            console.error('[Activity API] Supabase fetch error:', e.message);
+        }
+
+        const liveLog = global._activityLog || [];
+        const merged = [];
+        
+        for (const entry of liveLog) {
+            merged.push({
+                time: entry.time ? new Date(entry.time).toISOString() : new Date().toISOString(),
+                platform: entry.platform || 'whatsapp',
+                user: (entry.user || '').split('@')[0],
+                message: entry.message || (entry.cmd ? '.' + entry.cmd : '') || 'استخدم البوت',
+                cmd: entry.cmd || ''
+            });
+        }
+        
+        for (const mem of memoryActivity) {
+            const exists = merged.some(m => 
+                m.user === mem.user && 
+                m.platform === mem.platform && 
+                Math.abs(new Date(m.time) - new Date(mem.time)) < 5000
+            );
+            if (!exists) {
+                merged.push(mem);
+            }
+        }
+
+        merged.sort((a, b) => new Date(b.time) - new Date(a.time));
+
+        res.json({ ok: true, log: merged.slice(0, 50) });
+    } catch (e) {
+        res.status(500).json({ ok: false, error: e.message });
+    }
+});
+
+// POST /api/clear-activity
+app.post('/api/clear-activity', async (req, res) => {
+    try {
+        const { db } = require('./lib/supabase');
+        const success = await db.clearAllActivity();
+        if (success) {
+            global._activityLog = [];
+            res.json({ ok: true });
+        } else {
+            res.status(500).json({ ok: false, error: 'فشل مسح سجل النشاط' });
+        }
+    } catch (e) {
+        res.status(500).json({ ok: false, error: e.message });
+    }
+});
+
+// Broadcast state
+global.broadcastProgress = global.broadcastProgress || {
+    running: false,
+    total: 0,
+    done: 0,
+    sent: 0,
+    failed: 0,
+    log: []
+};
+
+// POST /api/broadcast — send message to all registered users in background
+app.post('/api/broadcast', async (req, res) => {
+    try {
+        if (global.broadcastProgress && global.broadcastProgress.running) {
+            return res.status(400).json({ ok: false, error: 'هناك عملية بث قيد التشغيل حالياً' });
+        }
+
+        const { message, platform, mediaBase64, mediaType, mediaName, ptt } = req.body;
+        if (!message && !mediaBase64) {
+            return res.status(400).json({ ok: false, error: 'الرسالة أو الملف المرفق مطلوب' });
+        }
+
+        if (platform !== 'whatsapp' && platform !== 'all') {
+            global.broadcastProgress = {
+                running: false,
+                total: 0,
+                done: 0,
+                sent: 0,
+                failed: 0,
+                log: [{ icon: '❌', name: 'المنصة غير مدعومة (فقط واتساب)', platform, ok: false, time: new Date().toLocaleTimeString() }]
+            };
+            return res.json({ ok: true, total: 0 });
+        }
+
+        const usersPath = path.join(__dirname, 'data/users.json');
+        let users = [];
+        try { users = JSON.parse(fs.readFileSync(usersPath, 'utf-8')); } catch(e) { users = []; }
+
+        const targetUsers = users.filter(u => {
+            const jid = u.id || u.jid;
+            return jid && jid !== 'test@s.whatsapp.net';
+        });
+
+        global.broadcastProgress = {
+            running: true,
+            total: targetUsers.length,
+            done: 0,
+            sent: 0,
+            failed: 0,
+            log: []
+        };
+
+        // Start async broadcast
+        (async () => {
+            const clients = global.clients || [];
+            const sock = clients.find(c => c?.user) || clients[0];
+
+            if (!sock) {
+                global.broadcastProgress.running = false;
+                global.broadcastProgress.log.push({
+                    icon: '❌',
+                    name: 'لا توجد جلسة نشطة متصلة',
+                    platform: 'whatsapp',
+                    ok: false,
+                    time: new Date().toLocaleTimeString()
+                });
+                return;
+            }
+
+            for (const user of targetUsers) {
+                const jid = user.id || user.jid;
+                const name = user.name || jid.split('@')[0];
+                let success = false;
+
+                try {
+                    if (mediaBase64) {
+                        const buffer = Buffer.from(mediaBase64, 'base64');
+                        if (mediaType.startsWith('image/')) {
+                            await sock.sendMessage(jid, { image: buffer, caption: message });
+                        } else if (mediaType.startsWith('video/')) {
+                            await sock.sendMessage(jid, { video: buffer, caption: message });
+                        } else if (mediaType.startsWith('audio/')) {
+                            await sock.sendMessage(jid, { audio: buffer, mimetype: mediaType, ptt: !!ptt });
+                        } else {
+                            await sock.sendMessage(jid, { document: buffer, mimetype: mediaType, fileName: mediaName, caption: message });
+                        }
+                    } else {
+                        await sock.sendMessage(jid, { text: message });
+                    }
+                    success = true;
+                    global.broadcastProgress.sent++;
+                } catch (err) {
+                    console.error(`Broadcast failed for ${jid}:`, err.message);
+                    global.broadcastProgress.failed++;
+                }
+
+                global.broadcastProgress.done++;
+                global.broadcastProgress.log.unshift({
+                    icon: success ? '✅' : '❌',
+                    name: name,
+                    platform: 'whatsapp',
+                    ok: success,
+                    time: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
+                });
+
+                await new Promise(resolve => setTimeout(resolve, 800));
+            }
+
+            global.broadcastProgress.running = false;
+        })();
+
+        res.json({ ok: true, total: targetUsers.length });
     } catch(e) {
         res.status(500).json({ ok: false, error: e.message });
     }
 });
 
-// POST /api/broadcast — send message to all registered users
-app.post('/api/broadcast', async (req, res) => {
+// GET /api/broadcast/progress
+app.get('/api/broadcast/progress', (req, res) => {
+    res.json(global.broadcastProgress || {
+        running: false,
+        total: 0,
+        done: 0,
+        sent: 0,
+        failed: 0,
+        log: []
+    });
+});
+
+// GET /api/dev-messages — developer messages from DB
+app.get('/api/dev-messages', async (req, res) => {
     try {
-        const { message } = req.body;
-        if (!message) return res.status(400).json({ ok: false, error: 'رسالة مطلوبة' });
-        const usersPath = path.join(__dirname, 'data/users.json');
-        let users = [];
-        try { users = JSON.parse(fs.readFileSync(usersPath, 'utf-8')); } catch(e) {}
-        const clients = global.clients || [];
-        if (!clients.length) return res.status(503).json({ ok: false, error: 'لا توجد جلسات متصلة' });
-        const sock = clients.find(c => c?.user) || clients[0];
-        let sent = 0, failed = 0;
-        for (const user of users) {
-            try {
-                const jid = user.id || user.jid;
-                if (!jid || jid === 'test@s.whatsapp.net') continue;
-                await sock.sendMessage(jid, { text: message });
-                sent++;
-                await new Promise(r => setTimeout(r, 500));
-            } catch(e) { failed++; }
+        const { db } = require('./lib/supabase');
+        const messages = await db.getDevMessages();
+        res.json({ ok: true, messages });
+    } catch (e) {
+        res.status(500).json({ ok: false, error: e.message });
+    }
+});
+
+// POST /api/dev-messages/reply — reply to developer inbox message
+app.post('/api/dev-messages/reply', async (req, res) => {
+    try {
+        const { id, replyText, mediaBase64, mediaType, mediaName, ptt } = req.body;
+        if (!id || (!replyText && !mediaBase64)) {
+            return res.status(400).json({ ok: false, error: 'معرّف الرسالة والرد مطلوبان' });
         }
-        res.json({ ok: true, sent, failed, total: users.length });
+
+        const { db } = require('./lib/supabase');
+        const allMessages = await db.getDevMessages();
+        const msgObj = allMessages.find(m => m.id === id);
+        if (!msgObj) {
+            return res.status(404).json({ ok: false, error: 'الرسالة غير موجودة أو تم حذفها' });
+        }
+
+        const platform = (msgObj.platform || 'whatsapp').toLowerCase();
+        if (platform !== 'whatsapp') {
+            return res.status(400).json({ ok: false, error: 'الردود مدعومة فقط لمنصة الواتساب حالياً' });
+        }
+
+        const clients = global.clients || [];
+        const sock = clients.find(c => c?.user) || clients[0];
+        if (!sock) {
+            return res.status(503).json({ ok: false, error: 'لا توجد جلسة واتساب نشطة لإرسال الرد' });
+        }
+
+        const jid = msgObj.sender.includes('@') ? msgObj.sender : `${msgObj.sender}@s.whatsapp.net`;
+        const mediaBuffer = mediaBase64 ? Buffer.from(mediaBase64, 'base64') : null;
+        const fileName = mediaName || 'file';
+        const isImage = mediaType && mediaType.startsWith('image/');
+        const isAudio = mediaType && (mediaType.startsWith('audio/') || mediaType === 'video/ogg');
+        const isVideo = mediaType && mediaType.startsWith('video/') && !isAudio;
+
+        const formattedReply = `╔═══════════════════════╗
+║   📢 رسالة من مطور البوت   ║
+╚═══════════════════════╝
+
+💬 الرد على رسالتك:
+"${replyText || (isAudio ? '🎙️ رسالة صوتية' : '📎 ملف مرفق')}"
+
+━━━━━━━━━━━━━━━━━━━━━━━
+👤 المطور: حمزة اعمرني 🇲🇦
+💡 للرد مجدداً، اكتب: .msgtodev [رسالتك]`;
+
+        if (mediaBuffer) {
+            if (isImage) {
+                await sock.sendMessage(jid, { image: mediaBuffer, caption: formattedReply, mimetype: mediaType });
+            } else if (isAudio) {
+                await sock.sendMessage(jid, { audio: mediaBuffer, mimetype: mediaType, ptt: !!ptt });
+                await sock.sendMessage(jid, { text: formattedReply });
+            } else if (isVideo) {
+                await sock.sendMessage(jid, { video: mediaBuffer, caption: formattedReply, mimetype: mediaType });
+            } else {
+                await sock.sendMessage(jid, { document: mediaBuffer, fileName: fileName, mimetype: mediaType || 'application/octet-stream', caption: formattedReply });
+            }
+        } else {
+            await sock.sendMessage(jid, { text: formattedReply });
+        }
+
+        await db.markDevMessageReplied(id, replyText);
+        res.json({ ok: true });
+    } catch (e) {
+        res.status(500).json({ ok: false, error: e.message });
+    }
+});
+
+// POST /api/dev-messages/delete
+app.post('/api/dev-messages/delete', async (req, res) => {
+    try {
+        const { id } = req.body;
+        if (!id) return res.status(400).json({ ok: false, error: 'معرّف الرسالة مطلوب' });
+        const { db } = require('./lib/supabase');
+        const ok = await db.deleteDevMessage(id);
+        if (!ok) return res.status(404).json({ ok: false, error: 'الرسالة غير موجودة' });
+        res.json({ ok: true });
+    } catch (e) {
+        res.status(500).json({ ok: false, error: e.message });
+    }
+});
+
+// POST /api/dev-messages/clear-all
+app.post('/api/dev-messages/clear-all', async (req, res) => {
+    try {
+        const { db } = require('./lib/supabase');
+        await db.clearAllDevMessages();
+        res.json({ ok: true });
+    } catch (e) {
+        res.status(500).json({ ok: false, error: e.message });
+    }
+});
+
+// GET /api/commands
+app.get('/api/commands', (req, res) => {
+    try {
+        const { ALL_COMMANDS, NLC_KEYWORDS } = require('./lib/commandMap');
+        const stats = global._cmdStats || {};
+        const categories = {};
+        for (const [alias, filePath] of Object.entries(ALL_COMMANDS)) {
+            const cat = filePath.split('/')[0] || 'other';
+            if (!categories[cat]) categories[cat] = { name: cat, commands: [], total: 0 };
+            const existing = categories[cat].commands.find(c => c.file === filePath);
+            if (existing) {
+                existing.aliases.push(alias);
+            } else {
+                categories[cat].commands.push({ file: filePath, aliases: [alias], uses: stats[alias] || 0 });
+                categories[cat].total++;
+            }
+        }
+        const nlcList = Object.entries(NLC_KEYWORDS).map(([key, file]) => ({ key, file, aliases: key.split('|') }));
+        res.json({ ok: true, totalAliases: Object.keys(ALL_COMMANDS).length, totalFiles: [...new Set(Object.values(ALL_COMMANDS))].length, categories, nlcList, stats });
     } catch(e) {
         res.status(500).json({ ok: false, error: e.message });
     }
 });
+
+// GET /api/banned
+app.get('/api/banned', (req, res) => {
+    try {
+        const bannedPath = path.join(__dirname, 'data/banned.json');
+        let banned = [];
+        try { banned = JSON.parse(fs.readFileSync(bannedPath, 'utf-8')); } catch(e) { banned = []; }
+        res.json({ ok: true, banned });
+    } catch(e) {
+        res.status(500).json({ ok: false, error: e.message });
+    }
+});
+
+// GET /api/syslog
+app.get('/api/syslog', (req, res) => {
+    try {
+        res.json({ ok: true, logs: global._sysLog || [] });
+    } catch(e) {
+        res.status(500).json({ ok: false, error: e.message });
+    }
+});
+
+// POST /api/delete-user
+app.post('/api/delete-user', async (req, res) => {
+    try {
+        const { number, platform } = req.body;
+        if (!number) return res.status(400).json({ ok: false, error: 'رقم المستخدم مطلوب' });
+
+        const jid = number.includes('@') ? number : `${number}@s.whatsapp.net`;
+
+        // Delete from local JSON file
+        const usersPath = path.join(__dirname, 'data/users.json');
+        if (fs.existsSync(usersPath)) {
+            try {
+                let users = JSON.parse(fs.readFileSync(usersPath, 'utf-8'));
+                users = users.filter(u => (u.id || u.jid) !== jid && (u.id || u.jid) !== number);
+                fs.writeFileSync(usersPath, JSON.stringify(users, null, 2));
+            } catch (e) {
+                console.error('Failed to delete user locally:', e.message);
+            }
+        }
+
+        // Delete from Supabase
+        try {
+            const { db } = require('./lib/supabase');
+            await db.deleteUser(jid);
+        } catch (dbErr) {
+            console.error('Failed to delete user in Supabase:', dbErr.message);
+        }
+
+        res.json({ ok: true });
+    } catch (e) {
+        res.status(500).json({ ok: false, error: e.message });
+    }
+});
+
+// POST /api/delete-all-users
+app.post('/api/delete-all-users', async (req, res) => {
+    try {
+        const usersPath = path.join(__dirname, 'data/users.json');
+        fs.writeFileSync(usersPath, JSON.stringify([], null, 2));
+
+        try {
+            const { db } = require('./lib/supabase');
+            await db.deleteAllUsers();
+        } catch (dbErr) {
+            console.error('Failed to delete all users in Supabase:', dbErr.message);
+        }
+
+        res.json({ ok: true });
+    } catch (e) {
+        res.status(500).json({ ok: false, error: e.message });
+    }
+});
+
+// POST /api/refresh-names
+app.post('/api/refresh-names', (req, res) => {
+    res.json({
+        ok: true,
+        facebook: { total: 0, fetched: 0, failed: 0 },
+        telegram: { total: 0, fetched: 0, failed: 0 }
+    });
+});
+
+// POST /api/send-message
+app.post('/api/send-message', async (req, res) => {
+    try {
+        const { recipient, number, platform, message, mediaBase64, mediaType, mediaName, caption, ptt } = req.body;
+        const targetNumber = number || recipient;
+        if (!targetNumber) return res.status(400).json({ ok: false, error: 'الرقم أو المعرف مطلوب' });
+        if (!message && !mediaBase64) return res.status(400).json({ ok: false, error: 'الرسالة أو الملف مطلوب' });
+
+        const plat = (platform || 'whatsapp').toLowerCase();
+        if (plat !== 'whatsapp') {
+            return res.status(400).json({ ok: false, error: 'المنصة المحددة غير مدعومة في هذا الإصدار (فقط واتساب)' });
+        }
+
+        const clients = global.clients || [];
+        const sock = clients.find(c => c?.user) || clients[0];
+        if (!sock) return res.status(500).json({ ok: false, error: 'لا توجد جلسة واتساب نشطة حالياً' });
+
+        const jid = targetNumber.includes('@') ? targetNumber : `${targetNumber}@s.whatsapp.net`;
+        const mediaBuffer = mediaBase64 ? Buffer.from(mediaBase64, 'base64') : null;
+        const msgCaption = caption || message || '';
+        const fileName = mediaName || 'file';
+
+        if (mediaBuffer) {
+            const isImage = mediaType && mediaType.startsWith('image/');
+            const isAudio = mediaType && (mediaType.startsWith('audio/') || mediaType === 'video/ogg');
+            const isVideo = mediaType && mediaType.startsWith('video/') && !isAudio;
+
+            if (isImage) {
+                await sock.sendMessage(jid, { image: mediaBuffer, caption: msgCaption, mimetype: mediaType });
+            } else if (isAudio) {
+                await sock.sendMessage(jid, { audio: mediaBuffer, mimetype: mediaType, ptt: !!ptt });
+                if (message) await sock.sendMessage(jid, { text: message });
+            } else if (isVideo) {
+                await sock.sendMessage(jid, { video: mediaBuffer, caption: msgCaption, mimetype: mediaType });
+            } else {
+                await sock.sendMessage(jid, { document: mediaBuffer, fileName: fileName, mimetype: mediaType || 'application/octet-stream', caption: msgCaption });
+            }
+        } else {
+            await sock.sendMessage(jid, { text: message });
+        }
+        res.json({ ok: true });
+    } catch (e) {
+        res.status(500).json({ ok: false, error: e.message });
+    }
+});
+
+// POST /api/delete-wa
+app.post('/api/delete-wa', async (req, res) => {
+    try {
+        const { phone } = req.body;
+        if (!phone) return res.status(400).json({ success: false, error: 'الرقم مطلوب' });
+
+        const cleanPhone = phone.replace(/[^0-9]/g, '');
+        const targetSessionPath = cleanPhone === settings.pairingNumber ? sessionDir : path.join(sessionsRoot, `session_${cleanPhone}`);
+
+        const activeClient = (global.clients || []).find(c => {
+            const userNum = c?.user?.id?.split(':')[0] || (c?.sessionPath ? path.basename(c.sessionPath).replace('session_', '') : null);
+            return userNum === cleanPhone;
+        });
+
+        if (activeClient) {
+            try { activeClient.end(); } catch (e) {}
+            global.clients = global.clients.filter(c => c !== activeClient);
+        }
+
+        // Delete Supabase session
+        const { db } = require('./lib/supabase');
+        await db.deleteWhatsAppSession(cleanPhone);
+
+        // Delete filesystem files
+        if (fs.existsSync(targetSessionPath)) {
+            fs.rmSync(targetSessionPath, { recursive: true, force: true });
+        }
+
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
+// POST /api/reconnect-wa
+app.post('/api/reconnect-wa', async (req, res) => {
+    try {
+        const { phone } = req.body;
+        if (!phone) return res.status(400).json({ success: false, error: 'الرقم مطلوب' });
+
+        const cleanPhone = phone.replace(/[^0-9]/g, '');
+        const targetSessionPath = cleanPhone === settings.pairingNumber ? sessionDir : path.join(sessionsRoot, `session_${cleanPhone}`);
+
+        // Kill active connection
+        const activeClient = (global.clients || []).find(c => {
+            const userNum = c?.user?.id?.split(':')[0] || (c?.sessionPath ? path.basename(c.sessionPath).replace('session_', '') : null);
+            return userNum === cleanPhone;
+        });
+
+        if (activeClient) {
+            try { activeClient.end(); } catch (e) {}
+            global.clients = global.clients.filter(c => c !== activeClient);
+            await new Promise(r => setTimeout(r, 1500));
+        }
+
+        // Clean directory
+        if (fs.existsSync(targetSessionPath)) {
+            fs.rmSync(targetSessionPath, { recursive: true, force: true });
+        }
+
+        // Reset database keys
+        const { db } = require('./lib/supabase');
+        await db.updateWhatsAppSession(cleanPhone, null);
+        await db.updatePairingCode(cleanPhone, null, 'disconnected');
+
+        // Reset memory variables
+        delete (global.pendingPairingCodes || {})[cleanPhone];
+        delete (global.lastPairingRequestTime || {})[targetSessionPath];
+
+        // Start session in pairing mode
+        console.log(`[API/Reconnect] Starting session for ${cleanPhone} at ${targetSessionPath}`);
+        startBot(targetSessionPath, cleanPhone).catch(err => {
+            console.error(`[API/Reconnect] startBot error for ${cleanPhone}:`, err.message);
+        });
+
+        // Poll for pairing code
+        let attempts = 0;
+        const maxAttempts = 60;
+        while (attempts < maxAttempts) {
+            await new Promise(r => setTimeout(r, 500));
+            if (global.pendingPairingCodes[cleanPhone]) {
+                const { code } = global.pendingPairingCodes[cleanPhone];
+                return res.json({ success: true, code, number: cleanPhone });
+            }
+            attempts++;
+        }
+
+        return res.status(504).json({ success: false, error: 'انتهت مهلة الحصول على كود الإقران. حاول مرة أخرى.' });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
+// POST /api/bots/toggle-pause
+app.post('/api/bots/toggle-pause', async (req, res) => {
+    try {
+        const { platform, id } = req.body;
+        if (!platform || !id) return res.status(400).json({ success: false, error: 'المنصة والمعرف مطلوبان' });
+
+        global.pausedBots = global.pausedBots || { whatsapp: {}, telegram: {}, facebook: {} };
+        if (!global.pausedBots[platform]) global.pausedBots[platform] = {};
+
+        const targetKey = id.replace(/[^0-9]/g, '');
+        const isCurrentlyPaused = !!global.pausedBots[platform][targetKey];
+        global.pausedBots[platform][targetKey] = !isCurrentlyPaused;
+
+        res.json({ success: true, isPaused: !isCurrentlyPaused });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
+// Mocks/Stubs for Telegram and Facebook to prevent front-end errors
+app.post('/api/connect-tg', (req, res) => {
+    res.json({ success: false, error: 'تم تعطيل بوت تليجرام في هذا الإصدار، البوت واتساب فقط' });
+});
+
+app.post('/api/connect-fb', (req, res) => {
+    res.json({ success: false, error: 'تم تعطيل بوت فيسبوك في هذا الإصدار، البوت واتساب فقط' });
+});
+
+app.post('/api/delete-config', (req, res) => {
+    res.json({ success: true });
+});
+
+// Tempmail mocks/stubs
+app.get('/api/tempmail/generate', (req, res) => {
+    const domains = ['1secmail.com', '1secmail.org', '1secmail.net'];
+    const username = Math.random().toString(36).substring(2, 10);
+    const domain = domains[Math.floor(Math.random() * domains.length)];
+    res.json({ ok: true, email: `${username}@${domain}` });
+});
+
+app.get('/api/tempmail/messages', async (req, res) => {
+    try {
+        const { email } = req.query;
+        if (!email || !email.includes('@')) return res.status(400).json({ ok: false, error: 'بريد غير صالح' });
+        const [login, domain] = email.split('@');
+        const axios = require('axios');
+        const response = await axios.get(`https://www.1secmail.com/api/v1/?action=getMessages&login=${login}&domain=${domain}`);
+        res.json({ ok: true, messages: response.data || [] });
+    } catch(e) {
+        res.status(500).json({ ok: false, error: e.message });
+    }
+});
+
+app.get('/api/tempmail/message', async (req, res) => {
+    try {
+        const { email, id } = req.query;
+        if (!email || !email.includes('@')) return res.status(400).json({ ok: false, error: 'بريد غير صالح' });
+        if (!id) return res.status(400).json({ ok: false, error: 'معرف الرسالة مطلوب' });
+        const [login, domain] = email.split('@');
+        const axios = require('axios');
+        const response = await axios.get(`https://www.1secmail.com/api/v1/?action=readMessage&login=${login}&domain=${domain}&id=${id}`);
+        res.json({ ok: true, message: response.data || null });
+    } catch(e) {
+        res.status(500).json({ ok: false, error: e.message });
+    }
+});
+
+// Scripts mocks/stubs
+app.get('/api/scripts/status', (req, res) => res.json({ ok: true, running: false, config: {} }));
+app.post('/api/scripts/toggle', (req, res) => res.json({ ok: false, error: 'السكريبتات غير مدعومة في هذا الإصدار' }));
+app.get('/api/scripts/logs', (req, res) => res.json({ ok: true, logs: [] }));
+
+// Insta mocks/stubs
+app.get('/api/insta/status', (req, res) => res.json({ ok: true, running: false, hits: [], config: {} }));
+app.post('/api/insta/toggle', (req, res) => res.json({ ok: false, error: 'غير متوفر في هذا الإصدار' }));
+app.get('/api/insta/logs', (req, res) => res.json({ ok: true, logs: [] }));
+app.post('/api/insta/hits/clear', (req, res) => res.json({ ok: true }));
+app.post('/api/insta/send-telegram', (req, res) => res.json({ ok: true }));
 
 app.listen(port, () => {
 

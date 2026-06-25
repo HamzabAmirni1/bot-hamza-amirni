@@ -48,3 +48,16 @@ CREATE TABLE IF NOT EXISTS public.error_logs (
     platform text DEFAULT 'WA',
     created_at timestamp with time zone DEFAULT now()
 );
+
+-- 6. dev_messages (Stores developer inbox messages)
+CREATE TABLE IF NOT EXISTS public.dev_messages (
+    id text PRIMARY KEY,
+    sender text NOT NULL,
+    sender_name text,
+    platform text DEFAULT 'whatsapp',
+    text text NOT NULL,
+    timestamp timestamp with time zone DEFAULT now(),
+    replied boolean DEFAULT false,
+    reply_text text,
+    reply_timestamp timestamp with time zone
+);
