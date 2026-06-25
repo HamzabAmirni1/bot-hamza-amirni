@@ -1373,8 +1373,20 @@
           <input type="url" id="s-instagramChannel" class="form-input" placeholder="https://instagram.com/j/..." />
         </div>
         <div class="form-group">
+          <label class="form-label"><i class="fab fa-facebook"></i> فيسبوك الشخصي</label>
+          <input type="url" id="s-facebook" class="form-input" placeholder="https://facebook.com/..." />
+        </div>
+        <div class="form-group">
+          <label class="form-label"><i class="fab fa-facebook"></i> صفحة فيسبوك</label>
+          <input type="url" id="s-facebookPage" class="form-input" placeholder="https://facebook.com/..." />
+        </div>
+        <div class="form-group">
           <label class="form-label"><i class="fab fa-youtube"></i> يوتيوب</label>
           <input type="url" id="s-youtube" class="form-input" placeholder="https://youtube.com/..." />
+        </div>
+        <div class="form-group">
+          <label class="form-label"><i class="fab fa-telegram"></i> تيليغرام</label>
+          <input type="url" id="s-telegram" class="form-input" placeholder="https://t.me/..." />
         </div>
         <div class="form-group" style="grid-column:1/-1;">
           <label class="form-label"><i class="fas fa-globe"></i> الموقع الشخصي</label>
@@ -1858,7 +1870,10 @@
       document.getElementById('s-instagram').value = data.instagram || '';
       document.getElementById('s-instagram2').value = data.instagram2 || '';
       document.getElementById('s-instagramChannel').value = data.instagramChannel || '';
+      document.getElementById('s-facebook').value = data.facebook || '';
+      document.getElementById('s-facebookPage').value = data.facebookPage || '';
       document.getElementById('s-youtube').value = data.youtube || '';
+      document.getElementById('s-telegram').value = data.telegram || '';
       document.getElementById('s-officialChannel').value = data.officialChannel || '';
       document.getElementById('s-waGroups').value = data.waGroups || '';
       document.getElementById('s-portfolio').value = data.portfolio || '';
@@ -1985,7 +2000,10 @@
       instagram: document.getElementById('s-instagram').value,
       instagram2: document.getElementById('s-instagram2').value,
       instagramChannel: document.getElementById('s-instagramChannel').value,
+      facebook: document.getElementById('s-facebook').value,
+      facebookPage: document.getElementById('s-facebookPage').value,
       youtube: document.getElementById('s-youtube').value,
+      telegram: document.getElementById('s-telegram').value,
       officialChannel: document.getElementById('s-officialChannel').value,
       waGroups: document.getElementById('s-waGroups').value,
       portfolio: document.getElementById('s-portfolio').value,
