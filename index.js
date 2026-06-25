@@ -291,7 +291,8 @@ const sessionDir = './session';
 // const msgRetryCounterCache = new NodeCache(); // Moved to per-session
 
 // =================== DASHBOARD & API ROUTES ===================
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Serve dashboard
@@ -1090,6 +1091,18 @@ app.get('/api/syslog', (req, res) => {
     try {
         res.json({ ok: true, logs: global._sysLog || [] });
     } catch(e) {
+        res.status(500).json({ ok: false, error: e.message });
+    }
+});
+
+// GET /api/errors — fetch error logs from Supabase
+app.get('/api/errors', async (req, res) => {
+    try {
+        const limit = parseInt(req.query.limit) || 10;
+        const { db } = require('./lib/supabase');
+        const errors = await db.getRecentErrors(limit);
+        res.json({ ok: true, errors });
+    } catch (e) {
         res.status(500).json({ ok: false, error: e.message });
     }
 });
