@@ -1476,11 +1476,25 @@ async function getSessionPaths() {
 }
 
 
-async function startBot(sessionPath = sessionDir, phoneNumber = null) {
-    // Avoid double start for same session
-    if (global.clients.find(c => c.sessionPath === sessionPath)) return;
+// Keep track of sessions currently in the process of starting to avoid concurrent race conditions
+global.startingSessions = global.startingSessions || new Set();
 
-    console.log(chalk.blue(`🚀 Initializing session: ${sessionPath}...`));
+async function startBot(sessionPath = sessionDir, phoneNumber = null) {
+    // Avoid concurrent start calls for the same session
+    if (global.startingSessions.has(sessionPath)) {
+        console.log(chalk.yellow(`⚠️ [startBot] Session ${sessionPath} is already initializing. Ignoring duplicate call.`));
+        return;
+    }
+    // Avoid starting active sessions
+    if (global.clients.find(c => c.sessionPath === sessionPath)) {
+        console.log(chalk.cyan(`💡 [startBot] Session ${sessionPath} is already active. Ignoring call.`));
+        return;
+    }
+
+    global.startingSessions.add(sessionPath);
+
+    try {
+        console.log(chalk.blue(`🚀 Initializing session: ${sessionPath}...`));
 
     // --- SESSION-SPECIFIC STORE & CACHE ---
     if (!stores.has(sessionPath)) {
@@ -1953,7 +1967,10 @@ async function startBot(sessionPath = sessionDir, phoneNumber = null) {
         }
     });
 
-    return sock;
+        return sock;
+    } finally {
+        global.startingSessions.delete(sessionPath);
+    }
 }
 
 // --- MAIN ENTRY POINT ---
