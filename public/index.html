@@ -3221,20 +3221,27 @@
     if (!token) {
       showLoginOverlay();
       setTimeout(() => {
-        document.getElementById('loading-overlay').classList.add('hide');
+        const loader = document.getElementById('loading-overlay');
+        if (loader) loader.classList.add('hide');
       }, 500);
       return;
     }
     
-    await loadDashboard();
-    await loadSettings();
-    
-    // Restore active page
-    const activePage = localStorage.getItem('active_page') || 'dashboard';
-    await showPage(activePage, true);
-    
-    // Hide overlay
-    document.getElementById('loading-overlay').classList.add('hide');
+    try {
+      await loadDashboard();
+      await loadSettings();
+      
+      // Restore active page
+      const activePage = localStorage.getItem('active_page') || 'dashboard';
+      await showPage(activePage, true);
+    } catch (err) {
+      console.error('Error during initialization:', err);
+      showToast('حدث خطأ أثناء تحميل لوحة التحكم', 'error');
+    } finally {
+      // Hide overlay
+      const loader = document.getElementById('loading-overlay');
+      if (loader) loader.classList.add('hide');
+    }
     
     // Restore scroll position
     const scrollTop = localStorage.getItem('scroll_top');
@@ -3634,8 +3641,6 @@
       }
 
       // Telegram & Facebook sections removed
-        `).join('') + `</div>`;
-      }
       
       document.getElementById('sessions-list').innerHTML = html;
     } catch (e) {
