@@ -410,9 +410,30 @@ async function videoCommand(sock, chatId, msg, args, commands, userLang, match) 
                     'Accept-Encoding': 'identity'
                 }
             });
-            videoBuffer = Buffer.from(videoResp.data);
+            const buf = Buffer.from(videoResp.data);
+            // ✅ Validate: reject anything under 50KB — it's a corrupt/empty file
+            if (buf.length < 50 * 1024) {
+                console.log(`[VIDEO] ⚠️ Buffer too small (${buf.length} bytes) — rejecting as corrupt`);
+                // Don't assign — fall through to URL streaming
+            } else {
+                videoBuffer = buf;
+            }
         } catch (e) {
             console.log(`[VIDEO] Failed to download video buffer: ${e.message}. Falling back to URL streaming.`);
+        }
+
+        // If buffer failed/corrupt, validate the URL is still alive before streaming
+        if (!videoBuffer) {
+            try {
+                const headCheck = await axios.head(finalUrl, { timeout: 10000 });
+                const size = parseInt(headCheck.headers['content-length'] || '0');
+                if (size > 0 && size < 50 * 1024) {
+                    throw new Error(`URL points to a corrupt file (${size} bytes)`);
+                }
+            } catch (headErr) {
+                if (headErr.message.includes('corrupt')) throw headErr;
+                // HEAD failed for other reason — try streaming anyway
+            }
         }
 
         await sock.sendMessage(chatId, {
@@ -430,4 +451,3 @@ async function videoCommand(sock, chatId, msg, args, commands, userLang, match) 
 }
 
 module.exports = videoCommand;
-
