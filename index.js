@@ -714,18 +714,25 @@ app.listen(port, () => {
 
     console.log(`Port ${port} is open`);
 
-    // Keep-Alive Self-Ping (to prevent sleeping on Koyeb Eco)
-    const publicDomain = process.env.KOYEB_PUBLIC_DOMAIN || process.env.DOMAIN_URL;
-    if (publicDomain) {
-        setInterval(async () => {
-            try {
-                const axios = require('axios');
-                const url = publicDomain.startsWith('http') ? publicDomain : `https://${publicDomain}`;
-                await axios.get(url);
-            } catch (e) { }
-        }, 3 * 60 * 1000);
-    }
+    // Keep-Alive Self-Ping (prevent sleeping on Koyeb Eco / free tier)
+    const publicDomain =
+        process.env.KOYEB_PUBLIC_DOMAIN ||
+        process.env.DOMAIN_URL ||
+        'gestionbothamzaamirni01.koyeb.app'; // fallback hardcoded domain
+
+    const pingUrl = publicDomain.startsWith('http') ? publicDomain : `https://${publicDomain}`;
+
+    setInterval(async () => {
+        try {
+            const axios = require('axios');
+            await axios.get(pingUrl, { timeout: 10000 });
+            // Silent success — just keeps the server alive
+        } catch (e) {
+            // Ignore errors — server might still be starting
+        }
+    }, 4 * 60 * 1000); // every 4 minutes
 });
+
 
 // Readline Interface for interactive input
 const rl = readline.createInterface({ input: process.stdin, output: process.stdout });

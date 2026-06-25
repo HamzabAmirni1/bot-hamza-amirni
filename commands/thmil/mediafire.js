@@ -4,38 +4,74 @@ const cheerio = require('cheerio');
 const { t } = require('../../lib/language');
 const settings = require('../../settings');
 
+// Extract the MediaFire file key from any URL format
+function extractMediaFireKey(url) {
+    // e.g. /file/FILEKEY/filename/file  or  /download/FILEKEY/
+    const match = url.match(/mediafire\.com\/(?:file|download)\/([a-zA-Z0-9]+)/);
+    return match ? match[1] : null;
+}
+
+// Strategy 1: Use MediaFire's public JSON API (most reliable)
+async function getInfoViaAPI(fileKey) {
+    const apiUrl = `https://www.mediafire.com/api/1.5/file/get_info.php?quick_key=${fileKey}&response_format=json`;
+    const res = await axios.get(apiUrl, { timeout: 15000 });
+    const file = res.data?.response?.file_info;
+    if (!file) throw new Error('API returned no file info');
+    return {
+        url: file.links?.normal_download || file.links?.download,
+        fileName: file.filename || 'file',
+        fileSize: file.size ? (parseInt(file.size) / 1024 / 1024).toFixed(2) + ' MB' : 'Unknown',
+        fileType: file.filetype || (file.filename || 'file').split('.').pop()
+    };
+}
+
+// Strategy 2: Scrape HTML page (fallback with updated selectors)
+async function getInfoViaHTML(url) {
+    const headers = { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36' };
+    const res = await axios.get(url, { headers, timeout: 20000 });
+    const $ = cheerio.load(res.data);
+
+    // Updated selectors for modern MediaFire layout
+    const downloadUrl =
+        $('a#downloadButton').attr('href') ||
+        $('a.btn-green-background').attr('href') ||
+        $('[data-url]').attr('data-url');
+
+    const fileName =
+        $('a#downloadButton').attr('aria-label') ||
+        $('div.filename').text().trim() ||
+        $('span.name').text().trim() ||
+        'file';
+
+    const fileSize =
+        $('li.size').text().trim().replace('Size: ', '') ||
+        $('span.file-size').text().trim() ||
+        'Unknown';
+
+    if (!downloadUrl) throw new Error('Could not find download link in HTML');
+    return { url: downloadUrl, fileName, fileSize, fileType: fileName.split('.').pop() };
+}
+
 async function getMediaFireDownload(url) {
+    const fileKey = extractMediaFireKey(url);
+
+    // Try API first if we have a key
+    if (fileKey) {
+        try {
+            const info = await getInfoViaAPI(fileKey);
+            if (info.url) return { ...info, originalUrl: url };
+        } catch (e) {
+            console.log('[MediaFire] API failed, trying HTML scrape:', e.message);
+        }
+    }
+
+    // Fallback to HTML scraping
     try {
-        const response = await axios.get(url);
-        const $ = cheerio.load(response.data);
-
-        // Extract download info
-        const downloadButton = $('#downloadButton');
-        const downloadUrl = downloadButton.attr('href');
-
-        // Extract file info
-        const fileName = $('.dl-btn-label').attr('title') ||
-            $('div.filename').text().trim() ||
-            'file';
-
-        const fileSize = $('a#downloadButton').text().match(/\(([^)]+)\)/)?.[1] ||
-            $('.details li').first().text().trim() ||
-            'Unknown';
-
-        const fileType = $('.filetype').text().trim() ||
-            fileName.split('.').pop() ||
-            'file';
-
-        return {
-            url: downloadUrl,
-            fileName: fileName,
-            fileSize: fileSize,
-            fileType: fileType,
-            originalUrl: url
-        };
-    } catch (error) {
-        console.error('Error parsing MediaFire:', error);
-        throw new Error('Parsing error');
+        const info = await getInfoViaHTML(url);
+        return { ...info, originalUrl: url };
+    } catch (e) {
+        console.error('[MediaFire] HTML fallback failed:', e.message);
+        throw new Error('Could not extract download link from MediaFire');
     }
 }
 
