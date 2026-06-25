@@ -295,6 +295,59 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Helper: Transcode recorded webm audio to WhatsApp-compatible ogg opus voice note
+function transcodeToOpus(inputBuffer) {
+    return new Promise((resolve, reject) => {
+        const { exec } = require('child_process');
+        const crypto = require('crypto');
+        const fs = require('fs');
+        const path = require('path');
+
+        const tempId = crypto.randomBytes(8).toString('hex');
+        const tmpDir = path.join(__dirname, 'tmp');
+        if (!fs.existsSync(tmpDir)) {
+            try { fs.mkdirSync(tmpDir, { recursive: true }); } catch (e) {}
+        }
+        const inputPath = path.join(tmpDir, `input_${tempId}`);
+        const outputPath = path.join(tmpDir, `output_${tempId}.ogg`);
+
+        try {
+            fs.writeFileSync(inputPath, inputBuffer);
+        } catch (e) {
+            console.error('[AudioTranscoder] Failed to write temp file:', e.message);
+            resolve(inputBuffer);
+            return;
+        }
+
+        // Convert to ogg opus
+        const cmd = `ffmpeg -y -i "${inputPath}" -vn -c:a libopus -b:a 24k -ac 1 -ar 16000 "${outputPath}"`;
+        
+        exec(cmd, (error, stdout, stderr) => {
+            // Clean input file
+            try { fs.unlinkSync(inputPath); } catch (e) {}
+
+            if (error) {
+                console.error('[AudioTranscoder] ffmpeg error:', error.message);
+                // Return original buffer as fallback
+                resolve(inputBuffer);
+                return;
+            }
+
+            try {
+                if (fs.existsSync(outputPath)) {
+                    const outputBuffer = fs.readFileSync(outputPath);
+                    try { fs.unlinkSync(outputPath); } catch (e) {}
+                    resolve(outputBuffer);
+                } else {
+                    resolve(inputBuffer);
+                }
+            } catch (e) {
+                resolve(inputBuffer);
+            }
+        });
+    });
+}
+
 // Serve dashboard
 app.get('/', (req, res) => {
     const dashPath = path.join(__dirname, 'public/index.html');
@@ -888,22 +941,34 @@ app.post('/api/broadcast', async (req, res) => {
                 return;
             }
 
+            let finalBroadcastBuffer = mediaBase64 ? Buffer.from(mediaBase64, 'base64') : null;
+            let finalBroadcastMime = mediaType;
+
+            const isAudio = mediaType && (mediaType.startsWith('audio/') || mediaType === 'video/ogg');
+            if (finalBroadcastBuffer && isAudio && ptt) {
+                try {
+                    finalBroadcastBuffer = await transcodeToOpus(finalBroadcastBuffer);
+                    finalBroadcastMime = 'audio/ogg; codecs=opus';
+                } catch (err) {
+                    console.error('[Broadcast Transcode] Error:', err.message);
+                }
+            }
+
             for (const user of targetUsers) {
                 const jid = user.id || user.jid;
                 const name = user.name || jid.split('@')[0];
                 let success = false;
 
                 try {
-                    if (mediaBase64) {
-                        const buffer = Buffer.from(mediaBase64, 'base64');
-                        if (mediaType.startsWith('image/')) {
-                            await sock.sendMessage(jid, { image: buffer, caption: message });
-                        } else if (mediaType.startsWith('video/')) {
-                            await sock.sendMessage(jid, { video: buffer, caption: message });
-                        } else if (mediaType.startsWith('audio/')) {
-                            await sock.sendMessage(jid, { audio: buffer, mimetype: mediaType, ptt: !!ptt });
+                    if (finalBroadcastBuffer) {
+                        if (finalBroadcastMime.startsWith('image/')) {
+                            await sock.sendMessage(jid, { image: finalBroadcastBuffer, caption: message });
+                        } else if (finalBroadcastMime.startsWith('video/')) {
+                            await sock.sendMessage(jid, { video: finalBroadcastBuffer, caption: message });
+                        } else if (finalBroadcastMime.startsWith('audio/')) {
+                            await sock.sendMessage(jid, { audio: finalBroadcastBuffer, mimetype: finalBroadcastMime, ptt: !!ptt });
                         } else {
-                            await sock.sendMessage(jid, { document: buffer, mimetype: mediaType, fileName: mediaName, caption: message });
+                            await sock.sendMessage(jid, { document: finalBroadcastBuffer, mimetype: finalBroadcastMime, fileName: mediaName, caption: message });
                         }
                     } else {
                         await sock.sendMessage(jid, { text: message });
@@ -992,6 +1057,18 @@ app.post('/api/dev-messages/reply', async (req, res) => {
         const isAudio = mediaType && (mediaType.startsWith('audio/') || mediaType === 'video/ogg');
         const isVideo = mediaType && mediaType.startsWith('video/') && !isAudio;
 
+        let finalAudioBuffer = mediaBuffer;
+        let finalMimeType = mediaType;
+
+        if (mediaBuffer && isAudio && ptt) {
+            try {
+                finalAudioBuffer = await transcodeToOpus(mediaBuffer);
+                finalMimeType = 'audio/ogg; codecs=opus';
+            } catch (err) {
+                console.error('[Reply Transcode] Error:', err.message);
+            }
+        }
+
         const formattedReply = `╔═══════════════════════╗
 ║   📢 رسالة من مطور البوت   ║
 ╚═══════════════════════╝
@@ -1007,7 +1084,7 @@ app.post('/api/dev-messages/reply', async (req, res) => {
             if (isImage) {
                 await sock.sendMessage(jid, { image: mediaBuffer, caption: formattedReply, mimetype: mediaType });
             } else if (isAudio) {
-                await sock.sendMessage(jid, { audio: mediaBuffer, mimetype: mediaType, ptt: !!ptt });
+                await sock.sendMessage(jid, { audio: finalAudioBuffer, mimetype: finalMimeType, ptt: !!ptt });
                 await sock.sendMessage(jid, { text: formattedReply });
             } else if (isVideo) {
                 await sock.sendMessage(jid, { video: mediaBuffer, caption: formattedReply, mimetype: mediaType });
