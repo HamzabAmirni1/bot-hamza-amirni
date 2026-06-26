@@ -31,24 +31,67 @@ const downloadFile = async (url) => {
   const res = await axios.get(url, {
     responseType: "arraybuffer",
     headers: { "User-Agent": UA },
+    maxContentLength: Infinity,
+    maxBodyLength: Infinity
   })
   return Buffer.from(res.data)
 }
 
 /* ================= MEDIAFIRE ================= */
 
-const scrapeSingleFile = (fileUrl) => {
+const scrapeSingleFile = async (fileUrl) => {
   const quickkey = fileUrl.match(/file\/([^/]+)/)?.[1]
   if (!quickkey) return []
 
-  return [
-    {
-      filename: "mediafire-file",
-      size: 0,
-      quickkey,
-      filePageUrl: `https://www.mediafire.com/file/${quickkey}/file`,
-    },
-  ]
+  try {
+    const res = await axios.get(fileUrl, {
+      headers: { "User-Agent": UA },
+    })
+    const $ = cheerio.load(res.data)
+    
+    // Find the download button
+    const btn = $("#downloadButton")
+    if (!btn.length) return []
+    
+    const downloadUrl = btn.attr("href") || ""
+    
+    // Get filename
+    let filename = $('meta[property="og:title"]').attr('content') || ""
+    if (!filename && downloadUrl) {
+      try {
+        const u = new URL(downloadUrl)
+        filename = decodeURIComponent(u.pathname.split('/').pop())
+      } catch {}
+    }
+    filename = filename.trim() || "mediafire-file"
+    
+    // Get size
+    let size = 0
+    const sizeText = btn.text() || ""
+    const sizeMatch = sizeText.match(/\(([0-9.]+\s*([KMGT]?)B)\)/i)
+    if (sizeMatch) {
+      const num = parseFloat(sizeMatch[1])
+      const unit = sizeMatch[2] ? sizeMatch[2].toUpperCase() : 'B'
+      if (unit === 'K') size = num * 1024
+      else if (unit === 'M') size = num * 1024 * 1024
+      else if (unit === 'G') size = num * 1024 * 1024 * 1024
+      else if (unit === 'T') size = num * 1024 * 1024 * 1024 * 1024
+      else size = num
+    }
+
+    return [
+      {
+        filename,
+        size,
+        quickkey,
+        filePageUrl: fileUrl,
+        directUrl: downloadUrl
+      },
+    ]
+  } catch (e) {
+    console.error('[Mediafire Scraper] Error scraping single file:', e.message)
+    return []
+  }
 }
 
 const getFolderFiles = async (folderKey) => {
@@ -86,7 +129,7 @@ const getAllItems = async (url) => {
   }
 
   if (url.includes("/file/")) {
-    return scrapeSingleFile(url)
+    return await scrapeSingleFile(url)
   }
 
   return []
@@ -110,17 +153,50 @@ let handler = async (m, { conn, args }) => {
       return conn.reply(m.chat, "❌ No files found.", m)
 
     for (const item of items) {
-      const direct = await getDirectDownload(item.filePageUrl)
+      const direct = item.directUrl || await getDirectDownload(item.filePageUrl)
       if (!direct) {
-        await conn.reply(m.chat, `❌ Failed: ${item.filename}`, m)
+        await conn.reply(m.chat, `❌ Failed to get download link for: ${item.filename}`, m)
         continue
       }
 
+      // Try to get exact size and name from HEAD request
+      let size = item.size || 0
+      let filename = item.filename || "mediafire-file"
+      try {
+        const head = await axios.head(direct, {
+          headers: { "User-Agent": UA },
+          timeout: 5000
+        })
+        if (head.headers['content-length']) {
+          size = Number(head.headers['content-length'])
+        }
+        if (head.headers['content-disposition']) {
+          const disposition = head.headers['content-disposition']
+          const filenameMatch = disposition.match(/filename="?([^";]+)"?/i)
+          if (filenameMatch) {
+            filename = decodeURIComponent(filenameMatch[1])
+          }
+        }
+      } catch (e) {
+        console.error('[Mediafire HEAD error]:', e.message)
+      }
+
+      // Fallback filename cleaning
+      if (filename === "mediafire-file" && direct) {
+        try {
+          const u = new URL(direct)
+          filename = decodeURIComponent(u.pathname.split('/').pop())
+        } catch {}
+      }
+
+      // Ensure filename has clean formatting (replace + with space)
+      filename = filename.replace(/\+/g, ' ')
+
       // ❌ File too large
-      if (item.size > MAX_SIZE) {
+      if (size > MAX_SIZE) {
         await conn.reply(
           m.chat,
-          `⚠️ *File too large to send*\n\n📄 Name: ${item.filename}\n📦 Size: ${(item.size / 1024 / 1024).toFixed(
+          `⚠️ *File too large to send*\n\n📄 Name: ${filename}\n📦 Size: ${(size / 1024 / 1024).toFixed(
             2
           )} MB\n🔗 Download:\n${direct}`,
           m
@@ -134,14 +210,15 @@ let handler = async (m, { conn, args }) => {
       await conn.sendFile(
         m.chat,
         buffer,
-        item.filename,
-        `📦 MediaFire File\n\n📄 Name: ${item.filename}\n📦 Size: ${(item.size / 1024 / 1024).toFixed(
+        filename,
+        `📦 MediaFire File\n\n📄 Name: ${filename}\n📦 Size: ${(size / 1024 / 1024).toFixed(
           2
         )} MB`,
         m
       )
     }
   } catch (e) {
+    console.error('[Mediafire handler error]:', e)
     conn.reply(m.chat, "❌ Error while downloading MediaFire file.", m)
   }
 }
