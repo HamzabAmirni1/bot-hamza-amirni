@@ -611,6 +611,40 @@
       margin-bottom: 24px;
     }
 
+    .pairing-method-toggle {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      background: rgba(255,255,255,0.03);
+      padding: 4px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+    
+    .method-btn {
+      flex: 1;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: 'Cairo', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    
+    .method-btn.active {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(37, 211, 102, 0.2);
+    }
+
     .pairing-icon {
       font-size: 48px;
       margin-bottom: 16px;
@@ -1719,6 +1753,17 @@
         <div id="pair-panel-wa">
           <div class="pairing-box">
             <div class="pairing-icon"><i class="fab fa-whatsapp" style="font-size: 40px; color: var(--accent);"></i></div>
+            
+            <!-- Pairing Method Toggle -->
+            <div class="pairing-method-toggle">
+              <button type="button" class="method-btn active" id="method-btn-code" onclick="setPairingMethod('code')">
+                <i class="fas fa-key"></i> كود الإقران
+              </button>
+              <button type="button" class="method-btn" id="method-btn-qr" onclick="setPairingMethod('qr')">
+                <i class="fas fa-qrcode"></i> رمز QR
+              </button>
+            </div>
+
             <div class="pairing-title">أدخل رقم الهاتف</div>
             <div class="pairing-desc">أدخل الرقم الدولي بدون + لتلقي كود الإقران على هاتفك</div>
 
@@ -1729,8 +1774,8 @@
               <input type="tel" id="pairing-number" class="form-input" placeholder="212XXXXXXXXX" style="text-align:center;font-size:18px;letter-spacing:2px;" />
             </div>
 
-            <button class="btn btn-primary" id="pairing-btn" onclick="requestPairingCode()" style="width:100%;justify-content:center;font-size:16px;padding:16px;">
-              <i class="fas fa-key"></i> طلب كود الإقران
+            <button class="btn btn-primary" id="pairing-btn" onclick="startPairingProcess()" style="width:100%;justify-content:center;font-size:16px;padding:16px;">
+              <i id="pairing-btn-icon" class="fas fa-key"></i>&nbsp;<span id="pairing-btn-text">طلب كود الإقران</span>
             </button>
 
             <!-- Code display -->
@@ -1740,6 +1785,20 @@
               <div class="code-timer" id="code-timer">أدخل الكود خلال دقيقتين</div>
               <div style="margin-top:16px;">
                 <button class="btn btn-danger" id="cancel-pairing-btn" onclick="cancelPairingRequest()" style="width:100%;justify-content:center;">
+                  <i class="fas fa-times-circle"></i> إلغاء الطلب
+                </button>
+              </div>
+            </div>
+
+            <!-- QR Code display -->
+            <div class="pairing-code-display" id="pairing-qr-display">
+              <div class="code-label"><i class="fas fa-qrcode"></i> امسح رمز QR التالي بهاتفك</div>
+              <div style="background: white; padding: 16px; border-radius: 12px; display: inline-block; margin: 10px auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                <img id="qr-image" src="" alt="QR Code" style="width: 200px; height: 200px; display: block;" />
+              </div>
+              <div class="code-timer" id="qr-status-text">جاري إنشاء الرمز...</div>
+              <div style="margin-top:16px;">
+                <button class="btn btn-danger" id="cancel-qr-btn" onclick="cancelPairingRequest()" style="width:100%;justify-content:center;">
                   <i class="fas fa-times-circle"></i> إلغاء الطلب
                 </button>
               </div>
@@ -1757,7 +1816,9 @@
             <div class="card-icon yellow"><i class="fas fa-info-circle"></i></div>
             <div class="card-title">كيفية الإقران (واتساب)</div>
           </div>
-          <div class="steps">
+          
+          <!-- Instructions for Pairing Code -->
+          <div class="steps" id="instructions-code">
             <div class="step">
               <div class="step-num">1</div>
               <div class="step-text">أدخل رقم هاتفك الكامل مع كود الدولة <strong>بدون +</strong> (مثال: 212612345678)</div>
@@ -1777,6 +1838,30 @@
             <div class="step">
               <div class="step-num">5</div>
               <div class="step-text">أدخل <strong>كود الإقران</strong> الذي يظهر هنا لتأكيد التوصيل</div>
+            </div>
+          </div>
+
+          <!-- Instructions for QR Code -->
+          <div class="steps" id="instructions-qr" style="display: none;">
+            <div class="step">
+              <div class="step-num">1</div>
+              <div class="step-text">أدخل رقم هاتفك الكامل مع كود الدولة <strong>بدون +</strong> (مثال: 212612345678)</div>
+            </div>
+            <div class="step">
+              <div class="step-num">2</div>
+              <div class="step-text">اضغط على <strong>"توليد رمز QR"</strong></div>
+            </div>
+            <div class="step">
+              <div class="step-num">3</div>
+              <div class="step-text">افتح واتساب على هاتفك - <strong>الأجهزة المرتبطة</strong></div>
+            </div>
+            <div class="step">
+              <div class="step-num">4</div>
+              <div class="step-text">اضغط <strong>"ربط جهاز"</strong> لتشغيل الكاميرا</div>
+            </div>
+            <div class="step">
+              <div class="step-num">5</div>
+              <div class="step-text">وجّه كاميرا الهاتف نحو <strong>رمز QR</strong> الظاهر هنا لإتمام الربط</div>
             </div>
           </div>
         </div>
@@ -3203,6 +3288,8 @@
   const API = ''; // Same origin
   let settingsData = {};
   let countdownInterval;
+  let currentPairingMethod = 'code';
+  let qrPollInterval;
   let currentPairingNumber = '';
   let isRestoringScroll = true;
 
@@ -3643,12 +3730,39 @@
     }
   }
 
-  // =================== PAIRING CODE ===================
-  async function requestPairingCode() {
+  // =================== PAIRING CODE & QR CODE ===================
+  function setPairingMethod(method) {
+    currentPairingMethod = method;
+    
+    // Toggle active classes on method buttons
+    const btnCode = document.getElementById('method-btn-code');
+    const btnQr = document.getElementById('method-btn-qr');
+    
+    if (method === 'code') {
+      btnCode.classList.add('active');
+      btnQr.classList.remove('active');
+      document.getElementById('pairing-btn-text').textContent = 'طلب كود الإقران';
+      document.getElementById('pairing-btn-icon').className = 'fas fa-key';
+      document.querySelector('.pairing-desc').textContent = 'أدخل الرقم الدولي بدون + لتلقي كود الإقران على هاتفك';
+      document.getElementById('instructions-code').style.display = 'block';
+      document.getElementById('instructions-qr').style.display = 'none';
+    } else {
+      btnCode.classList.remove('active');
+      btnQr.classList.add('active');
+      document.getElementById('pairing-btn-text').textContent = 'توليد رمز QR';
+      document.getElementById('pairing-btn-icon').className = 'fas fa-qrcode';
+      document.querySelector('.pairing-desc').textContent = 'أدخل الرقم الدولي بدون + لتوليد رمز QR للمسح من الهاتف';
+      document.getElementById('instructions-code').style.display = 'none';
+      document.getElementById('instructions-qr').style.display = 'block';
+    }
+  }
+
+  async function startPairingProcess() {
     const num = document.getElementById('pairing-number').value.trim().replace(/[^0-9]/g, '');
     const alert = document.getElementById('alert-pairing');
     const btn = document.getElementById('pairing-btn');
-    const display = document.getElementById('pairing-code-display');
+    const codeDisplay = document.getElementById('pairing-code-display');
+    const qrDisplay = document.getElementById('pairing-qr-display');
 
     if (!num || num.length < 10) {
       showAlert(alert, 'error', 'أدخل رقماً صحيحاً مع كود الدولة (على الأقل 10 أرقام)');
@@ -3656,56 +3770,127 @@
     }
 
     btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span> جاري الطلب...';
-    display.classList.remove('visible');
-    showAlert(alert, 'info', `⏳ جاري طلب كود الإقران للرقم ${num}...`);
+    btn.innerHTML = '<span class="spinner"></span> جاري البدء...';
+    codeDisplay.classList.remove('visible');
+    qrDisplay.classList.remove('visible');
+    clearInterval(countdownInterval);
+    clearInterval(qrPollInterval);
     currentPairingNumber = num;
 
-    try {
-      const res = await fetch('/api/pair', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ number: num })
-      });
-      const data = await res.json();
+    if (currentPairingMethod === 'code') {
+      showAlert(alert, 'info', `⏳ جاري طلب كود الإقران للرقم ${num}...`);
+      try {
+        const res = await fetch('/api/pair', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ number: num, method: 'code' })
+        });
+        const data = await res.json();
 
-      if (data.success && data.code) {
-        showAlert(alert, 'success', '✅ تم إنشاء الكود بنجاح! أدخله في واتساب خلال دقيقتين');
-        document.getElementById('code-value').textContent = data.code;
-        display.classList.add('visible');
+        if (data.success && data.code) {
+          showAlert(alert, 'success', '✅ تم إنشاء الكود بنجاح! أدخله في واتساب خلال دقيقتين');
+          document.getElementById('code-value').textContent = data.code;
+          codeDisplay.classList.add('visible');
 
-        // Countdown
-        let secs = 120;
-        const timer = document.getElementById('code-timer');
-        clearInterval(countdownInterval);
-        countdownInterval = setInterval(() => {
-          secs--;
-          timer.textContent = `⏱️ ينتهي الكود خلال ${secs} ثانية`;
-          if (secs <= 0) {
-            clearInterval(countdownInterval);
-            timer.textContent = '❌ انتهت صلاحية الكود - أعد الطلب';
-            display.classList.remove('visible');
-          }
-        }, 1000);
-      } else {
-        showAlert(alert, 'error', data.error || 'فشل في طلب الكود. تأكد أن البوت متصل وحاول مرة أخرى.');
+          // Countdown
+          let secs = 120;
+          const timer = document.getElementById('code-timer');
+          countdownInterval = setInterval(() => {
+            secs--;
+            timer.textContent = `⏱️ ينتهي الكود خلال ${secs} ثانية`;
+            if (secs <= 0) {
+              clearInterval(countdownInterval);
+              timer.textContent = '❌ انتهت صلاحية الكود - أعد الطلب';
+              codeDisplay.classList.remove('visible');
+            }
+          }, 1000);
+        } else {
+          showAlert(alert, 'error', data.error || 'فشل في طلب الكود. تأكد أن الرقم غير مسجل وربطه من جديد.');
+        }
+      } catch (e) {
+        showAlert(alert, 'error', 'خطأ في الاتصال بالسيرفر. تأكد أن البوت يعمل.');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i id="pairing-btn-icon" class="fas fa-key"></i>&nbsp;<span id="pairing-btn-text">طلب كود الإقران</span>`;
       }
-    } catch (e) {
-      showAlert(alert, 'error', 'خطأ في الاتصال بالسيرفر. تأكد أن البوت يعمل.');
-    } finally {
-      btn.disabled = false;
-      btn.innerHTML = '<i class="fas fa-key"></i> طلب كود الإقران';
+    } else {
+      // QR Code method
+      showAlert(alert, 'info', `⏳ جاري توليد رمز QR للرقم ${num}...`);
+      try {
+        const res = await fetch('/api/pair', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ number: num, method: 'qr' })
+        });
+        const data = await res.json();
+
+        if (data.success && data.qr) {
+          showAlert(alert, 'success', '✅ تم توليد رمز QR بنجاح! امسحه باستخدام تطبيق واتساب');
+          document.getElementById('qr-image').src = data.qr;
+          qrDisplay.classList.add('visible');
+          document.getElementById('qr-status-text').textContent = '⏱️ امسح الرمز ضوئياً من الأجهزة المرتبطة في واتساب';
+
+          // Start polling status
+          startQrPolling(num);
+        } else {
+          showAlert(alert, 'error', data.error || 'فشل في توليد رمز QR. حاول مرة أخرى.');
+        }
+      } catch (e) {
+        showAlert(alert, 'error', 'خطأ في الاتصال بالسيرفر. تأكد أن البوت يعمل.');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i id="pairing-btn-icon" class="fas fa-qrcode"></i>&nbsp;<span id="pairing-btn-text">توليد رمز QR</span>`;
+      }
     }
+  }
+
+  function startQrPolling(number) {
+    const alert = document.getElementById('alert-pairing');
+    const qrDisplay = document.getElementById('pairing-qr-display');
+    const qrImage = document.getElementById('qr-image');
+
+    clearInterval(qrPollInterval);
+    qrPollInterval = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/qr-status?number=${number}`);
+        const data = await res.json();
+        
+        if (data.success) {
+          if (data.status === 'connected') {
+            clearInterval(qrPollInterval);
+            qrDisplay.classList.remove('visible');
+            showAlert(alert, 'success', '🎉 تم ربط الحساب وتوصيله بنجاح!');
+            showToast('تم توصيل الحساب بنجاح!', 'success');
+            currentPairingNumber = '';
+            loadSessions();
+          } else if (data.status === 'qr' && data.qr) {
+            if (qrImage.src !== data.qr) {
+              qrImage.src = data.qr;
+            }
+          }
+        }
+      } catch (e) {
+        console.error('Error polling QR status:', e);
+      }
+    }, 3000);
   }
 
   async function cancelPairingRequest() {
     if (!currentPairingNumber) return;
     const alert = document.getElementById('alert-pairing');
     const btn = document.getElementById('cancel-pairing-btn');
+    const btnQr = document.getElementById('cancel-qr-btn');
     const display = document.getElementById('pairing-code-display');
+    const qrDisplay = document.getElementById('pairing-qr-display');
 
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span> جاري الإلغاء...';
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> جاري الإلغاء...';
+    }
+    if (btnQr) {
+      btnQr.disabled = true;
+      btnQr.innerHTML = '<span class="spinner"></span> جاري الإلغاء...';
+    }
 
     try {
       const res = await fetch('/api/pair-cancel', {
@@ -3716,7 +3901,9 @@
       const data = await res.json();
       if (data.success) {
         clearInterval(countdownInterval);
+        clearInterval(qrPollInterval);
         display.classList.remove('visible');
+        qrDisplay.classList.remove('visible');
         showAlert(alert, 'info', 'ℹ️ تم إلغاء طلب الإقران وتنظيف الجلسة بنجاح.');
         currentPairingNumber = '';
       } else {
@@ -3725,8 +3912,14 @@
     } catch (e) {
       showToast('خطأ في الاتصال', 'error');
     } finally {
-      btn.disabled = false;
-      btn.innerHTML = '<i class="fas fa-times-circle"></i> إلغاء الطلب';
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-times-circle"></i> إلغاء الطلب';
+      }
+      if (btnQr) {
+        btnQr.disabled = false;
+        btnQr.innerHTML = '<i class="fas fa-times-circle"></i> إلغاء الطلب';
+      }
     }
   }
 

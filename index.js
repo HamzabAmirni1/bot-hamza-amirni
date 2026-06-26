@@ -549,7 +549,9 @@ app.post('/api/apk-limit', (req, res) => {
 // POST /api/pair — request a WhatsApp pairing code for a number
 app.post('/api/pair', async (req, res) => {
     try {
-        const { number } = req.body;
+        const { number, method } = req.body;
+        const pairingMethod = method || 'code';
+
         if (!number || !/^\d{10,15}$/.test(number)) {
             return res.status(400).json({ success: false, error: 'رقم غير صالح' });
         }
@@ -584,34 +586,61 @@ app.post('/api/pair', async (req, res) => {
             }
         }
 
-        // Clear any previous code for this number
-        global.pendingPairingCodes = global.pendingPairingCodes || {};
-        delete global.pendingPairingCodes[cleanNumber];
+        // Setup QR Mode flag
+        global._qrMode = global._qrMode || new Set();
+        if (pairingMethod === 'qr') {
+            global._qrMode.add(sessionPath);
+            // Clear any previous QR
+            global.pendingQrCodes = global.pendingQrCodes || {};
+            delete global.pendingQrCodes[cleanNumber];
+            delete global.pendingQrCodes[sessionPath];
+        } else {
+            global._qrMode.delete(sessionPath);
+            // Clear any previous code
+            global.pendingPairingCodes = global.pendingPairingCodes || {};
+            delete global.pendingPairingCodes[cleanNumber];
+        }
 
         // Reset last request time to bypass the 120s check
         global.lastPairingRequestTime = global.lastPairingRequestTime || {};
         delete global.lastPairingRequestTime[sessionPath];
 
         // Start the bot session in background
-        console.log(`[API/Pair] Starting session for ${cleanNumber} at ${sessionPath}`);
+        console.log(`[API/Pair] Starting ${pairingMethod} session for ${cleanNumber} at ${sessionPath}`);
         startBot(sessionPath, cleanNumber).catch(err => {
             console.error(`[API/Pair] startBot error for ${cleanNumber}:`, err.message);
         });
 
-        // Poll for the code to be generated (max 25 seconds)
-        let attempts = 0;
-        const maxAttempts = 50; // 50 * 500ms = 25 seconds
-        while (attempts < maxAttempts) {
-            await new Promise(r => setTimeout(r, 500));
-            if (global.pendingPairingCodes[cleanNumber]) {
-                const { code } = global.pendingPairingCodes[cleanNumber];
-                console.log(`[API/Pair] Code successfully retrieved for ${cleanNumber}: ${code}`);
-                return res.json({ success: true, code, number: cleanNumber });
+        if (pairingMethod === 'qr') {
+            // Poll for the QR code to be generated (max 25 seconds)
+            let attempts = 0;
+            const maxAttempts = 50;
+            while (attempts < maxAttempts) {
+                await new Promise(r => setTimeout(r, 500));
+                global.pendingQrCodes = global.pendingQrCodes || {};
+                const qr = global.pendingQrCodes[cleanNumber] || global.pendingQrCodes[sessionPath];
+                if (qr) {
+                    console.log(`[API/Pair] QR code successfully retrieved for ${cleanNumber}`);
+                    return res.json({ success: true, qr, number: cleanNumber });
+                }
+                attempts++;
             }
-            attempts++;
+            return res.status(504).json({ success: false, error: 'انتهت مهلة طلب رمز QR. يرجى المحاولة مرة أخرى.' });
+        } else {
+            // Poll for the code to be generated (max 25 seconds)
+            let attempts = 0;
+            const maxAttempts = 50; // 50 * 500ms = 25 seconds
+            while (attempts < maxAttempts) {
+                await new Promise(r => setTimeout(r, 500));
+                if (global.pendingPairingCodes[cleanNumber]) {
+                    const { code } = global.pendingPairingCodes[cleanNumber];
+                    console.log(`[API/Pair] Code successfully retrieved for ${cleanNumber}: ${code}`);
+                    return res.json({ success: true, code, number: cleanNumber });
+                }
+                attempts++;
+            }
+            return res.status(504).json({ success: false, error: 'انتهت مهلة طلب الكود. يرجى المحاولة مرة أخرى.' });
         }
-
-        return res.status(504).json({ success: false, error: 'انتهت مهلة طلب الكود. يرجى المحاولة مرة أخرى.' });
     } catch (e) {
         console.error('[API] Pair error:', e.message);
         res.status(500).json({ success: false, error: e.message });
@@ -656,14 +685,45 @@ app.post('/api/pair-cancel', async (req, res) => {
             console.log(`[API/Pair-Cancel] Cleaned up unregistered session: ${sessionPath}`);
         }
 
-        // Remove from pending pairing codes
+        // Remove from pending pairing codes and pending QR codes
         if (global.pendingPairingCodes) {
             delete global.pendingPairingCodes[cleanNumber];
+        }
+        if (global.pendingQrCodes) {
+            delete global.pendingQrCodes[cleanNumber];
+            delete global.pendingQrCodes[sessionPath];
+        }
+        if (global._qrMode) {
+            global._qrMode.delete(sessionPath);
         }
 
         res.json({ success: true, message: 'تم إلغاء طلب الإقران وتنظيف الجلسة بنجاح' });
     } catch (e) {
         console.error('[API] Cancel error:', e.message);
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
+// GET /api/qr-status — get the latest QR code or connection status for a number
+app.get('/api/qr-status', (req, res) => {
+    try {
+        const { number } = req.query;
+        if (!number) return res.status(400).json({ success: false, error: 'رقم مطلوب' });
+        const cleanNumber = number.replace(/[^0-9]/g, '');
+        const sessionPath = cleanNumber === settings.pairingNumber ? sessionDir : path.join(sessionsRoot, `session_${cleanNumber}`);
+
+        // Check if session is already active/connected
+        const activeClient = (global.clients || []).find(c => c.sessionPath === sessionPath);
+        if (activeClient && activeClient.user) {
+            return res.json({ success: true, status: 'connected', number: cleanNumber });
+        }
+
+        // Get latest QR code if any
+        global.pendingQrCodes = global.pendingQrCodes || {};
+        const qr = global.pendingQrCodes[cleanNumber] || global.pendingQrCodes[sessionPath] || null;
+
+        return res.json({ success: true, status: qr ? 'qr' : 'connecting', qr, number: cleanNumber });
+    } catch (e) {
         res.status(500).json({ success: false, error: e.message });
     }
 });
@@ -1568,6 +1628,7 @@ async function getSessionPaths() {
 
 // Keep track of sessions currently in the process of starting to avoid concurrent race conditions
 global.startingSessions = global.startingSessions || new Set();
+global._qrMode = global._qrMode || new Set();
 
 async function startBot(sessionPath = sessionDir, phoneNumber = null) {
     // Avoid concurrent start calls for the same session
@@ -1672,8 +1733,9 @@ async function startBot(sessionPath = sessionDir, phoneNumber = null) {
     // If session var exists, we don't need pairing code (it should connect from var)
     const needsPairing = !hasSessionVar && (!credsExist || !sock.authState.creds.registered) && !!pNum;
 
-    // Pairing Code Flow
-    if (needsPairing && !sock.authState.creds.registered) {
+    // Pairing Code Flow (only run if not in QR mode)
+    const isQrMode = global._qrMode && global._qrMode.has(sessionPath);
+    if (needsPairing && !sock.authState.creds.registered && !isQrMode) {
         if (useMobile) throw new Error('Cannot use pairing code with mobile api');
 
         if (pNum) pNum = pNum.replace(/[^0-9]/g, '');
@@ -1728,9 +1790,36 @@ async function startBot(sessionPath = sessionDir, phoneNumber = null) {
 
     // --- CONNECTION HANDLERS ---
     sock.ev.on('connection.update', async (update) => {
-        const { connection, lastDisconnect } = update;
+        const { connection, lastDisconnect, qr } = update;
+
+        // --- Capture QR Code for QR pairing mode ---
+        if (qr) {
+            try {
+                const QRCode = require('qrcode');
+                const qrDataUrl = await QRCode.toDataURL(qr, { errorCorrectionLevel: 'M', margin: 2, scale: 6 });
+                // Store by sessionPath and by phoneNumber for easy retrieval
+                global.pendingQrCodes = global.pendingQrCodes || {};
+                global.pendingQrCodes[sessionPath] = qrDataUrl;
+                // Also store by extracted number (from session folder name)
+                const extractedNum = path.basename(sessionPath).replace('session_', '');
+                if (/^\d+$/.test(extractedNum)) {
+                    global.pendingQrCodes[extractedNum] = qrDataUrl;
+                }
+                console.log(chalk.cyan(`[QR] Generated QR for ${sessionPath}`));
+            } catch (e) {
+                console.error('[QR] Failed to generate QR data URL:', e.message);
+            }
+        }
 
         if (connection === 'open') {
+            // Clear QR on successful connection
+            if (global.pendingQrCodes) {
+                delete global.pendingQrCodes[sessionPath];
+                const extractedNum = path.basename(sessionPath).replace('session_', '');
+                delete global.pendingQrCodes[extractedNum];
+            }
+            if (global._qrMode) global._qrMode.delete(sessionPath);
+
             console.log(chalk.green(`\n🌿 [${sessionPath}] Connected => ${sock.user?.id}`));
 
             // Automatically add new connected session to extraNumbers in settings.js if not already present
