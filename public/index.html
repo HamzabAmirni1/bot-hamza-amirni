@@ -3927,73 +3927,81 @@
   async function loadSettings() {
     try {
       const res = await fetch('/api/settings');
+      if (!res.ok) throw new Error('Settings API returned ' + res.status);
       const data = await res.json();
+      if (data.error) throw new Error(data.error);
       settingsData = data;
 
+      // Null-safe helpers
+      const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+      const setChk = (id, val) => { const el = document.getElementById(id); if (el) el.checked = val; };
+      const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+
       // Basic info
-      document.getElementById('s-botName').value = data.botName || '';
-      document.getElementById('s-botOwner').value = data.botOwner || '';
-      document.getElementById('s-prefix').value = data.prefix || '.';
-      document.getElementById('s-commandMode').value = data.commandMode || 'public';
-      document.getElementById('s-timezone').value = data.timezone || '';
-      document.getElementById('s-pairingNumber').value = data.pairingNumber || '';
-      document.getElementById('s-description').value = data.description || '';
+      setVal('s-botName', data.botName || '');
+      setVal('s-botOwner', data.botOwner || '');
+      setVal('s-prefix', data.prefix || '.');
+      setVal('s-commandMode', data.commandMode || 'public');
+      setVal('s-timezone', data.timezone || '');
+      setVal('s-pairingNumber', data.pairingNumber || '');
+      setVal('s-description', data.description || '');
 
       // Toggles
-      document.getElementById('s-autoStatusReact').checked = data.AUTO_STATUS_REACT === 'true';
-      document.getElementById('s-autoStatusReply').checked = data.AUTO_STATUS_REPLY === 'true';
-      document.getElementById('s-autoStatusMsg').value = data.AUTO_STATUS_MSG || '';
-      document.getElementById('s-autoRecord').checked = data.AUTORECORD === 'true';
-      document.getElementById('s-autoType').checked = data.AUTOTYPE === 'true';
-      document.getElementById('s-autoRecordType').checked = data.AUTORECORDTYPE === 'true';
-      document.getElementById('s-enableNewsAutoPoster').checked = data.enableNewsAutoPoster === 'true';
-      document.getElementById('s-enableChatbot').checked = data.enableChatbot === 'true';
-      document.getElementById('s-enableGroupChatbot').checked = data.enableGroupChatbot === 'true';
-      document.getElementById('s-enableTrafficBooster').checked = data.enableTrafficBooster === 'true';
-      document.getElementById('s-trafficIntervalMinutes').value = data.trafficIntervalMinutes || '5';
-      document.getElementById('s-enablePrayerScheduler').checked = data.enablePrayerScheduler !== 'false';
-      document.getElementById('s-enableDuasScheduler').checked = data.enableDuasScheduler !== 'false';
-      document.getElementById('s-enableRamadanScheduler').checked = data.enableRamadanScheduler !== 'false';
-      document.getElementById('s-enableGithubAutoPoster').checked = data.enableGithubAutoPoster !== 'false';
-      document.getElementById('s-enableAutoDL').checked = data.enableAutoDL !== 'false';
-      document.getElementById('s-trafficUrls').value = (data.trafficUrls || []).join('\n');
+      setChk('s-autoStatusReact', data.AUTO_STATUS_REACT === 'true');
+      setChk('s-autoStatusReply', data.AUTO_STATUS_REPLY === 'true');
+      setVal('s-autoStatusMsg', data.AUTO_STATUS_MSG || '');
+      setChk('s-autoRecord', data.AUTORECORD === 'true');
+      setChk('s-autoType', data.AUTOTYPE === 'true');
+      setChk('s-autoRecordType', data.AUTORECORDTYPE === 'true');
+      setChk('s-enableNewsAutoPoster', data.enableNewsAutoPoster === 'true');
+      setChk('s-enableChatbot', data.enableChatbot === 'true');
+      setChk('s-enableGroupChatbot', data.enableGroupChatbot === 'true');
+      setChk('s-enableTrafficBooster', data.enableTrafficBooster === 'true');
+      setVal('s-trafficIntervalMinutes', data.trafficIntervalMinutes || '5');
+      setChk('s-enablePrayerScheduler', data.enablePrayerScheduler !== 'false');
+      setChk('s-enableDuasScheduler', data.enableDuasScheduler !== 'false');
+      setChk('s-enableRamadanScheduler', data.enableRamadanScheduler !== 'false');
+      setChk('s-enableGithubAutoPoster', data.enableGithubAutoPoster !== 'false');
+      setChk('s-enableAutoDL', data.enableAutoDL !== 'false');
+      setVal('s-trafficUrls', (data.trafficUrls || []).join('\n'));
 
       // Stickers & Newsletters
-      document.getElementById('s-packname').value = data.packname || '';
-      document.getElementById('s-author').value = data.author || '';
-      document.getElementById('s-newsletterName').value = data.newsletterName || '';
-      document.getElementById('s-newsletterJid').value = data.newsletterJid || '';
+      setVal('s-packname', data.packname || '');
+      setVal('s-author', data.author || '');
+      setVal('s-newsletterName', data.newsletterName || '');
+      setVal('s-newsletterJid', data.newsletterJid || '');
 
       // API Keys & Databases
-      document.getElementById('s-giphyApiKey').value = data.giphyApiKey || '';
-      document.getElementById('s-hfToken').value = data.hfToken || '';
-      document.getElementById('s-supabaseUrl').value = data.supabaseUrl || '';
-      document.getElementById('s-supabaseKey').value = data.supabaseKey || '';
-      document.getElementById('s-telegramToken').value = data.telegramToken || '';
-      document.getElementById('s-fbPageId').value = data.fbPageId || '';
-      document.getElementById('s-fbPageAccessToken').value = data.fbPageAccessToken || '';
+      setVal('s-giphyApiKey', data.giphyApiKey || '');
+      setVal('s-hfToken', data.hfToken || '');
+      setVal('s-supabaseUrl', data.supabaseUrl || '');
+      setVal('s-supabaseKey', data.supabaseKey || '');
+      setVal('s-telegramToken', data.telegramToken || '');
+      setVal('s-fbPageId', data.fbPageId || '');
+      setVal('s-fbPageAccessToken', data.fbPageAccessToken || '');
 
       // Social links
-      document.getElementById('s-instagram').value = data.instagram || '';
-      document.getElementById('s-instagram2').value = data.instagram2 || '';
-      document.getElementById('s-instagramChannel').value = data.instagramChannel || '';
-      document.getElementById('s-facebook').value = data.facebook || '';
-      document.getElementById('s-facebookPage').value = data.facebookPage || '';
-      document.getElementById('s-youtube').value = data.youtube || '';
-      document.getElementById('s-telegram').value = data.telegram || '';
-      document.getElementById('s-officialChannel').value = data.officialChannel || '';
-      document.getElementById('s-waGroups').value = data.waGroups || '';
-      document.getElementById('s-portfolio').value = data.portfolio || '';
+      setVal('s-instagram', data.instagram || '');
+      setVal('s-instagram2', data.instagram2 || '');
+      setVal('s-instagramChannel', data.instagramChannel || '');
+      setVal('s-facebook', data.facebook || '');
+      setVal('s-facebookPage', data.facebookPage || '');
+      setVal('s-youtube', data.youtube || '');
+      setVal('s-telegram', data.telegram || '');
+      setVal('s-officialChannel', data.officialChannel || '');
+      setVal('s-waGroups', data.waGroups || '');
+      setVal('s-portfolio', data.portfolio || '');
 
       // APK limit
-      document.getElementById('apk-limit-range').value = data.apkLimit || 5;
-      document.getElementById('apk-range-value').textContent = data.apkLimit || 5;
+      setVal('apk-limit-range', data.apkLimit || 5);
+      setTxt('apk-range-value', data.apkLimit || 5);
 
       // Owner numbers
       renderNumbersList('owner-numbers-list', data.ownerNumber || [], 'owner');
       renderNumbersList('extra-numbers-list', data.extraNumbers || [], 'extra');
 
     } catch (e) {
+      console.error('[loadSettings] Error:', e);
       showToast('خطأ في تحميل الإعدادات', 'error');
     }
   }

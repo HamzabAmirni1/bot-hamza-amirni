@@ -435,9 +435,13 @@ app.get('/api/status', (req, res) => {
 // GET /api/settings — full settings
 app.get('/api/settings', (req, res) => {
     try {
+        delete require.cache[require.resolve('./settings')];
         const s = require('./settings');
-        res.json({ ...s, apkLimit: s.apkLimit || 5 });
+        // Strip non-serializable fields
+        const { fbPages, ...safeSettings } = s;
+        res.json({ ...safeSettings, apkLimit: s.apkLimit || 5 });
     } catch (e) {
+        console.error('[API/settings] Error:', e.message);
         res.status(500).json({ error: e.message });
     }
 });
