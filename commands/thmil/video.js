@@ -395,14 +395,22 @@ async function videoCommand(sock, chatId, msg, args, commands, userLang, match) 
         const finalUrl = videoData.download || videoData.downloadUrl || videoData.url;
         const referer = videoData.referer || 'https://www.youtube.com/';
 
-        // Download video to buffer (pass Referer for YouTube CDN URLs from distube)
-        let videoBuffer;
+        // Download video using streams to a temporary file on disk (prevents Koyeb memory OOM crash)
+        const fs = require('fs');
+        const path = require('path');
+        const tempDir = path.join(__dirname, '../temp');
+        if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true });
+
+        const tempFile = path.join(tempDir, `video_${ytId}_${Date.now()}.mp4`);
+        let downloadSuccess = false;
+
         try {
-            const videoResp = await axios.get(finalUrl, {
-                responseType: 'arraybuffer',
-                timeout: 180000,
-                maxContentLength: Infinity,
-                maxBodyLength: Infinity,
+            const writer = fs.createWriteStream(tempFile);
+            const downloadResponse = await axios({
+                url: finalUrl,
+                method: 'GET',
+                responseType: 'stream',
+                timeout: 300000, // 5 minutes
                 headers: {
                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
                     'Referer': referer,
@@ -410,38 +418,52 @@ async function videoCommand(sock, chatId, msg, args, commands, userLang, match) 
                     'Accept-Encoding': 'identity'
                 }
             });
-            const buf = Buffer.from(videoResp.data);
-            // ✅ Validate: reject anything under 50KB — it's a corrupt/empty file
-            if (buf.length < 50 * 1024) {
-                console.log(`[VIDEO] ⚠️ Buffer too small (${buf.length} bytes) — rejecting as corrupt`);
-                // Don't assign — fall through to URL streaming
-            } else {
-                videoBuffer = buf;
+
+            downloadResponse.data.pipe(writer);
+
+            await new Promise((resolve, reject) => {
+                writer.on('finish', resolve);
+                writer.on('error', reject);
+            });
+
+            // Validate that file exists and is not empty or too small (corrupt)
+            if (fs.existsSync(tempFile)) {
+                const stats = fs.statSync(tempFile);
+                if (stats.size > 50 * 1024) { // Minimum 50KB for a valid video file
+                    downloadSuccess = true;
+                    console.log(`[VIDEO] ✅ Download complete. Size: ${(stats.size / 1024 / 1024).toFixed(2)} MB`);
+                } else {
+                    console.log(`[VIDEO] ⚠️ File too small (${stats.size} bytes). Download might be corrupted.`);
+                }
             }
         } catch (e) {
-            console.log(`[VIDEO] Failed to download video buffer: ${e.message}. Falling back to URL streaming.`);
+            console.log(`[VIDEO] Failed to download to disk: ${e.message}`);
         }
 
-        // If buffer failed/corrupt, validate the URL is still alive before streaming
-        if (!videoBuffer) {
-            try {
-                const headCheck = await axios.head(finalUrl, { timeout: 10000 });
-                const size = parseInt(headCheck.headers['content-length'] || '0');
-                if (size > 0 && size < 50 * 1024) {
-                    throw new Error(`URL points to a corrupt file (${size} bytes)`);
-                }
-            } catch (headErr) {
-                if (headErr.message.includes('corrupt')) throw headErr;
-                // HEAD failed for other reason — try streaming anyway
+        if (downloadSuccess) {
+            await sock.sendMessage(chatId, {
+                video: { url: tempFile },
+                mimetype: 'video/mp4',
+                fileName: `${videoData.title || videoTitle || 'video'}.mp4`,
+                caption: t('video.success', { botName: settings.botName }, userLang)
+            }, { quoted: msg });
+        } else {
+            // Streaming fallback directly to URL if local download failed
+            console.log('[VIDEO] ⚠️ Falling back to direct URL streaming');
+            await sock.sendMessage(chatId, {
+                video: { url: finalUrl },
+                mimetype: 'video/mp4',
+                fileName: `${videoData.title || videoTitle || 'video'}.mp4`,
+                caption: t('video.success', { botName: settings.botName }, userLang)
+            }, { quoted: msg });
+        }
+
+        // Cleanup temporary files after sending
+        setTimeout(() => {
+            if (fs.existsSync(tempFile)) {
+                try { fs.unlinkSync(tempFile); } catch (e) {}
             }
-        }
-
-        await sock.sendMessage(chatId, {
-            video: videoBuffer || { url: finalUrl },
-            mimetype: 'video/mp4',
-            fileName: `${videoData.title || videoTitle || 'video'}.mp4`,
-            caption: t('video.success', { botName: settings.botName }, userLang)
-        }, { quoted: msg });
+        }, 45000);
 
     } catch (error) {
         console.error('[VIDEO] Error:', error.message);

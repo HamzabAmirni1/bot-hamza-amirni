@@ -100,11 +100,47 @@ async function mediafireCommand(sock, chatId, message, args, commands, userLang)
             return;
         }
 
+        // Try to get exact size and name from HEAD request
+        let finalFileName = fileInfo.fileName;
+        let finalFileSize = fileInfo.fileSize;
+        let finalType = fileInfo.fileType;
+        let contentLength = null;
+
+        try {
+            const headRes = await axios.head(fileInfo.url, {
+                headers: { 'User-Agent': 'Mozilla/5.0' },
+                timeout: 15000
+            });
+            contentLength = headRes.headers['content-length'];
+            if (contentLength) {
+                const bytes = parseInt(contentLength);
+                finalFileSize = (bytes / 1024 / 1024).toFixed(2) + ' MB';
+            }
+            if (headRes.headers['content-disposition']) {
+                const disposition = headRes.headers['content-disposition'];
+                const filenameMatch = disposition.match(/filename="?([^";]+)"?/i);
+                if (filenameMatch) {
+                    finalFileName = decodeURIComponent(filenameMatch[1]).replace(/\+/g, ' ');
+                    finalType = finalFileName.split('.').pop().toLowerCase();
+                }
+            }
+        } catch (e) {
+            console.log('[MediaFire HEAD error]:', e.message);
+        }
+
+        if ((!finalFileName || finalFileName === 'file') && fileInfo.url) {
+            try {
+                const u = new URL(fileInfo.url);
+                finalFileName = decodeURIComponent(u.pathname.split('/').pop()).replace(/\+/g, ' ');
+                finalType = finalFileName.split('.').pop().toLowerCase();
+            } catch (_) {}
+        }
+
         // Send file info
         const infoMsg = t('download.mediafire_info', {
-            name: fileInfo.fileName,
-            size: fileInfo.fileSize,
-            type: fileInfo.fileType
+            name: finalFileName,
+            size: finalFileSize,
+            type: finalType
         }, userLang);
 
         await sendWithChannelButton(sock, chatId, infoMsg, message);
@@ -115,21 +151,18 @@ async function mediafireCommand(sock, chatId, message, args, commands, userLang)
         const tempDir = path.join(__dirname, '../temp');
         if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir);
 
-        const safeFileName = fileInfo.fileName.replace(/[\\/:*?"<>|]/g, '_');
+        const safeFileName = finalFileName.replace(/[\\/:*?"<>|]/g, '_');
         const tempFile = path.join(tempDir, safeFileName);
 
         try {
-            // Check size before downloading (Stability)
-            const headRes = await axios.head(fileInfo.url, { timeout: 15000 }).catch(() => null);
-            const contentLength = headRes ? headRes.headers['content-length'] : null;
             const maxSize = 300 * 1024 * 1024; // 300MB
 
             if (contentLength && parseInt(contentLength) > maxSize) {
                 const largeMsg = userLang === 'ma'
-                    ? `⚠️ *الملف كبير بزاف (${fileInfo.fileSize}).* الحد الأقصى هو 300 ميجا.`
+                    ? `⚠️ *الملف كبير بزاف (${finalFileSize}).* الحد الأقصى هو 300 ميجا.`
                     : userLang === 'ar'
-                        ? `⚠️ *الملف كبير جداً (${fileInfo.fileSize}).* الحد الأقصى هو 300 ميجا.`
-                        : `⚠️ *File too large (${fileInfo.fileSize}).* Limit is 300MB.`;
+                        ? `⚠️ *الملف كبير جداً (${finalFileSize}).* الحد الأقصى هو 300 ميجا.`
+                        : `⚠️ *File too large (${finalFileSize}).* Limit is 300MB.`;
                 return await sendWithChannelButton(sock, chatId, largeMsg, message);
             }
 
@@ -141,7 +174,8 @@ async function mediafireCommand(sock, chatId, message, args, commands, userLang)
                 responseType: 'stream',
                 timeout: 900000,
                 headers: {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                    'Accept-Encoding': 'identity'
                 }
             });
 
@@ -154,7 +188,7 @@ async function mediafireCommand(sock, chatId, message, args, commands, userLang)
 
             // Determine mimetype
             let mimetype = 'application/octet-stream';
-            const ext = fileInfo.fileName.split('.').pop().toLowerCase();
+            const ext = finalFileName.split('.').pop().toLowerCase();
 
             const mimetypes = {
                 'apk': 'application/vnd.android.package-archive',
@@ -189,11 +223,11 @@ async function mediafireCommand(sock, chatId, message, args, commands, userLang)
             // Send the file from path
             await sock.sendMessage(chatId, {
                 document: { url: tempFile },
-                fileName: fileInfo.fileName,
+                fileName: finalFileName,
                 mimetype: mimetype,
                 caption: t('download.mediafire_success', {
-                    name: fileInfo.fileName,
-                    size: fileInfo.fileSize,
+                    name: finalFileName,
+                    size: finalFileSize,
                     botName: settings.botName
                 }, userLang)
             }, { quoted: message });
