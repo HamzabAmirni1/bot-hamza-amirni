@@ -66,7 +66,7 @@ async function mathCommand(sock, chatId, msg, args) {
     if (op === '*') opSymbol = '×';
     if (op === '-') opSymbol = '-'; // distinct dash
 
-    const text = `🧮 *تحدي الحساب السريع*\n\nأحسب هادي:\n👉 *${a} ${opSymbol} ${b}* = ؟\n\nكتب الجواب ديريكت مور الكوموند (مثال: ${settings.prefix}math ${answer})\nعندك 30 ثانية! ⏳`;
+    const text = `🧮 *تحدي الحساب السريع* 🔢\n\nأحسب هادي:\n👉 *${a} ${opSymbol} ${b} = ؟*\n\n📝 _كتب الجواب فقط مثلاً:_ \`${settings.prefix}math 100\`\n⏳ عندك *30 ثانية!*`;
 
     await sock.sendMessage(chatId, { text: text }, { quoted: msg });
 }
