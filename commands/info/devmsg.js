@@ -171,34 +171,57 @@ ${settings.prefix}devmsg شكراً لاستخدامكم البوت ❤️
             ...channelInfo
         }, { quoted: message });
 
-        const broadcastText = `╔═══════════════════════════════════════╗
-║    📢 رسالة من مطور البوت
-╚═══════════════════════════════════════╝
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('ar-MA', { hour: '2-digit', minute: '2-digit', timeZone: settings.timezone || 'Africa/Casablanca' });
+        const dateStr = now.toLocaleDateString('ar-MA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: settings.timezone || 'Africa/Casablanca' });
+
+        const broadcastText =
+`╔━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╗
+┃       📣  رِسَـالَـةٌ مِـنَ الـمُـطَـوِّر       ┃
+╚━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╝
 
 ${broadcastMsg}
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⚔️ ${settings.botName || 'Hamza Amirni'}
-📢 ${settings.officialChannel}`;
+┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
+🕐 ${timeStr}  •  📅 ${dateStr}
+┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
+
+👑 *${settings.botName || 'حمزة اعمرني'}*
+╰┈➤ 📢 *القناة الرسمية:*
+${settings.officialChannel || ''}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💡 _للأوامر اكتب_ *.help*
+🔗 _إنستغرام:_ ${settings.instagram || ''}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
 
         let success = 0;
         let fail = 0;
 
+        // Load bot thumbnail for premium image+caption message
+        const thumbPath = path.join(process.cwd(), 'media/hamza.jpg');
+        const thumbBuf = fs.existsSync(thumbPath) ? fs.readFileSync(thumbPath) : null;
+
         for (const userId of users) {
             try {
                 console.log(`[devmsg] Attempting to send to: ${userId}`);
-                // Try sending with full branding first
                 try {
-                    await sock.sendMessage(userId, {
-                        text: broadcastText,
-                        ...channelInfo
-                    });
+                    if (thumbBuf) {
+                        // Premium: send as image with caption
+                        await sock.sendMessage(userId, {
+                            image: thumbBuf,
+                            caption: broadcastText,
+                            ...channelInfo
+                        });
+                    } else {
+                        await sock.sendMessage(userId, {
+                            text: broadcastText,
+                            ...channelInfo
+                        });
+                    }
                 } catch (brandingError) {
                     console.error(`[devmsg] Branded message failed for ${userId}, trying simple text...`, brandingError.message);
-                    // Fallback to simple text
-                    await sock.sendMessage(userId, {
-                        text: broadcastText
-                    });
+                    await sock.sendMessage(userId, { text: broadcastText });
                 }
 
                 console.log(`[devmsg] Successfully sent to: ${userId}`);
