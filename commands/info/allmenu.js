@@ -19,6 +19,7 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
         const catMap = getMenuCategories();
 
         const sectionTitles = {
+            download:'التحميلات',
             tools:   'الأدوات',
             fun:     'الترفيه',
             games:   'الألعاب',
