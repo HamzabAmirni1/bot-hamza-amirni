@@ -13,8 +13,8 @@ function isConnectionError(error) {
 function isSocketReady(sock) {
     return !!(sock
         && typeof sock.sendMessage === 'function'
-        && !sock.isClosed
-        && sock.ws?.readyState === 1);
+        && sock.user
+        && !sock.isClosed);
 }
 
 function getActiveSocket(preferredSock) {
