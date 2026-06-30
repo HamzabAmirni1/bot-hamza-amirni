@@ -1018,6 +1018,37 @@ app.post('/api/broadcast', async (req, res) => {
                 }
             }
 
+            // Styled broadcast message template (same as devmsg design)
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('ar-MA', { hour: '2-digit', minute: '2-digit', timeZone: settings.timezone || 'Africa/Casablanca' });
+            const dateStr = now.toLocaleDateString('ar-MA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: settings.timezone || 'Africa/Casablanca' });
+
+            const buildStyledMessage = (msgText) => {
+                if (!msgText) return '';
+                return `╔━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╗
+┃       📣  رِسَـالَـةٌ مِـنَ الـمُـطَـوِّر       ┃
+╚━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╝
+
+${msgText}
+
+┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
+🕐 ${timeStr}  •  📅 ${dateStr}
+┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
+
+👑 *${settings.botName || 'حمزة اعمرني'}*
+╰┈➤ 📢 *القناة الرسمية:*
+${settings.officialChannel || ''}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💡 _للأوامر اكتب_ *.help*
+🔗 _إنستغرام:_ ${settings.instagram || ''}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+            };
+
+            // Load bot thumbnail for premium image+caption message
+            const thumbPath = path.join(process.cwd(), 'media/hamza.jpg');
+            const thumbBuf = fs.existsSync(thumbPath) ? fs.readFileSync(thumbPath) : null;
+
             for (const user of targetUsers) {
                 const jid = user.id || user.jid;
                 const name = user.name || jid.split('@')[0];
@@ -1025,17 +1056,23 @@ app.post('/api/broadcast', async (req, res) => {
 
                 try {
                     if (finalBroadcastBuffer) {
+                        const styledCaption = message ? buildStyledMessage(message) : '';
                         if (finalBroadcastMime.startsWith('image/')) {
-                            await sock.sendMessage(jid, { image: finalBroadcastBuffer, caption: message });
+                            await sock.sendMessage(jid, { image: finalBroadcastBuffer, caption: styledCaption });
                         } else if (finalBroadcastMime.startsWith('video/')) {
-                            await sock.sendMessage(jid, { video: finalBroadcastBuffer, caption: message });
+                            await sock.sendMessage(jid, { video: finalBroadcastBuffer, caption: styledCaption });
                         } else if (finalBroadcastMime.startsWith('audio/')) {
                             await sock.sendMessage(jid, { audio: finalBroadcastBuffer, mimetype: finalBroadcastMime, ptt: !!ptt });
                         } else {
-                            await sock.sendMessage(jid, { document: finalBroadcastBuffer, mimetype: finalBroadcastMime, fileName: mediaName, caption: message });
+                            await sock.sendMessage(jid, { document: finalBroadcastBuffer, mimetype: finalBroadcastMime, fileName: mediaName, caption: styledCaption });
                         }
                     } else {
-                        await sock.sendMessage(jid, { text: message });
+                        const styledText = buildStyledMessage(message);
+                        if (thumbBuf) {
+                            await sock.sendMessage(jid, { image: thumbBuf, caption: styledText });
+                        } else {
+                            await sock.sendMessage(jid, { text: styledText });
+                        }
                     }
                     success = true;
                     global.broadcastProgress.sent++;
