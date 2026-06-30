@@ -22,15 +22,52 @@ async function lyricsCommand(sock, chatId, msg, args) {
     try {
         await sock.sendMessage(chatId, { react: { text: "🔍", key: msg.key } });
 
-        const apiUrl = `https://apis.davidcyriltech.my.id/lyrics3?song=${encodeURIComponent(songTitle)}`;
-        const response = await axios.get(apiUrl, { timeout: 15000 });
-        const json = response.data;
+        let song = songTitle;
+        let artist = 'غير معروف';
+        let lyrics = '';
+        let fetched = false;
 
-        if (!json.success || !json.result || !json.result.lyrics) {
-            return await sock.sendMessage(chatId, { text: `❌ عذراً، لم أتمكن من العثور على كلمات الأغنية لـ "${songTitle}".` }, { quoted: msg });
+        // 1. Try David Cyril API
+        try {
+            const apiUrl = `https://apis.davidcyriltech.my.id/lyrics3?song=${encodeURIComponent(songTitle)}`;
+            const response = await axios.get(apiUrl, { timeout: 10000 });
+            const json = response.data;
+            if (json.success && json.result && json.result.lyrics) {
+                song = json.result.song || song;
+                artist = json.result.artist || artist;
+                lyrics = json.result.lyrics;
+                fetched = true;
+            }
+        } catch (e) {
+            console.log(`[Lyrics] David Cyril API failed: ${e.message}`);
         }
 
-        const { song, artist, lyrics } = json.result;
+        // 2. Try LRCLIB API as fallback
+        if (!fetched) {
+            try {
+                const lrclibUrl = `https://lrclib.net/api/search?q=${encodeURIComponent(songTitle)}`;
+                const response = await axios.get(lrclibUrl, {
+                    headers: { 'User-Agent': 'HamzaAmirniBot/1.0.0' },
+                    timeout: 10000
+                });
+                if (Array.isArray(response.data) && response.data.length > 0) {
+                    const track = response.data.find(t => t.plainLyrics);
+                    if (track) {
+                        song = track.name || track.trackName || song;
+                        artist = track.artistName || artist;
+                        lyrics = track.plainLyrics;
+                        fetched = true;
+                    }
+                }
+            } catch (e) {
+                console.log(`[Lyrics] LRCLIB API failed: ${e.message}`);
+            }
+        }
+
+        if (!fetched || !lyrics) {
+            await sock.sendMessage(chatId, { react: { text: "❌", key: msg.key } });
+            return await sock.sendMessage(chatId, { text: `❌ عذراً، لم أتمكن من العثور على كلمات الأغنية لـ "${songTitle}".` }, { quoted: msg });
+        }
 
         const genImage = await generateWAMessageContent(
             { image: { url: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=1000&auto=format&fit=crop' } },
