@@ -101,13 +101,26 @@ ${langList}
         // Call the TTS function
         const audioBuffer = await tts(textToSpeak, langData.code);
 
+        // Convert MP3 to WhatsApp-compatible Opus format using ffmpeg
+        const { toAudio } = require('../../lib/silana/converter');
+        const converted = await toAudio(audioBuffer, 'mp3');
+
         // Send the audio file
         await sock.sendMessage(chatId, {
-            audio: audioBuffer,
-            mimetype: 'audio/mpeg',
+            audio: converted.data,
+            mimetype: 'audio/ogg; codecs=opus',
             ptt: true, // Send as voice note
-            fileName: `tts_${langKey}.mp3`
+            fileName: `tts_${langKey}.opus`
         }, { quoted: message });
+
+        // Clean up temporary file
+        try {
+            if (converted && typeof converted.delete === 'function') {
+                await converted.delete();
+            }
+        } catch (e) {
+            console.error('Failed to delete temp tts file:', e.message);
+        }
 
     } catch (error) {
         console.error('Error in say command:', error);
