@@ -440,22 +440,41 @@ async function videoCommand(sock, chatId, msg, args, commands, userLang, match) 
             console.log(`[VIDEO] Failed to download to disk: ${e.message}`);
         }
 
+        // Retry helper for connection-closed errors (common on Koyeb)
+        const sendWithRetry = async (fn, retries = 3) => {
+            for (let attempt = 1; attempt <= retries; attempt++) {
+                try {
+                    return await fn();
+                } catch (e) {
+                    const isConn = e?.output?.statusCode === 428 ||
+                                   String(e?.message || '').toLowerCase().includes('connection closed') ||
+                                   String(e?.message || '').toLowerCase().includes('connection reset');
+                    if (isConn && attempt < retries) {
+                        console.log(`[VIDEO] ⚠️ Connection error on send, retrying in 4s (${attempt}/${retries - 1})...`);
+                        await new Promise(r => setTimeout(r, 4000));
+                    } else {
+                        throw e;
+                    }
+                }
+            }
+        };
+
         if (downloadSuccess) {
-            await sock.sendMessage(chatId, {
+            await sendWithRetry(() => sock.sendMessage(chatId, {
                 video: { url: tempFile },
                 mimetype: 'video/mp4',
                 fileName: `${videoData.title || videoTitle || 'video'}.mp4`,
                 caption: t('video.success', { botName: settings.botName }, userLang)
-            }, { quoted: msg });
+            }, { quoted: msg }));
         } else {
             // Streaming fallback directly to URL if local download failed
             console.log('[VIDEO] ⚠️ Falling back to direct URL streaming');
-            await sock.sendMessage(chatId, {
+            await sendWithRetry(() => sock.sendMessage(chatId, {
                 video: { url: finalUrl },
                 mimetype: 'video/mp4',
                 fileName: `${videoData.title || videoTitle || 'video'}.mp4`,
                 caption: t('video.success', { botName: settings.botName }, userLang)
-            }, { quoted: msg });
+            }, { quoted: msg }));
         }
 
         // Cleanup temporary files after sending
@@ -467,8 +486,13 @@ async function videoCommand(sock, chatId, msg, args, commands, userLang, match) 
 
     } catch (error) {
         console.error('[VIDEO] Error:', error.message);
-        await sock.sendMessage(chatId, { text: t('download.yt_error', {}, userLang) + `: ${error.message}` }, { quoted: msg });
-        await sock.sendMessage(chatId, { react: { text: '❌', key: msg.key } });
+        const isConnErr = error?.output?.statusCode === 428 ||
+                          String(error?.message || '').toLowerCase().includes('connection closed');
+        const errMsg = isConnErr
+            ? '⚠️ حدث انقطاع مؤقت في الاتصال أثناء إرسال الفيديو. يرجى المحاولة مرة أخرى لاحقاً.'
+            : '❌ فشل تحميل الفيديو. يرجى المحاولة مرة أخرى أو تجربة رابط آخر.';
+        try { await sock.sendMessage(chatId, { text: errMsg }, { quoted: msg }); } catch (_) {}
+        try { await sock.sendMessage(chatId, { react: { text: '❌', key: msg.key } }); } catch (_) {}
     }
 }
 

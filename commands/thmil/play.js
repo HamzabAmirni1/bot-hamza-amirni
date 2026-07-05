@@ -217,8 +217,27 @@ async function playCommand(sock, chatId, msg, args, commands, userLang) {
             }
         }
 
+        // Retry helper for connection-closed errors (common on Koyeb)
+        const sendWithRetry = async (fn, retries = 3) => {
+            for (let attempt = 1; attempt <= retries; attempt++) {
+                try {
+                    return await fn();
+                } catch (e) {
+                    const isConn = e?.output?.statusCode === 428 ||
+                                   String(e?.message || '').toLowerCase().includes('connection closed') ||
+                                   String(e?.message || '').toLowerCase().includes('connection reset');
+                    if (isConn && attempt < retries) {
+                        console.log(`[PLAY] ⚠️ Connection error, retrying in 4s (${attempt}/${retries - 1})...`);
+                        await new Promise(r => setTimeout(r, 4000));
+                    } else {
+                        throw e;
+                    }
+                }
+            }
+        };
+
         // Send audio with buffer thumbnail to prevent Baileys string URL parsing hangs
-        await sock.sendMessage(chatId, {
+        await sendWithRetry(() => sock.sendMessage(chatId, {
             audio: finalBuffer,
             mimetype: finalMimetype,
             fileName: `${finalTitle}.mp3`,
@@ -232,18 +251,20 @@ async function playCommand(sock, chatId, msg, args, commands, userLang) {
                     thumbnail: thumbBuffer
                 }
             }
-        }, { quoted: msg });
+        }, { quoted: msg }));
 
         // Add success reaction
-        await sock.sendMessage(chatId, { react: { text: '✅', key: msg.key } });
+        try { await sock.sendMessage(chatId, { react: { text: '✅', key: msg.key } }); } catch (_) {}
 
     } catch (error) {
         console.error('Error in play command:', error);
-        await sock.sendMessage(chatId, {
-            text: t('download.yt_error', {}, userLang) + `: ${error.message}`
-        }, { quoted: msg });
-        await sock.sendMessage(chatId, { text: t('play.error', {}, userLang) }, { quoted: msg });
-        await sock.sendMessage(chatId, { react: { text: '❌', key: msg.key } });
+        const isConnErr = error?.output?.statusCode === 428 ||
+                          String(error?.message || '').toLowerCase().includes('connection closed');
+        const errMsg = isConnErr
+            ? '⚠️ حدث انقطاع مؤقت في الاتصال أثناء إرسال المقطوعة. يرجى المحاولة مرة أخرى.'
+            : '❌ فشل تحميل المقطوعة الصوتية. يرجى المحاولة مرة أخرى.';
+        try { await sock.sendMessage(chatId, { text: errMsg }, { quoted: msg }); } catch (_) {}
+        try { await sock.sendMessage(chatId, { react: { text: '❌', key: msg.key } }); } catch (_) {}
     }
 }
 
