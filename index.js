@@ -1146,7 +1146,7 @@ app.post('/api/dev-messages/reply', async (req, res) => {
         }
 
         const clients = global.clients || [];
-        const sock = clients.find(c => c?.user) || clients[0];
+        const sock = clients.find(c => c?.user && !c.isClosed) || clients.find(c => c?.user) || clients[0];
         if (!sock) {
             return res.status(503).json({ ok: false, error: 'لا توجد جلسة واتساب نشطة لإرسال الرد' });
         }
@@ -1181,19 +1181,40 @@ app.post('/api/dev-messages/reply', async (req, res) => {
 👤 المطور: حمزة اعمرني 🇲🇦
 💡 للرد مجدداً، اكتب: .msgtodev [رسالتك]`;
 
+        // Helper: retry send on connection errors (up to 2 retries)
+        const sendWithRetry = async (fn, retries = 2) => {
+            for (let attempt = 0; attempt <= retries; attempt++) {
+                try {
+                    return await fn();
+                } catch (e) {
+                    const isConnErr = e?.output?.statusCode === 428 || String(e?.message || '').toLowerCase().includes('connection closed');
+                    if (isConnErr && attempt < retries) {
+                        console.log(`[DevReply] Connection error, retrying in 3s (attempt ${attempt + 1}/${retries})...`);
+                        await new Promise(r => setTimeout(r, 3000));
+                        // Try to pick a fresh active socket
+                        const freshSock = (global.clients || []).find(c => c?.user && !c.isClosed) || sock;
+                        if (freshSock !== sock) console.log('[DevReply] Switched to fresh socket');
+                        fn = fn.bind(null); // rebind
+                    } else {
+                        throw e;
+                    }
+                }
+            }
+        };
+
         if (mediaBuffer) {
             if (isImage) {
-                await sock.sendMessage(jid, { image: mediaBuffer, caption: formattedReply, mimetype: mediaType });
+                await sendWithRetry(() => sock.sendMessage(jid, { image: mediaBuffer, caption: formattedReply, mimetype: mediaType }));
             } else if (isAudio) {
-                await sock.sendMessage(jid, { audio: finalAudioBuffer, mimetype: finalMimeType, ptt: !!ptt });
-                await sock.sendMessage(jid, { text: formattedReply });
+                await sendWithRetry(() => sock.sendMessage(jid, { audio: finalAudioBuffer, mimetype: finalMimeType, ptt: !!ptt }));
+                await sendWithRetry(() => sock.sendMessage(jid, { text: formattedReply }));
             } else if (isVideo) {
-                await sock.sendMessage(jid, { video: mediaBuffer, caption: formattedReply, mimetype: mediaType });
+                await sendWithRetry(() => sock.sendMessage(jid, { video: mediaBuffer, caption: formattedReply, mimetype: mediaType }));
             } else {
-                await sock.sendMessage(jid, { document: mediaBuffer, fileName: fileName, mimetype: mediaType || 'application/octet-stream', caption: formattedReply });
+                await sendWithRetry(() => sock.sendMessage(jid, { document: mediaBuffer, fileName: fileName, mimetype: mediaType || 'application/octet-stream', caption: formattedReply }));
             }
         } else {
-            await sock.sendMessage(jid, { text: formattedReply });
+            await sendWithRetry(() => sock.sendMessage(jid, { text: formattedReply }));
         }
 
         await db.markDevMessageReplied(id, replyText);
