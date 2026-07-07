@@ -59,13 +59,18 @@ async function getMediaFireDownload(url) {
     if (fileKey) {
         try {
             const info = await getInfoViaAPI(fileKey);
-            if (info.url) return { ...info, originalUrl: url };
+            // Only accept direct download links, not the /file/ preview page URLs
+            if (info.url && !info.url.includes('/file/')) {
+                return { ...info, originalUrl: url };
+            } else {
+                console.log('[MediaFire] API returned page preview URL instead of direct link. Falling back to HTML scrape.');
+            }
         } catch (e) {
             console.log('[MediaFire] API failed, trying HTML scrape:', e.message);
         }
     }
 
-    // Fallback to HTML scraping
+    // Fallback to HTML scraping (which yields the true download link)
     try {
         const info = await getInfoViaHTML(url);
         return { ...info, originalUrl: url };
@@ -74,6 +79,7 @@ async function getMediaFireDownload(url) {
         throw new Error('Could not extract download link from MediaFire');
     }
 }
+
 
 async function mediafireCommand(sock, chatId, message, args, commands, userLang) {
     const url = args.join(' ').trim();
