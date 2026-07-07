@@ -2272,20 +2272,67 @@ async function startBot(sessionPath = sessionDir, phoneNumber = null) {
 
     // Anticall implementation
     sock.ev.on('call', async (call) => {
-        const { readState } = require('./commands/group/anticall');
-        const state = readState();
-        if (state.enabled) {
+        try {
+            const { readState } = require('./commands/group/anticall');
+            const state = readState();
+            if (!state.enabled) return;
+
             for (const c of call) {
                 if (c.status === 'offer') {
-                    await sock.rejectCall(c.id, c.from);
+                    console.log(`[AntiCall] Incoming call detected from: ${c.from}, ID: ${c.id}`);
+
+                    // 1. Reject the call using raw Baileys query
+                    try {
+                        await sock.query({
+                            tag: 'call',
+                            attrs: {
+                                to: c.from,
+                                id: c.id
+                            },
+                            content: [
+                                {
+                                    tag: 'reject',
+                                    attrs: {
+                                        'call-id': c.id,
+                                        'call-creator': c.from,
+                                        count: '0'
+                                    },
+                                    content: null
+                                }
+                            ]
+                        });
+                        console.log(`[AntiCall] Successfully rejected call from: ${c.from}`);
+                    } catch (rejectErr) {
+                        console.error(`[AntiCall] Error rejecting call:`, rejectErr.message);
+                    }
+
+                    const cleanCaller = sock.decodeJid(c.from);
+
+                    // 2. Send warning message to the caller
+                    try {
+                        const warnText = `🚫 *عذراً، المكالمات غير مدعومة تلقائياً!*\n\nيرجى عدم الاتصال بالبوت لتفادي الحظر.\n\nSorry, calls are not supported. Please do not call to avoid getting blocked.`;
+                        await sock.sendMessage(cleanCaller, { text: warnText });
+                    } catch (msgErr) {
+                        console.error(`[AntiCall] Error sending warning message:`, msgErr.message);
+                    }
+
+                    // 3. Block user if action is set to block
                     if (state.action === 'block') {
-                        const cleanCaller = sock.decodeJid(c.from);
-                        await sock.updateBlockStatus(cleanCaller, 'block').catch(() => { });
+                        try {
+                            await new Promise(r => setTimeout(r, 1500)); // Short delay
+                            await sock.updateBlockStatus(cleanCaller, 'block');
+                            console.log(`[AntiCall] Successfully blocked caller: ${cleanCaller}`);
+                        } catch (blockErr) {
+                            console.error(`[AntiCall] Error blocking caller:`, blockErr.message);
+                        }
                     }
                 }
             }
+        } catch (e) {
+            console.error('[AntiCall] Error in call handler:', e);
         }
     });
+
 
         return sock;
     } finally {
