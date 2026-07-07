@@ -4,8 +4,9 @@ const settings = require('../../settings');
 const { isOwner } = require('../../lib/ownerCheck');
 const { sendWithChannelButton } = require('../../lib/channelButton');
 
-// Path to store dynamic config
-const DYNAMIC_CONFIG = path.join(__dirname, '../data/config.json');
+// Path to store dynamic config (root-level data/config.json)
+const DYNAMIC_CONFIG = path.join(__dirname, '../../data/config.json');
+
 
 // Ensure config file exists
 function ensureConfig() {

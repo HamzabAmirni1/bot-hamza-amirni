@@ -2024,7 +2024,43 @@
       </div>
     </div>
 
+    <!-- Security & Protection Settings -->
+    <div class="card" id="security-config-card">
+      <div class="card-header">
+        <div class="card-icon green"><i class="fas fa-shield-alt"></i></div>
+        <div class="card-title">حماية وأمان البوت</div>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-title">القراءة التلقائية (Auto-Read / Blue Tick) ✔</div>
+          <div class="toggle-desc">تأشير جميع الرسائل الواردة كـ "مقروءة" تلقائياً (علامة زرقاء مزدوجة)</div>
+        </div>
+        <label class="toggle"><input type="checkbox" id="c-autoRead" /><span class="toggle-slider"></span></label>
+      </div>
+      <div class="toggle-row" style="margin-top:10px;">
+        <div class="toggle-info">
+          <div class="toggle-title">منع المكالمات الواردة (Anti-Call) 📵</div>
+          <div class="toggle-desc">رفض أي مكالمة واردة للبوت تلقائياً</div>
+        </div>
+        <label class="toggle"><input type="checkbox" id="c-antiCall" /><span class="toggle-slider"></span></label>
+      </div>
+      <div class="toggle-row" style="margin-top:10px;" id="antiCallActionRow">
+        <div class="toggle-info">
+          <div class="toggle-title">إجراء منع المكالمات</div>
+          <div class="toggle-desc">حظر المتصل (Block) أم رفض المكالمة فقط (Reject)؟</div>
+        </div>
+        <select id="c-antiCallAction" class="form-input" style="width:auto;min-width:160px;padding:8px 14px;font-size:13px;">
+          <option value="block">🚫 حظر (Block)</option>
+          <option value="reject">📞 رفض فقط (Reject)</option>
+        </select>
+      </div>
+      <button onclick="saveSecurityConfig()" class="btn btn-primary" style="margin-top:16px;width:100%;">
+        <i class="fas fa-save"></i> حفظ إعدادات الحماية
+      </button>
+    </div>
+
     <!-- Traffic Booster Settings -->
+
     <div class="card">
       <div class="card-header">
         <div class="card-icon blue"><i class="fas fa-chart-line"></i></div>
@@ -4003,6 +4039,42 @@
     } catch (e) {
       console.error('[loadSettings] Error:', e);
       showToast('خطأ في تحميل الإعدادات', 'error');
+    }
+    // Also load security config (data/config.json)
+    loadSecurityConfig();
+  }
+
+  async function loadSecurityConfig() {
+    try {
+      const res = await fetch('/api/config');
+      const cfg = await res.json();
+      setChk('c-autoRead', cfg.AUTOREAD === 'true');
+      setChk('c-antiCall', cfg.ANTICALL === 'on');
+      const sel = document.getElementById('c-antiCallAction');
+      if (sel) sel.value = cfg.ANTICALL_ACTION || 'block';
+    } catch (e) {
+      console.error('[loadSecurityConfig] Error:', e);
+    }
+  }
+
+  async function saveSecurityConfig() {
+    const autoRead = document.getElementById('c-autoRead').checked ? 'true' : 'false';
+    const antiCall = document.getElementById('c-antiCall').checked ? 'on' : 'off';
+    const antiCallAction = document.getElementById('c-antiCallAction').value || 'block';
+    try {
+      const res = await fetch('/api/config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ AUTOREAD: autoRead, ANTICALL: antiCall, ANTICALL_ACTION: antiCallAction })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        showToast('✅ تم حفظ إعدادات الحماية بنجاح', 'success');
+      } else {
+        showToast(data.error || 'فشل الحفظ', 'error');
+      }
+    } catch (e) {
+      showToast('خطأ في الاتصال', 'error');
     }
   }
 

@@ -516,7 +516,57 @@ app.post('/api/settings', (req, res) => {
     }
 });
 
+// GET /api/config — read dynamic config (data/config.json)
+app.get('/api/config', (req, res) => {
+    try {
+        const cfgPath = path.join(__dirname, 'data', 'config.json');
+        const cfg = fs.existsSync(cfgPath) ? JSON.parse(fs.readFileSync(cfgPath, 'utf8')) : {};
+        res.json(cfg);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// POST /api/config — write allowed keys to data/config.json
+app.post('/api/config', (req, res) => {
+    try {
+        const cfgPath = path.join(__dirname, 'data', 'config.json');
+        const allowed = ['AUTOREAD', 'AUTOTYPE', 'AUTORECORD', 'AUTORECORDTYPE',
+            'AUTO_STATUS_REACT', 'AUTO_STATUS_REPLY', 'AUTO_STATUS_MSG',
+            'ANTICALL', 'ANTICALL_ACTION'];
+        let cfg = {};
+        if (fs.existsSync(cfgPath)) {
+            cfg = JSON.parse(fs.readFileSync(cfgPath, 'utf8'));
+        }
+        for (const key of allowed) {
+            if (req.body[key] !== undefined) cfg[key] = req.body[key];
+        }
+        fs.writeFileSync(cfgPath, JSON.stringify(cfg, null, 2), 'utf8');
+        // Sync anticall state if changed
+        if (req.body.ANTICALL !== undefined) {
+            try {
+                const anticall = require('./commands/group/anticall');
+                const enabled = req.body.ANTICALL === 'on';
+                const action = req.body.ANTICALL_ACTION || 'block';
+                if (typeof anticall.readState === 'function') {
+                    // writeState is internal — write directly to anticall.json
+                    const anticallPath = path.join(__dirname, 'data', 'anticall.json');
+                    const existing = fs.existsSync(anticallPath)
+                        ? JSON.parse(fs.readFileSync(anticallPath, 'utf8')) : {};
+                    existing.enabled = enabled;
+                    existing.action = action;
+                    fs.writeFileSync(anticallPath, JSON.stringify(existing, null, 2));
+                }
+            } catch (_) {}
+        }
+        res.json({ ok: true });
+    } catch (e) {
+        res.status(500).json({ ok: false, error: e.message });
+    }
+});
+
 // POST /api/apk-limit — update daily APK limit
+
 app.post('/api/apk-limit', (req, res) => {
     try {
         const limit = parseInt(req.body.limit);
