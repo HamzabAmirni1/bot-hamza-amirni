@@ -1432,7 +1432,7 @@ app.post('/api/send-message', async (req, res) => {
         }
 
         const clients = global.clients || [];
-        const sock = clients.find(c => c?.user) || clients[0];
+        const sock = clients.find(c => c?.user && !c.isClosed) || clients.find(c => c?.user) || clients[0];
         if (!sock) return res.status(500).json({ ok: false, error: 'لا توجد جلسة واتساب نشطة حالياً' });
 
         const jid = targetNumber.includes('@') ? targetNumber : `${targetNumber}@s.whatsapp.net`;
@@ -1440,27 +1440,56 @@ app.post('/api/send-message', async (req, res) => {
         const msgCaption = caption || message || '';
         const fileName = mediaName || 'file';
 
+        // Retry helper for transient 428 connection-closed errors
+        const sendWithRetry = async (fn, retries = 3) => {
+            for (let attempt = 1; attempt <= retries; attempt++) {
+                try {
+                    return await fn();
+                } catch (e) {
+                    const isConn = e?.output?.statusCode === 428 ||
+                        String(e?.message || '').toLowerCase().includes('connection closed') ||
+                        String(e?.message || '').toLowerCase().includes('connection reset');
+                    if (isConn && attempt < retries) {
+                        console.log(`[SendMsg] ⚠️ Connection error, retrying in 3s (${attempt}/${retries - 1})...`);
+                        await new Promise(r => setTimeout(r, 3000));
+                        // Re-pick best available socket
+                        const freshSock = (global.clients || []).find(c => c?.user && !c.isClosed) || sock;
+                        if (freshSock !== sock) {
+                            console.log('[SendMsg] Switched to fresh socket on retry');
+                            return await freshSock.sendMessage.apply(freshSock, [jid, ...[]]);
+                        }
+                    } else {
+                        throw e;
+                    }
+                }
+            }
+        };
+
         if (mediaBuffer) {
             const isImage = mediaType && mediaType.startsWith('image/');
             const isAudio = mediaType && (mediaType.startsWith('audio/') || mediaType === 'video/ogg');
             const isVideo = mediaType && mediaType.startsWith('video/') && !isAudio;
 
             if (isImage) {
-                await sock.sendMessage(jid, { image: mediaBuffer, caption: msgCaption, mimetype: mediaType });
+                await sendWithRetry(() => sock.sendMessage(jid, { image: mediaBuffer, caption: msgCaption, mimetype: mediaType }));
             } else if (isAudio) {
-                await sock.sendMessage(jid, { audio: mediaBuffer, mimetype: mediaType, ptt: !!ptt });
-                if (message) await sock.sendMessage(jid, { text: message });
+                await sendWithRetry(() => sock.sendMessage(jid, { audio: mediaBuffer, mimetype: mediaType, ptt: !!ptt }));
+                if (message) await sendWithRetry(() => sock.sendMessage(jid, { text: message }));
             } else if (isVideo) {
-                await sock.sendMessage(jid, { video: mediaBuffer, caption: msgCaption, mimetype: mediaType });
+                await sendWithRetry(() => sock.sendMessage(jid, { video: mediaBuffer, caption: msgCaption, mimetype: mediaType }));
             } else {
-                await sock.sendMessage(jid, { document: mediaBuffer, fileName: fileName, mimetype: mediaType || 'application/octet-stream', caption: msgCaption });
+                await sendWithRetry(() => sock.sendMessage(jid, { document: mediaBuffer, fileName: fileName, mimetype: mediaType || 'application/octet-stream', caption: msgCaption }));
             }
         } else {
-            await sock.sendMessage(jid, { text: message });
+            await sendWithRetry(() => sock.sendMessage(jid, { text: message }));
         }
         res.json({ ok: true });
     } catch (e) {
-        res.status(500).json({ ok: false, error: e.message });
+        const isConn = e?.output?.statusCode === 428 || String(e?.message || '').toLowerCase().includes('connection closed');
+        const errMsg = isConn
+            ? 'حدث انقطاع مؤقت في الاتصال أثناء الإرسال. يرجى المحاولة مرة أخرى.'
+            : e.message;
+        res.status(500).json({ ok: false, error: errMsg });
     }
 });
 

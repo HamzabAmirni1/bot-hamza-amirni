@@ -4923,11 +4923,16 @@
         sendBtn.textContent = 'جاري الإرسال...';
       }
 
+      // Use long timeout to allow server-side retries on connection errors (up to 30s)
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 45000);
       const res = await fetch('/api/send-message', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
+        body: JSON.stringify(body),
+        signal: controller.signal
       });
+      clearTimeout(timer);
       const data = await res.json();
       if (data.ok) {
         alertEl.style.display = 'block';
@@ -4940,14 +4945,16 @@
         sendBtn.textContent = 'إرسال';
         alertEl.style.display = 'block';
         alertEl.className = 'alert alert-error';
-        alertEl.textContent = `❌ ${data.error || 'فشل إرسال الرسالة'}`;
+        const isConnErr = (data.error || '').includes('انقطاع');
+        alertEl.textContent = `❌ ${data.error || 'فشل إرسال الرسالة'}${isConnErr ? ' - حاول مرة أخرى' : ''}`;
       }
     } catch (e) {
       sendBtn.disabled = false;
       sendBtn.textContent = 'إرسال';
       alertEl.style.display = 'block';
       alertEl.className = 'alert alert-error';
-      alertEl.textContent = '❌ حدث خطأ في الاتصال بالسيرفر';
+      const msg = e.name === 'AbortError' ? '❗ استغرق الإرسال وقتاً طويلاً. جرب مرة أخرى.' : '❌ حدث خطأ في الاتصال بالسيرفر. جرب مرة أخرى.';
+      alertEl.textContent = msg;
     }
   }
 
