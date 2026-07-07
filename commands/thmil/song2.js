@@ -12,6 +12,15 @@ async function playCommand(sock, chatId, message) {
             });
         }
 
+        // 🔞 NSFW Filter
+        const { checkContent } = require('../../lib/contentFilter');
+        const filter = checkContent(searchQuery, 'en');
+        if (filter.blocked) {
+            await sock.sendMessage(chatId, { react: { text: '🚫', key: message.key } });
+            return await sock.sendMessage(chatId, { text: filter.message }, { quoted: message });
+        }
+
+
         // Search for the song
         const { videos } = await yts(searchQuery);
         if (!videos || videos.length === 0) {

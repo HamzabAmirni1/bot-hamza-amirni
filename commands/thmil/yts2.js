@@ -12,6 +12,15 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
         return;
     }
 
+    // 🔞 NSFW Filter
+    const { checkContent } = require('../../lib/contentFilter');
+    const filter = checkContent(query, userLang);
+    if (filter.blocked) {
+        await sock.sendMessage(chatId, { react: { text: '🚫', key: msg.key } });
+        return await sock.sendMessage(chatId, { text: filter.message }, { quoted: msg });
+    }
+
+
     // Reaction for fetching
     await sock.sendMessage(chatId, { react: { text: "🔍", key: msg.key } });
 

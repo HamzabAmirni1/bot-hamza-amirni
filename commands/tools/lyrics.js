@@ -19,6 +19,15 @@ async function lyricsCommand(sock, chatId, msg, args) {
         return await sock.sendMessage(chatId, { text: helpMsg }, { quoted: msg });
     }
 
+    // 🔞 NSFW Filter
+    const { checkContent } = require('../../lib/contentFilter');
+    const filter = checkContent(songTitle, 'ar');
+    if (filter.blocked) {
+        await sock.sendMessage(chatId, { react: { text: '🚫', key: msg.key } });
+        return await sock.sendMessage(chatId, { text: filter.message }, { quoted: msg });
+    }
+
+
     try {
         await sock.sendMessage(chatId, { react: { text: "🔍", key: msg.key } });
 

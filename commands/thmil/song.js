@@ -64,6 +64,17 @@ async function songCommand(sock, chatId, message, args, commands, userLang, matc
             return;
         }
 
+        // 🔞 NSFW Filter
+        if (!text.startsWith('http')) {
+            const { checkContent } = require('../../lib/contentFilter');
+            const filter = checkContent(text, userLang);
+            if (filter.blocked) {
+                await sock.sendMessage(chatId, { react: { text: '🚫', key: message.key } });
+                return await sock.sendMessage(chatId, { text: filter.message }, { quoted: message });
+            }
+        }
+
+
         let video;
         if (text.includes('youtube.com') || text.includes('youtu.be')) {
             video = { url: text };
