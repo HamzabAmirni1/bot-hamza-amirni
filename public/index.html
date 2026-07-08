@@ -2409,7 +2409,8 @@
       <div class="card-header" style="display:flex;align-items:center;gap:12px;">
         <div class="card-icon red"><i class="fas fa-exclamation-triangle"></i></div>
         <div class="card-title">⚠️ الأوامر التي تحتوي على أخطاء (سجل الأعطال)</div>
-        <button onclick="loadCmdErrors()" class="btn btn-secondary" style="margin-right:auto;padding:5px 12px;font-size:12px;font-family:Cairo,sans-serif;">🔄 تحديث</button>
+        <button onclick="clearAllErrors()" class="btn btn-secondary" style="margin-right:auto;padding:5px 12px;font-size:12px;font-family:Cairo,sans-serif;background:rgba(252,129,129,0.08);color:var(--red);border-color:rgba(252,129,129,0.25);"><i class="fas fa-trash-alt"></i> مسح السجل</button>
+        <button onclick="loadCmdErrors()" class="btn btn-secondary" style="margin-right:8px;padding:5px 12px;font-size:12px;font-family:Cairo,sans-serif;">🔄 تحديث</button>
       </div>
       <div style="overflow-x:auto;">
         <table style="width:100%;border-collapse:collapse;font-size:13px;" id="errors-table">
@@ -2482,7 +2483,44 @@
         <div style="background:rgba(246,224,94,0.08);border:1px solid rgba(246,224,94,0.2);border-radius:12px;padding:12px;margin-bottom:16px;font-size:12px;color:var(--yellow);">
           <i class="fas fa-exclamation-triangle"></i> ستُرسل لجميع المستخدمين المسجلين في المنصة المحددة — تأكد من المحتوى قبل الإرسال
         </div>
-        <button class="btn btn-primary" onclick="sendBroadcast()" style="width:100%;justify-content:center;font-size:15px;padding:14px;">  <!-- =================== DEV MESSAGES PAGE =================== -->
+        <button class="btn btn-primary" onclick="sendBroadcast()" style="width:100%;justify-content:center;font-size:15px;padding:14px;">
+          <i class="fas fa-paper-plane"></i> إرسال الرسالة
+        </button>
+        <div id="broadcast-alert" class="alert" style="margin-top:12px;"></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-icon blue"><i class="fas fa-info-circle"></i></div><div class="card-title">معلومات البث</div></div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:14px;background:var(--bg);border-radius:12px;">
+            <span style="color:var(--text-muted);"><i class="fab fa-whatsapp" style="color:#25d366;"></i> مستخدمي واتساب</span>
+            <span id="broadcast-wa" style="font-weight:700;color:#25d366;">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:14px;background:var(--bg);border-radius:12px;">
+            <span style="color:var(--text-muted);"><i class="fab fa-telegram-plane" style="color:#38bdf8;"></i> مستخدمي تليجرام</span>
+            <span id="broadcast-tg" style="font-weight:700;color:#38bdf8;">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:14px;background:var(--bg);border-radius:12px;">
+            <span style="color:var(--text-muted);"><i class="fab fa-facebook-messenger" style="color:#0084ff;"></i> مستخدمي فيسبوك</span>
+            <span id="broadcast-fb" style="font-weight:700;color:#0084ff;">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:14px;background:var(--bg);border-radius:12px;">
+            <span style="color:var(--text-muted);"><i class="fas fa-users"></i> إجمالي المستلمين</span>
+            <span id="broadcast-total" style="font-weight:700;color:var(--blue);">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:14px;background:var(--bg);border-radius:12px;">
+            <span style="color:var(--text-muted);"><i class="fas fa-check-circle"></i> آخر عملية إرسال</span>
+            <span id="broadcast-last" style="font-weight:700;color:var(--accent);">—</span>
+          </div>
+          <div style="padding:14px;background:rgba(99,179,237,0.05);border:1px solid rgba(99,179,237,0.15);border-radius:12px;font-size:13px;color:var(--text-muted);line-height:1.8;">
+            <i class="fas fa-clock" style="color:var(--blue);"></i>
+            تأخير 500ms بين كل مستخدم لتجنب الحظر والحدود.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =================== DEV MESSAGES PAGE =================== -->
   <div class="page" id="page-devmessages">
     
     <!-- ── 1. Inbox List View ── -->
@@ -5097,6 +5135,23 @@
       }).join('');
     } catch(e) {
       tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--red);">❌ خطأ في تحميل البيانات: ' + e.message + '</td></tr>';
+    }
+  }
+
+  async function clearAllErrors() {
+    const ok = await showConfirm('هل تريد مسح سجل الأعطال والأخطاء بالكامل؟');
+    if (!ok) return;
+    try {
+      const res = await fetch('/api/errors/clear', { method: 'POST' });
+      const data = await res.json();
+      if (data.ok) {
+        showToast('🗑️ تم مسح سجل الأخطاء بنجاح!', 'success');
+        loadCmdErrors();
+      } else {
+        showToast('❌ فشل مسح السجل', 'error');
+      }
+    } catch(e) {
+      showToast('❌ خطأ: ' + e.message, 'error');
     }
   }
 

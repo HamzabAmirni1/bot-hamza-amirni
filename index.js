@@ -1356,6 +1356,17 @@ app.get('/api/errors', async (req, res) => {
     }
 });
 
+// POST /api/errors/clear — clear all error logs
+app.post('/api/errors/clear', async (req, res) => {
+    try {
+        const { db } = require('./lib/supabase');
+        const ok = await db.clearAllErrors();
+        res.json({ ok: true, success: ok });
+    } catch (e) {
+        res.status(500).json({ ok: false, error: e.message });
+    }
+});
+
 // POST /api/delete-user
 app.post('/api/delete-user', async (req, res) => {
     try {
