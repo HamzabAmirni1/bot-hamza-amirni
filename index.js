@@ -2059,13 +2059,17 @@ async function startBot(sessionPath = sessionDir, phoneNumber = null) {
                     if (ramadanJob) currentIntervals.push(ramadanJob);
                 } catch (e) { }
 
-                try {
-                    const reminderInterval = setInterval(() => {
-                        const { checkAndSendReminder } = require('./commands/group/autoreminder');
-                        checkAndSendReminder(sock);
-                    }, 60000);
-                    currentIntervals.push(reminderInterval);
-                } catch (e) { }
+                // ⚠️ Only run reminder on MAIN session to avoid duplicate messages across sessions
+                const isMainSession = sessionPath === 'session' || sessionPath === './session' || !sessionPath.includes('session_');
+                if (isMainSession) {
+                    try {
+                        const reminderInterval = setInterval(() => {
+                            const { checkAndSendReminder } = require('./commands/group/autoreminder');
+                            checkAndSendReminder(sock);
+                        }, 60000);
+                        currentIntervals.push(reminderInterval);
+                    } catch (e) { }
+                }
 
                 sessionIntervals.set(sessionPath, currentIntervals);
             }, 10000); // 10s delay to let connection settle

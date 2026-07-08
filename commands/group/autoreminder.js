@@ -95,9 +95,9 @@ function loadReminderConfig() {
         if (fs.existsSync(REMINDER_CONFIG)) {
             return JSON.parse(fs.readFileSync(REMINDER_CONFIG, 'utf8'));
         }
-        // Default settings - enabled by default
+        // Default settings - disabled by default to prevent unexpected mass messages
         return {
-            enabled: true,
+            enabled: false,
             sendAtTime: '10:00',
             message: DEFAULT_MESSAGE,
             lastSent: null,
@@ -106,7 +106,7 @@ function loadReminderConfig() {
     } catch (error) {
         console.error('Error loading reminder config:', error);
         return {
-            enabled: true,
+            enabled: false,
             sendAtTime: '10:00',
             message: DEFAULT_MESSAGE,
             lastSent: null,
@@ -451,7 +451,8 @@ async function checkAndSendReminder(sock) {
         const targetTime = config.sendAtTime || '10:00';
         const [targetHour, targetMinute] = targetTime.split(':').map(Number);
 
-        const isTimeToSend = currentHour === targetHour && Math.abs(currentMinute - targetMinute) <= 5;
+        // Exact minute match only — no ±5 window to prevent duplicate sends
+        const isTimeToSend = currentHour === targetHour && currentMinute === targetMinute;
 
         if (!isTimeToSend) {
             return;
