@@ -4,6 +4,7 @@ const { t } = require('../../lib/language');
 const settings = require('../../settings');
 const crypto = require('crypto');
 const FormData = require('form-data');
+const { checkContent } = require('../../lib/contentFilter');
 
 const AXIOS_DEFAULTS = {
     timeout: 60000,
@@ -310,9 +311,20 @@ async function videoCommand(sock, chatId, msg, args, commands, userLang, match) 
             return;
         }
 
+        // 🔞 NSFW Filter — block adult search queries
+        if (!searchQuery.startsWith('http')) {
+            const filter = checkContent(searchQuery, userLang);
+            if (filter.blocked) {
+                await sock.sendMessage(chatId, { react: { text: '🚫', key: msg.key } });
+                return await sock.sendMessage(chatId, { text: filter.message }, { quoted: msg });
+            }
+        }
+
+
         let videoUrl = '';
         let videoTitle = '';
         let videoThumbnail = '';
+
 
         if (searchQuery.startsWith('http')) {
             videoUrl = searchQuery;
@@ -361,8 +373,10 @@ async function videoCommand(sock, chatId, msg, args, commands, userLang, match) 
                     videoData = {
                         download: resYtdl.downloadUrl,
                         title: resYtdl.title || videoTitle,
-                        referer: resYtdl.referer
+                        referer: resYtdl.referer,
+                        buffer: resYtdl.buffer
                     };
+
                 }
             } catch (e) {
                 console.log(`[VIDEO] downloadYouTube helper failed: ${e.message}`);
@@ -405,40 +419,49 @@ async function videoCommand(sock, chatId, msg, args, commands, userLang, match) 
         let downloadSuccess = false;
 
         try {
-            const writer = fs.createWriteStream(tempFile);
-            const downloadResponse = await axios({
-                url: finalUrl,
-                method: 'GET',
-                responseType: 'stream',
-                timeout: 300000, // 5 minutes
-                headers: {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-                    'Referer': referer,
-                    'Accept': '*/*',
-                    'Accept-Encoding': 'identity'
-                }
-            });
+            if (videoData.buffer) {
+                fs.writeFileSync(tempFile, videoData.buffer);
+                downloadSuccess = true;
+                console.log(`[VIDEO] ✅ Saved pre-downloaded video buffer to disk. Size: ${(videoData.buffer.length / 1024 / 1024).toFixed(2)} MB`);
+            } else {
+                const writer = fs.createWriteStream(tempFile);
+                const downloadResponse = await axios({
+                    url: finalUrl,
+                    method: 'GET',
+                    responseType: 'stream',
+                    timeout: 300000, // 5 minutes
+                    headers: {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+                        'Referer': referer,
+                        'Accept': '*/*',
+                        'Accept-Encoding': 'identity'
+                    }
+                });
 
-            downloadResponse.data.pipe(writer);
+                downloadResponse.data.pipe(writer);
 
-            await new Promise((resolve, reject) => {
-                writer.on('finish', resolve);
-                writer.on('error', reject);
-            });
+                await new Promise((resolve, reject) => {
+                    writer.on('finish', resolve);
+                    writer.on('error', reject);
+                });
+            }
 
             // Validate that file exists and is not empty or too small (corrupt)
             if (fs.existsSync(tempFile)) {
                 const stats = fs.statSync(tempFile);
                 if (stats.size > 50 * 1024) { // Minimum 50KB for a valid video file
                     downloadSuccess = true;
-                    console.log(`[VIDEO] ✅ Download complete. Size: ${(stats.size / 1024 / 1024).toFixed(2)} MB`);
+                    if (!videoData.buffer) {
+                        console.log(`[VIDEO] ✅ Download complete. Size: ${(stats.size / 1024 / 1024).toFixed(2)} MB`);
+                    }
                 } else {
                     console.log(`[VIDEO] ⚠️ File too small (${stats.size} bytes). Download might be corrupted.`);
                 }
             }
         } catch (e) {
-            console.log(`[VIDEO] Failed to download to disk: ${e.message}`);
+            console.log(`[VIDEO] Failed to download/save to disk: ${e.message}`);
         }
+
 
         // Retry helper for connection-closed errors (common on Koyeb)
         const sendWithRetry = async (fn, retries = 3) => {

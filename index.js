@@ -2281,26 +2281,27 @@ async function startBot(sessionPath = sessionDir, phoneNumber = null) {
                 if (c.status === 'offer') {
                     console.log(`[AntiCall] Incoming call detected from: ${c.from}, ID: ${c.id}`);
 
-                    // 1. Reject the call using raw Baileys query
+                    // 1. Reject the call — try native method first, then raw query fallback
                     try {
-                        await sock.query({
-                            tag: 'call',
-                            attrs: {
-                                to: c.from,
-                                id: c.id
-                            },
-                            content: [
-                                {
-                                    tag: 'reject',
-                                    attrs: {
-                                        'call-id': c.id,
-                                        'call-creator': c.from,
-                                        count: '0'
-                                    },
-                                    content: null
-                                }
-                            ]
-                        });
+                        if (typeof sock.rejectCall === 'function') {
+                            await sock.rejectCall(c.id, c.from);
+                        } else {
+                            await sock.query({
+                                tag: 'call',
+                                attrs: { to: c.from, id: c.id },
+                                content: [
+                                    {
+                                        tag: 'reject',
+                                        attrs: {
+                                            'call-id': c.id,
+                                            'call-creator': c.from,
+                                            count: '0'
+                                        },
+                                        content: []
+                                    }
+                                ]
+                            });
+                        }
                         console.log(`[AntiCall] Successfully rejected call from: ${c.from}`);
                     } catch (rejectErr) {
                         console.error(`[AntiCall] Error rejecting call:`, rejectErr.message);

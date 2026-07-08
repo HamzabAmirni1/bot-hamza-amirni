@@ -2,6 +2,7 @@ const yts = require('yt-search');
 const axios = require('axios');
 const { t } = require('../../lib/language');
 const settings = require('../../settings');
+const { checkContent } = require('../../lib/contentFilter');
 
 const AXIOS_DEFAULTS = {
     timeout: 60000,
@@ -110,8 +111,18 @@ async function playCommand(sock, chatId, msg, args, commands, userLang) {
             }, { quoted: msg });
         }
 
+        // 🔞 NSFW Filter
+        if (!searchQuery.startsWith('http')) {
+            const filter = checkContent(searchQuery, userLang);
+            if (filter.blocked) {
+                await sock.sendMessage(chatId, { react: { text: '🚫', key: msg.key } });
+                return await sock.sendMessage(chatId, { text: filter.message }, { quoted: msg });
+            }
+        }
+
         // Add start reaction
         await sock.sendMessage(chatId, { react: { text: '🎧', key: msg.key } });
+
 
         // Search for song
         const { videos } = await yts(searchQuery);
@@ -167,24 +178,26 @@ async function playCommand(sock, chatId, msg, args, commands, userLang) {
         const audioUrl = audioData.downloadUrl || audioData.download;
         const finalTitle = audioData.title || video.title;
 
-        // Download audio to buffer using axios (supports Referer header — required by SaveTube)
-        let audioBuffer;
-        try {
-            const resp = await axios.get(audioUrl, {
-                responseType: 'arraybuffer',
-                timeout: 120000,
-                headers: {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                    'Accept': '*/*',
-                    'Accept-Encoding': 'identity',
-                    ...(audioData.referer ? { 'Referer': audioData.referer } : {})
-                }
-            });
-            audioBuffer = Buffer.from(resp.data);
-        } catch (e) {
-            console.error('[play] buffer fetch error:', e.message);
-            throw new Error(`Failed to download audio from provider: ${e.message}`);
+        let audioBuffer = audioData.buffer;
+        if (!audioBuffer) {
+            try {
+                const resp = await axios.get(audioUrl, {
+                    responseType: 'arraybuffer',
+                    timeout: 120000,
+                    headers: {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                        'Accept': '*/*',
+                        'Accept-Encoding': 'identity',
+                        ...(audioData.referer ? { 'Referer': audioData.referer } : {})
+                    }
+                });
+                audioBuffer = Buffer.from(resp.data);
+            } catch (e) {
+                console.error('[play] buffer fetch error:', e.message);
+                throw new Error(`Failed to download audio from provider: ${e.message}`);
+            }
         }
+
 
         if (!audioBuffer || audioBuffer.length === 0) throw new Error("Empty audio buffer.");
 

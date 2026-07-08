@@ -112,15 +112,17 @@ async function songCommand(sock, chatId, message, args, commands, userLang, matc
         const audioUrl = audioData.downloadUrl || audioData.download || audioData.dl || audioData.url;
 
         // Download audio to buffer - try arraybuffer first, fallback to stream
-        let audioBuffer;
-        if (audioData.isLocal) {
-            try {
-                audioBuffer = fs.readFileSync(audioUrl);
-            } catch (e) {
-                throw new Error("Failed to read local audio file.");
-            }
-        } else {
-            try {
+        let audioBuffer = audioData.buffer;
+        if (!audioBuffer) {
+            if (audioData.isLocal) {
+                try {
+                    audioBuffer = fs.readFileSync(audioUrl);
+                } catch (e) {
+                    throw new Error("Failed to read local audio file.");
+                }
+            } else {
+                try {
+
                 const audioResponse = await axios.get(audioUrl, {
                     responseType: 'arraybuffer',
                     timeout: 90000,
@@ -158,6 +160,7 @@ async function songCommand(sock, chatId, message, args, commands, userLang, matc
                 audioBuffer = Buffer.concat(chunks);
             }
         }
+    }
 
         // Validate buffer is not a JSON error
         try {
