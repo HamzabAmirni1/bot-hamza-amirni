@@ -800,6 +800,29 @@
     #chat-contact-list { scrollbar-width:thin; scrollbar-color:var(--border) transparent; }
     #chat-text-input:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(37,211,102,0.1); }
 
+    .composer-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      border: none;
+      color: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.25s;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+    }
+    .composer-btn.hidden {
+      transform: scale(0) rotate(-45deg);
+      opacity: 0;
+      pointer-events: none;
+      position: absolute;
+    }
+
+
 
     /* Numbers list */
     .number-item {
@@ -2459,182 +2482,122 @@
         <div style="background:rgba(246,224,94,0.08);border:1px solid rgba(246,224,94,0.2);border-radius:12px;padding:12px;margin-bottom:16px;font-size:12px;color:var(--yellow);">
           <i class="fas fa-exclamation-triangle"></i> ستُرسل لجميع المستخدمين المسجلين في المنصة المحددة — تأكد من المحتوى قبل الإرسال
         </div>
-        <button class="btn btn-primary" onclick="sendBroadcast()" style="width:100%;justify-content:center;font-size:15px;padding:14px;">
-          <i class="fas fa-paper-plane"></i> إرسال الرسالة
-        </button>
-        <div id="broadcast-alert" class="alert" style="margin-top:12px;"></div>
-      </div>
-      <div class="card">
-        <div class="card-header"><div class="card-icon blue"><i class="fas fa-info-circle"></i></div><div class="card-title">معلومات البث</div></div>
-        <div style="display:flex;flex-direction:column;gap:12px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:14px;background:var(--bg);border-radius:12px;">
-            <span style="color:var(--text-muted);"><i class="fab fa-whatsapp" style="color:#25d366;"></i> مستخدمي واتساب</span>
-            <span id="broadcast-wa" style="font-weight:700;color:#25d366;">—</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:14px;background:var(--bg);border-radius:12px;">
-            <span style="color:var(--text-muted);"><i class="fab fa-telegram-plane" style="color:#38bdf8;"></i> مستخدمي تليجرام</span>
-            <span id="broadcast-tg" style="font-weight:700;color:#38bdf8;">—</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:14px;background:var(--bg);border-radius:12px;">
-            <span style="color:var(--text-muted);"><i class="fab fa-facebook-messenger" style="color:#0084ff;"></i> مستخدمي فيسبوك</span>
-            <span id="broadcast-fb" style="font-weight:700;color:#0084ff;">—</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:14px;background:var(--bg);border-radius:12px;">
-            <span style="color:var(--text-muted);"><i class="fas fa-users"></i> إجمالي المستلمين</span>
-            <span id="broadcast-total" style="font-weight:700;color:var(--blue);">—</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:14px;background:var(--bg);border-radius:12px;">
-            <span style="color:var(--text-muted);"><i class="fas fa-check-circle"></i> آخر عملية إرسال</span>
-            <span id="broadcast-last" style="font-weight:700;color:var(--accent);">—</span>
-          </div>
-          <div style="padding:14px;background:rgba(99,179,237,0.05);border:1px solid rgba(99,179,237,0.15);border-radius:12px;font-size:13px;color:var(--text-muted);line-height:1.8;">
-            <i class="fas fa-clock" style="color:var(--blue);"></i>
-            تأخير 500ms بين كل مستخدم لتجنب الحظر والحدود.
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- =================== ACTIVITY LOG PAGE =================== -->
-  <div class="page" id="page-activity">
-    <div class="page-header">
-      <h1><i class="fas fa-history" style="color:var(--yellow)"></i> سجل النشاط المباشر</h1>
-      <p>آخر 50 نشاط في البوت — يتجدد تلقائياً كل 5 ثوانٍ</p>
-    </div>
-    <div class="card">
-      <div class="card-header">
-        <div class="card-icon yellow"><i class="fas fa-list-alt"></i></div>
-        <div class="card-title">الأنشطة الأخيرة</div>
-        <!-- LIVE badge -->
-        <span style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;background:rgba(37,211,102,0.1);border:1px solid rgba(37,211,102,0.3);border-radius:20px;font-size:11px;font-weight:700;color:var(--accent);margin-right:8px;">
-          <span style="width:7px;height:7px;border-radius:50%;background:var(--accent);display:inline-block;animation:pulse 1.5s infinite;"></span>
-          مباشر
-        </span>
-        <button class="btn btn-secondary" onclick="loadActivity()" style="margin-right:auto;padding:8px 16px;font-size:12px;"><i class="fas fa-sync-alt"></i> تحديث</button>
-      </div>
-      <div id="activity-log">
-        <div style="color:var(--text-muted);text-align:center;padding:40px;">
-          <i class="fas fa-history" style="font-size:40px;margin-bottom:12px;display:block;opacity:0.3;"></i>
-          الأنشطة تُسجَّل تلقائياً بعد استخدام الأوامر في البوت
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- =================== DEV MESSAGES PAGE =================== -->
+        <button class="btn btn-primary" onclick="sendBroadcast()" style="width:100%;justify-content:center;font-size:15px;padding:14px;">  <!-- =================== DEV MESSAGES PAGE =================== -->
   <div class="page" id="page-devmessages">
-    <div class="page-header" style="margin-bottom:16px;">
-      <h1><i class="fas fa-comments" style="color:var(--blue)"></i> المحادثات</h1>
-      <p>رسائل المستخدمين الواردة — ردّ عليهم مباشرة كأنك في محادثة</p>
-    </div>
-
-    <!-- Chat Shell -->
-    <div id="chat-shell" style="display:flex;gap:0;height:72vh;border-radius:20px;overflow:hidden;border:1px solid var(--border);background:var(--card);">
-
-      <!-- ── LEFT: Contacts Sidebar ── -->
-      <div id="chat-sidebar" style="width:300px;min-width:260px;border-left:1px solid var(--border);display:flex;flex-direction:column;background:var(--bg);flex-shrink:0;">
-        <!-- Sidebar header -->
-        <div style="padding:16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--card);">
-          <div style="display:flex;align-items:center;gap:8px;">
-            <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--blue));display:flex;align-items:center;justify-content:center;font-size:16px;color:white;flex-shrink:0;"><i class="fas fa-robot"></i></div>
-            <div>
-              <div style="font-weight:700;font-size:13px;color:var(--text);">صندوق الوارد</div>
-              <div id="devmsg-count" style="font-size:11px;color:var(--text-muted);">جاري التحميل...</div>
-            </div>
-          </div>
-          <div style="display:flex;gap:6px;">
-            <button onclick="loadDevMessages()" title="تحديث" style="width:32px;height:32px;border-radius:50%;border:1px solid var(--border);background:var(--bg);color:var(--text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all 0.2s;" onmouseover="this.style.background='var(--border)'" onmouseout="this.style.background='var(--bg)'"><i class="fas fa-sync-alt"></i></button>
-            <button onclick="clearAllDevMessages()" title="حذف الكل" style="width:32px;height:32px;border-radius:50%;border:1px solid rgba(252,129,129,0.3);background:rgba(252,129,129,0.05);color:var(--red);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all 0.2s;" onmouseover="this.style.background='rgba(252,129,129,0.15)'" onmouseout="this.style.background='rgba(252,129,129,0.05)'"><i class="fas fa-trash-alt"></i></button>
-          </div>
+    
+    <!-- ── 1. Inbox List View ── -->
+    <div id="devmsg-list-view" style="display:block;">
+      <div class="page-header" style="justify-content:space-between; display:flex; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:12px;">
+        <div>
+          <h1><i class="fas fa-inbox" style="color:var(--blue)"></i> رسائل المستخدمين الواردة</h1>
+          <p>الرسائل التي أرسلها المستخدمون ويمكنك الرد عليها مباشرة</p>
         </div>
-        <!-- Filter pills -->
-        <div style="padding:10px 12px;border-bottom:1px solid var(--border);display:flex;gap:6px;">
-          <button id="devmsg-filter-all" onclick="setDevMsgFilter('all')" style="flex:1;padding:6px 0;font-size:11px;font-family:Cairo,sans-serif;font-weight:700;border:none;border-radius:20px;cursor:pointer;background:linear-gradient(135deg,var(--accent),var(--blue));color:white;transition:all 0.2s;">الكل</button>
-          <button id="devmsg-filter-unanswered" onclick="setDevMsgFilter('unanswered')" style="flex:1;padding:6px 0;font-size:11px;font-family:Cairo,sans-serif;font-weight:700;border:1px solid var(--border);border-radius:20px;cursor:pointer;background:transparent;color:var(--text-muted);transition:all 0.2s;">غير مُجاب</button>
-        </div>
-        <!-- Contact list -->
-        <div id="chat-contact-list" style="flex:1;overflow-y:auto;padding:8px 0;">
-          <div style="color:var(--text-muted);text-align:center;padding:40px 20px;font-size:13px;">
-            <i class="fas fa-spinner fa-spin" style="font-size:28px;margin-bottom:10px;display:block;opacity:0.5;"></i>
-            جاري التحميل...
-          </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-secondary" onclick="clearAllDevMessages()" style="padding:8px 14px;font-size:12px;background:rgba(252,129,129,0.08);color:var(--red);border-color:rgba(252,129,129,0.25);"><i class="fas fa-trash-alt"></i> حذف الكل</button>
+          <button class="btn btn-secondary" onclick="loadDevMessages()" style="padding:8px 16px;font-size:12px;"><i class="fas fa-sync-alt"></i> تحديث</button>
         </div>
       </div>
 
-      <!-- ── RIGHT: Chat Panel ── -->
-      <div id="chat-panel" style="flex:1;display:flex;flex-direction:column;background:var(--bg);min-width:0;">
-
-        <!-- Chat Header (changes per selected contact) -->
-        <div id="chat-header" style="padding:12px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;background:var(--card);min-height:64px;">
-          <div style="color:var(--text-muted);font-size:13px;margin:auto;">
-            <i class="fas fa-arrow-right" style="margin-left:8px;opacity:0.4;"></i>
-            اختر محادثة من القائمة
+      <div class="card">
+        <div class="card-header" style="justify-content:space-between; flex-wrap:wrap; gap:12px;">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div class="card-icon blue"><i class="fas fa-envelope-open-text"></i></div>
+            <div class="card-title">صندوق الوارد <span id="devmsg-count" style="font-size:12px;color:var(--text-muted);font-weight:400;"></span></div>
+          </div>
+          <div style="display:flex;background:var(--bg);padding:4px;border-radius:10px;border:1px solid var(--border);gap:4px;">
+            <button id="devmsg-filter-all" onclick="setDevMsgFilter('all')" style="padding:6px 16px;font-size:12px;font-family:Cairo,sans-serif;font-weight:700;border:none;border-radius:8px;cursor:pointer;background:linear-gradient(135deg, var(--accent), var(--blue));color:white;transition:all 0.2s;">الكل</button>
+            <button id="devmsg-filter-unanswered" onclick="setDevMsgFilter('unanswered')" style="padding:6px 16px;font-size:12px;font-family:Cairo,sans-serif;font-weight:700;border:none;border-radius:8px;cursor:pointer;background:transparent;color:var(--text-muted);transition:all 0.2s;">غير مُجاب</button>
           </div>
         </div>
+        
+        <div id="dev-messages-list" style="padding: 20px; display: grid; gap: 16px;">
+          <div style="color:var(--text-muted);text-align:center;padding:40px;">
+            <i class="fas fa-inbox" style="font-size:40px;margin-bottom:12px;display:block;opacity:0.3;"></i>
+            جاري تحميل الرسائل...
+          </div>
+        </div>
+      </div>
+    </div>
 
-        <!-- Messages area -->
-        <div id="chat-messages-area" style="flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:12px;background:var(--bg);">
-          <!-- messages rendered here -->
+    <!-- ── 2. Full Conversation View ── -->
+    <div id="devmsg-chat-view" style="display:none; height:75vh; border-radius:20px; overflow:hidden; border:1px solid var(--border); background:var(--card); flex-direction:column;">
+      <!-- Chat Header -->
+      <div id="chat-header" style="padding:12px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px; background:var(--card); min-height:64px;">
+        <!-- Back button -->
+        <button onclick="closeChatView()" class="btn btn-secondary" style="padding:8px 14px; font-size:12px; display:flex; align-items:center; gap:6px; font-family:Cairo,sans-serif;">
+          <i class="fas fa-arrow-right"></i> رجوع
+        </button>
+        <div id="chat-header-info" style="display:flex; align-items:center; gap:12px; flex:1; min-width:0;">
+          <!-- User info dynamic -->
+        </div>
+      </div>
+
+      <!-- Messages area -->
+      <div id="chat-messages-area" style="flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:12px; background:var(--bg);">
+        <!-- messages bubbles rendered here -->
+      </div>
+
+      <!-- Composer bar -->
+      <div id="chat-composer" style="padding:12px 16px; border-top:1px solid var(--border); background:var(--card);">
+        <!-- Attachment preview strip -->
+        <div id="chat-attach-preview" style="display:none; margin-bottom:10px; padding:8px 12px; background:rgba(37,211,102,0.06); border:1px solid rgba(37,211,102,0.2); border-radius:12px; display:flex; align-items:center; gap:10px;">
+          <i id="chat-attach-icon" class="fas fa-file" style="font-size:18px; color:var(--accent); flex-shrink:0;"></i>
+          <div style="flex:1; min-width:0;">
+            <div id="chat-attach-name" style="font-size:12px; font-weight:700; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"></div>
+            <div id="chat-attach-size" style="font-size:11px; color:var(--text-muted);"></div>
+          </div>
+          <button onclick="clearChatAttachment()" style="background:none; border:none; color:var(--red); cursor:pointer; font-size:14px; flex-shrink:0;"><i class="fas fa-times"></i></button>
         </div>
 
-        <!-- Composer bar -->
-        <div id="chat-composer" style="padding:12px 16px;border-top:1px solid var(--border);background:var(--card);display:none;">
-          <!-- Attachment preview strip -->
-          <div id="chat-attach-preview" style="display:none;margin-bottom:10px;padding:8px 12px;background:rgba(37,211,102,0.06);border:1px solid rgba(37,211,102,0.2);border-radius:12px;display:flex;align-items:center;gap:10px;">
-            <i id="chat-attach-icon" class="fas fa-file" style="font-size:18px;color:var(--accent);flex-shrink:0;"></i>
-            <div style="flex:1;min-width:0;">
-              <div id="chat-attach-name" style="font-size:12px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
-              <div id="chat-attach-size" style="font-size:11px;color:var(--text-muted);"></div>
-            </div>
-            <button onclick="clearChatAttachment()" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:14px;flex-shrink:0;"><i class="fas fa-times"></i></button>
-          </div>
-          <!-- Input row: [Send ◀] [ textarea ] [📎 ▶] -->
-          <div style="display:flex;align-items:flex-end;gap:10px;">
-
-            <!-- Send button — LEFT side (bot replies from left) -->
-            <button id="chat-send-btn" onclick="submitChatReply()" title="إرسال"
-              style="width:42px;height:42px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--accent),var(--blue));color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:17px;transition:all 0.25s;flex-shrink:0;box-shadow:0 4px 12px rgba(37,211,102,0.3);order:0;">
-              <i class="fas fa-paper-plane" id="chat-send-icon"></i>
+        <!-- Input row: [📎 LEFT] [ textarea ] [Send RIGHT] -->
+        <div style="display:flex; align-items:flex-end; gap:10px;">
+          <!-- Attachment button — LEFT side -->
+          <div style="position:relative;">
+            <button id="chat-attach-btn" onclick="toggleChatAttachMenu()" title="إرفاق"
+              style="width:42px; height:42px; border-radius:50%; border:1px solid var(--border); background:var(--bg); color:var(--text-muted); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:16px; transition:all 0.2s; flex-shrink:0;"
+              onmouseover="this.style.background='var(--border)'" onmouseout="this.style.background='var(--bg)'">
+              <i class="fas fa-paperclip"></i>
             </button>
-
-            <!-- Text input — middle -->
-            <textarea id="chat-text-input" placeholder="اكتب ردك..." rows="1"
-              style="flex:1;padding:11px 16px;border-radius:22px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-family:Cairo,sans-serif;font-size:14px;resize:none;outline:none;transition:border-color 0.2s,box-shadow 0.2s;max-height:120px;line-height:1.5;overflow-y:auto;direction:rtl;order:1;"
-              oninput="onChatInputChange(this)"
-              onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();submitChatReply();}">
-            </textarea>
-
-            <!-- Attachment button — RIGHT side -->
-            <div style="position:relative;order:2;">
-              <button id="chat-attach-btn" onclick="toggleChatAttachMenu()" title="إرفاق"
-                style="width:42px;height:42px;border-radius:50%;border:1px solid var(--border);background:var(--bg);color:var(--text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all 0.2s;flex-shrink:0;"
-                onmouseover="this.style.background='var(--border)'" onmouseout="this.style.background='var(--bg)'">
-                <i class="fas fa-paperclip"></i>
-              </button>
-              <!-- Attach menu popup — opens to the LEFT -->
-              <div id="chat-attach-menu" style="display:none;position:absolute;bottom:50px;left:0;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:8px;box-shadow:0 8px 32px rgba(0,0,0,0.3);z-index:100;min-width:160px;">
-                <input type="file" id="chat-file-input-image" accept="image/*" style="display:none;" onchange="onChatFileSelected(this,'image')">
-                <input type="file" id="chat-file-input-doc" accept=".pdf,.doc,.docx,.zip,.txt,application/*" style="display:none;" onchange="onChatFileSelected(this,'doc')">
-                <button onclick="document.getElementById('chat-file-input-image').click();toggleChatAttachMenu()" style="width:100%;padding:9px 14px;text-align:right;background:none;border:none;color:#38bdf8;font-family:Cairo,sans-serif;font-size:13px;cursor:pointer;border-radius:10px;display:flex;align-items:center;gap:10px;transition:background 0.15s;" onmouseover="this.style.background='rgba(56,189,248,0.08)'" onmouseout="this.style.background='none'"><i class="fas fa-image" style="width:18px;text-align:center;"></i> صورة</button>
-                <button onclick="document.getElementById('chat-file-input-doc').click();toggleChatAttachMenu()" style="width:100%;padding:9px 14px;text-align:right;background:none;border:none;color:#fbbf24;font-family:Cairo,sans-serif;font-size:13px;cursor:pointer;border-radius:10px;display:flex;align-items:center;gap:10px;transition:background 0.15s;" onmouseover="this.style.background='rgba(251,191,36,0.08)'" onmouseout="this.style.background='none'"><i class="fas fa-file-alt" style="width:18px;text-align:center;"></i> مستند</button>
-                <button onclick="startChatVoiceRecord();toggleChatAttachMenu()" style="width:100%;padding:9px 14px;text-align:right;background:none;border:none;color:#ef4444;font-family:Cairo,sans-serif;font-size:13px;cursor:pointer;border-radius:10px;display:flex;align-items:center;gap:10px;transition:background 0.15s;" onmouseover="this.style.background='rgba(239,68,68,0.08)'" onmouseout="this.style.background='none'"><i class="fas fa-microphone" style="width:18px;text-align:center;"></i> تسجيل صوت</button>
-              </div>
+            <!-- Attach menu popup — opens to the RIGHT -->
+            <div id="chat-attach-menu" style="display:none; position:absolute; bottom:50px; right:0; background:var(--card); border:1px solid var(--border); border-radius:16px; padding:8px; box-shadow:0 8px 32px rgba(0,0,0,0.3); z-index:100; min-width:160px;">
+              <input type="file" id="chat-file-input-image" accept="image/*" style="display:none;" onchange="onChatFileSelected(this,'image')">
+              <input type="file" id="chat-file-input-doc" accept=".pdf,.doc,.docx,.zip,.txt,application/*" style="display:none;" onchange="onChatFileSelected(this,'doc')">
+              <button onclick="document.getElementById('chat-file-input-image').click();toggleChatAttachMenu()" style="width:100%; padding:9px 14px; text-align:right; background:none; border:none; color:#38bdf8; font-family:Cairo,sans-serif; font-size:13px; cursor:pointer; border-radius:10px; display:flex; align-items:center; gap:10px; transition:background 0.15s;" onmouseover="this.style.background='rgba(56,189,248,0.08)'" onmouseout="this.style.background='none'"><i class="fas fa-image" style="width:18px; text-align:center;"></i> صورة</button>
+              <button onclick="document.getElementById('chat-file-input-doc').click();toggleChatAttachMenu()" style="width:100%; padding:9px 14px; text-align:right; background:none; border:none; color:#fbbf24; font-family:Cairo,sans-serif; font-size:13px; cursor:pointer; border-radius:10px; display:flex; align-items:center; gap:10px; transition:background 0.15s;" onmouseover="this.style.background='rgba(251,191,36,0.08)'" onmouseout="this.style.background='none'"><i class="fas fa-file-alt" style="width:18px; text-align:center;"></i> مستند</button>
+              <button onclick="startChatVoiceRecord();toggleChatAttachMenu()" style="width:100%; padding:9px 14px; text-align:right; background:none; border:none; color:#ef4444; font-family:Cairo,sans-serif; font-size:13px; cursor:pointer; border-radius:10px; display:flex; align-items:center; gap:10px; transition:background 0.15s;" onmouseover="this.style.background='rgba(239,68,68,0.08)'" onmouseout="this.style.background='none'"><i class="fas fa-microphone" style="width:18px; text-align:center;"></i> تسجيل صوت</button>
             </div>
-
           </div>
 
-          <!-- Voice recording indicator -->
-          <div id="chat-recording-bar" style="display:none;padding:8px 12px;background:rgba(239,68,68,0.08);border-radius:12px;margin-top:8px;display:flex;align-items:center;gap:10px;">
-            <span style="width:10px;height:10px;background:#ef4444;border-radius:50%;animation:pulse 1s infinite;flex-shrink:0;"></span>
-            <span style="font-size:12px;color:#ef4444;font-weight:700;">جاري التسجيل... <span id="chat-rec-timer">0:00</span></span>
-            <button onclick="stopChatVoiceRecord(true)" style="margin-right:auto;padding:4px 12px;background:#ef4444;border:none;border-radius:20px;color:white;font-family:Cairo,sans-serif;font-size:11px;cursor:pointer;"><i class="fas fa-stop"></i> إيقاف</button>
+          <!-- Text input — middle -->
+          <textarea id="chat-text-input" placeholder="اكتب ردك..." rows="1"
+            style="flex:1; padding:11px 16px; border-radius:22px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-family:Cairo,sans-serif; font-size:14px; resize:none; outline:none; transition:border-color 0.2s,box-shadow 0.2s; max-height:120px; line-height:1.5; overflow-y:auto; direction:rtl;"
+            oninput="onChatInputChange(this)"
+            onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();submitChatReply();}">
+          </textarea>
+
+          <!-- Send/Mic Button Container — RIGHT side -->
+          <div style="width:42px; height:42px; display:flex; align-items:center; justify-content:center; position:relative; flex-shrink:0;">
+            <!-- Send button (hidden by default, shown when input has text) -->
+            <button id="chat-send-btn" onclick="submitChatReply()" title="إرسال" class="composer-btn hidden"
+              style="background:linear-gradient(135deg,var(--accent),var(--blue));">
+              <i class="fas fa-paper-plane"></i>
+            </button>
+            <!-- Mic button (shown by default, hidden when input has text) -->
+            <button id="chat-mic-btn" onclick="startChatVoiceRecord()" title="تسجيل صوت" class="composer-btn"
+              style="background:linear-gradient(135deg,#ef4444,#f87171);">
+              <i class="fas fa-microphone"></i>
+            </button>
           </div>
         </div>
 
+        <!-- Voice recording indicator -->
+        <div id="chat-recording-bar" style="display:none; padding:8px 12px; background:rgba(239,68,68,0.08); border-radius:12px; margin-top:8px; display:flex; align-items:center; gap:10px;">
+          <span style="width:10px; height:10px; background:#ef4444; border-radius:50%; animation:pulse 1s infinite; flex-shrink:0;"></span>
+          <span style="font-size:12px; color:#ef4444; font-weight:700;">جاري التسجيل... <span id="chat-rec-timer">0:00</span></span>
+          <button onclick="stopChatVoiceRecord(true)" style="margin-right:auto; padding:4px 12px; background:#ef4444; border:none; border-radius:20px; color:white; font-family:Cairo,sans-serif; font-size:11px; cursor:pointer;"><i class="fas fa-stop"></i> إيقاف</button>
+        </div>
       </div>
     </div>
-  </div>
 
 
   <!-- =================== MANAGE PAGE =================== -->
@@ -5578,20 +5541,20 @@
   let _chatRecSeconds = 0;
 
   async function loadDevMessages() {
-    const contactList = document.getElementById('chat-contact-list');
-    const countEl    = document.getElementById('devmsg-count');
-    if (!contactList) return;
+    const listEl = document.getElementById('dev-messages-list');
+    const countEl = document.getElementById('devmsg-count');
+    if (!listEl) return;
 
-    contactList.innerHTML = `<div style="color:var(--text-muted);text-align:center;padding:40px 20px;font-size:13px;"><i class="fas fa-spinner fa-spin" style="font-size:26px;display:block;margin-bottom:10px;opacity:0.5;"></i>جاري التحميل...</div>`;
+    listEl.innerHTML = `<div style="color:var(--text-muted);text-align:center;padding:40px;"><i class="fas fa-spinner fa-spin" style="font-size:28px;margin-bottom:10px;display:block;"></i>جاري التحميل...</div>`;
 
     try {
-      const res  = await fetch('/api/dev-messages');
+      const res = await fetch('/api/dev-messages');
       const data = await res.json();
 
       if (!data.ok || !data.messages || data.messages.length === 0) {
         _devMsgData = [];
-        if (countEl) countEl.textContent = '0 رسالة';
-        contactList.innerHTML = `<div style="color:var(--text-muted);text-align:center;padding:40px 20px;font-size:12px;"><i class="fas fa-inbox" style="font-size:36px;display:block;margin-bottom:12px;opacity:0.25;"></i>لا توجد رسائل</div>`;
+        if (countEl) countEl.textContent = '(0)';
+        listEl.innerHTML = `<div style="color:var(--text-muted);text-align:center;padding:40px;"><i class="fas fa-inbox" style="font-size:40px;margin-bottom:12px;display:block;opacity:0.3;"></i>لا توجد رسائل واردة حالياً.<br><small style="font-size:12px;margin-top:8px;display:block;">يمكن للمستخدمين إرسال رسائل بالأمر <code>.msgtodev</code></small></div>`;
         return;
       }
 
@@ -5608,51 +5571,58 @@
         return new Date(b.timestamp||0) - new Date(a.timestamp||0);
       });
 
-      const unread = _devMsgData.filter(m => !m.replied).length;
-      if (countEl) countEl.textContent = unread > 0 ? `${unread} غير مُجاب` : `${_devMsgData.length} رسالة`;
+      const unreadCount = _devMsgData.filter(m => !m.replied).length;
+      if (countEl) {
+        if (_devMsgFilter === 'unanswered') {
+          countEl.textContent = `(${unreadCount} غير مُجاب)`;
+        } else {
+          countEl.textContent = unreadCount > 0 ? `(${unreadCount} غير مُجاب)` : `(${_devMsgData.length} رسالة)`;
+        }
+      }
 
       if (msgs.length === 0) {
-        contactList.innerHTML = `<div style="color:var(--text-muted);text-align:center;padding:40px 20px;font-size:12px;"><i class="fas fa-check-circle" style="font-size:36px;display:block;margin-bottom:12px;opacity:0.3;color:var(--accent);"></i>رائع! لا رسائل تنتظر الرد</div>`;
+        listEl.innerHTML = `<div style="color:var(--text-muted);text-align:center;padding:40px;"><i class="fas fa-check-circle" style="font-size:40px;margin-bottom:12px;display:block;opacity:0.3;color:var(--accent);"></i>رائع! لا توجد رسائل بانتظار الرد حالياً.</div>`;
         return;
       }
 
-      // Render contact items
-      contactList.innerHTML = msgs.map(m => {
-        const pl = (m.platform||'whatsapp').toLowerCase();
-        let pColor = '#25d366', pIcon = 'fab fa-whatsapp';
-        if (pl==='telegram') { pColor='#38bdf8'; pIcon='fab fa-telegram-plane'; }
-        if (pl==='facebook') { pColor='#0084ff'; pIcon='fab fa-facebook-messenger'; }
+      listEl.innerHTML = msgs.map(m => {
+        const platform = (m.platform || 'whatsapp').toLowerCase();
+        let pColor = '#25d366', pIcon = 'fab fa-whatsapp', pLabel = 'واتساب';
+        if (platform === 'telegram')  { pColor = '#38bdf8'; pIcon = 'fab fa-telegram-plane'; pLabel = 'تليجرام'; }
+        if (platform === 'facebook')  { pColor = '#0084ff'; pIcon = 'fab fa-facebook-messenger'; pLabel = 'فيسبوك'; }
+        const dateStr = m.timestamp ? new Date(m.timestamp).toLocaleString('ar-MA') : '';
         const name = m.senderName || m.sender || 'مجهول';
-        const preview = (m.text||'').slice(0,40) + ((m.text||'').length>40?'…':'');
-        const timeStr = m.timestamp ? new Date(m.timestamp).toLocaleTimeString('ar-MA',{hour:'2-digit',minute:'2-digit'}) : '';
-        const isActive = m.id === _chatActiveId;
         return `
-        <div id="contact-item-${m.id}" onclick="openChat('${m.id}')"
-          style="padding:12px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:background 0.15s;border-right:3px solid ${isActive ? pColor : 'transparent'};background:${isActive ? 'rgba(255,255,255,0.04)' : 'transparent'};"
-          onmouseover="if('${m.id}'!==_chatActiveId)this.style.background='rgba(255,255,255,0.03)'"
-          onmouseout="if('${m.id}'!==_chatActiveId)this.style.background='transparent'">
-          <div style="position:relative;flex-shrink:0;">
-            <div style="width:42px;height:42px;border-radius:50%;background:${pColor}22;display:flex;align-items:center;justify-content:center;color:${pColor};font-size:18px;"><i class="${pIcon}"></i></div>
-            ${!m.replied ? `<span style="position:absolute;top:0;left:0;width:10px;height:10px;background:var(--yellow);border-radius:50%;border:2px solid var(--bg);"></span>` : ''}
-          </div>
-          <div style="flex:1;min-width:0;">
-            <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
-              <span style="font-size:13px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px;">${escapeHtml(name)}</span>
-              <span style="font-size:10px;color:var(--text-muted);flex-shrink:0;">${timeStr}</span>
+        <div id="devmsg-${m.id}" style="background:var(--card);border-radius:16px;padding:18px 20px;border:1px solid var(--border);border-right:4px solid ${pColor};display:flex;flex-direction:column;gap:12px;overflow:hidden;animation:slideIn 0.25s ease;">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="width:36px;height:36px;border-radius:50%;background:${pColor}22;display:flex;align-items:center;justify-content:center;color:${pColor};font-size:16px;"><i class="${pIcon}"></i></div>
+              <div>
+                <div style="font-weight:700;font-size:14px;color:var(--text-main);">${escapeHtml(name)}</div>
+                <div style="font-size:11px;color:var(--text-muted);direction:ltr;text-align:right;">${m.sender} · ${pLabel}</div>
+              </div>
             </div>
-            <div style="font-size:11px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;">${escapeHtml(preview)||'&nbsp;'}</div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              ${m.replied ? `<span style="background:rgba(37,211,102,0.1);color:var(--accent);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;"><i class="fas fa-check-double"></i> تم الرد</span>` : `<span style="background:rgba(246,224,94,0.1);color:var(--yellow);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;"><i class="fas fa-clock"></i> بانتظار الرد</span>`}
+              <span style="font-size:11px;color:var(--text-muted);">${dateStr}</span>
+            </div>
           </div>
-          <button onclick="event.stopPropagation();deleteDevMsg('${m.id}')" title="حذف" style="opacity:0.4;background:none;border:none;color:var(--red);cursor:pointer;font-size:12px;flex-shrink:0;padding:4px;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.4'"><i class="fas fa-trash-alt"></i></button>
+          <div style="font-size:14px;color:var(--text-main);background:var(--bg);padding:12px 16px;border-radius:12px;line-height:1.6;white-space:pre-wrap;word-break:break-word;">${escapeHtml(m.text || '')}</div>
+          ${m.replied ? `<div style="font-size:12px;color:var(--text-muted);background:rgba(37,211,102,0.06);border:1px solid rgba(37,211,102,0.15);padding:10px 14px;border-radius:10px;"><i class="fas fa-reply" style="color:var(--accent);margin-left:6px;transform:scaleX(-1);"></i><strong>ردك:</strong> ${escapeHtml(m.replyText || '')}</div>` : ''}
+          <div style="display:flex;gap:8px;margin-top:4px;">
+            <button onclick="openChat('${m.id}')" class="btn btn-primary" style="padding:8px 18px;font-size:12px;flex:1;justify-content:center;font-family:Cairo,sans-serif;"><i class="fas fa-reply"></i> رد على المستخدم</button>
+            <button onclick="deleteDevMsg('${m.id}')" class="btn" style="padding:8px 14px;font-size:12px;background:rgba(252,129,129,0.1);color:var(--red);border:1px solid rgba(252,129,129,0.3);"><i class="fas fa-trash"></i></button>
+          </div>
         </div>`;
       }).join('');
 
-      // Re-open active chat if still exists
-      if (_chatActiveId && _devMsgData.find(m=>m.id===_chatActiveId)) {
+      // Keep active chat view refreshed if it is open
+      if (_chatActiveId && document.getElementById('devmsg-chat-view').style.display === 'flex') {
         openChat(_chatActiveId, false);
       }
 
     } catch(e) {
-      contactList.innerHTML = `<div style="color:var(--red);text-align:center;padding:30px;font-size:12px;"><i class="fas fa-exclamation-triangle"></i> ${e.message}</div>`;
+      listEl.innerHTML = `<div style="color:var(--red);text-align:center;padding:30px;"><i class="fas fa-exclamation-triangle"></i> فشل تحميل الرسائل: ${e.message}</div>`;
     }
   }
 
@@ -5661,32 +5631,31 @@
     const m = _devMsgData.find(x=>x.id===id);
     if (!m) return;
 
-    // Highlight active contact
-    document.querySelectorAll('[id^="contact-item-"]').forEach(el=>{
-      el.style.background='transparent';
-      el.style.borderRightColor='transparent';
-    });
-    const item = document.getElementById('contact-item-'+id);
-    if (item) { item.style.background='rgba(255,255,255,0.04)'; item.style.borderRightColor = '#25d366'; }
+    // Switch views
+    document.getElementById('devmsg-list-view').style.display = 'none';
+    const chatView = document.getElementById('devmsg-chat-view');
+    chatView.style.display = 'flex';
 
-    // Build chat header
+    // Build chat header info
     const pl = (m.platform||'whatsapp').toLowerCase();
     let pColor='#25d366', pIcon='fab fa-whatsapp', pLabel='واتساب';
     if(pl==='telegram'){pColor='#38bdf8';pIcon='fab fa-telegram-plane';pLabel='تليجرام';}
     if(pl==='facebook'){pColor='#0084ff';pIcon='fab fa-facebook-messenger';pLabel='فيسبوك';}
     const name = m.senderName||m.sender||'مجهول';
 
-    document.getElementById('chat-header').innerHTML = `
+    document.getElementById('chat-header-info').innerHTML = `
       <div style="width:42px;height:42px;border-radius:50%;background:${pColor}22;display:flex;align-items:center;justify-content:center;color:${pColor};font-size:20px;flex-shrink:0;"><i class="${pIcon}"></i></div>
       <div style="flex:1;min-width:0;">
         <div style="font-weight:700;font-size:15px;color:var(--text);">${escapeHtml(name)}</div>
         <div style="font-size:11px;color:var(--text-muted);direction:ltr;text-align:right;">${m.sender} · ${pLabel}</div>
       </div>
-      <span style="background:${m.replied?'rgba(37,211,102,0.12)':'rgba(246,224,94,0.12)'};color:${m.replied?'var(--accent)':'var(--yellow)'};padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;">
+      <span style="background:${m.replied?'rgba(37,211,102,0.12)':'rgba(246,224,94,0.12)'};color:${m.replied?'var(--accent)':'var(--yellow)'};padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;flex-shrink:0;">
         <i class="fas ${m.replied?'fa-check-double':'fa-clock'}"></i> ${m.replied?'تم الرد':'بانتظار الرد'}
       </span>`;
 
     // Build messages bubbles
+    // User incoming message -> LEFT
+    // Developer reply -> RIGHT
     const area = document.getElementById('chat-messages-area');
     const dateStr = m.timestamp ? new Date(m.timestamp).toLocaleString('ar-MA') : '';
     let bubblesHtml = `
@@ -5694,23 +5663,23 @@
       <div style="text-align:center;margin:8px 0;">
         <span style="font-size:10px;color:var(--text-muted);background:var(--bg);padding:3px 12px;border-radius:20px;border:1px solid var(--border);">${dateStr}</span>
       </div>
-      <!-- User bubble (right side) -->
-      <div style="display:flex;justify-content:flex-end;">
-        <div style="max-width:72%;background:rgba(37,211,102,0.12);border:1px solid rgba(37,211,102,0.2);border-radius:18px 18px 4px 18px;padding:12px 16px;position:relative;">
+      <!-- User bubble (left side) -->
+      <div style="display:flex;justify-content:flex-start;">
+        <div style="max-width:72%;background:var(--card);border:1px solid var(--border);border-radius:18px 18px 18px 4px;padding:12px 16px;position:relative;">
           <div style="font-size:13px;color:var(--text);line-height:1.6;white-space:pre-wrap;word-break:break-word;">${escapeHtml(m.text||'')}</div>
-          <div style="font-size:10px;color:var(--text-muted);margin-top:6px;text-align:left;">${dateStr} <i class="fas fa-check-double" style="color:var(--accent);margin-right:3px;"></i></div>
+          <div style="font-size:10px;color:var(--text-muted);margin-top:6px;text-align:left;">${dateStr}</div>
         </div>
       </div>`;
 
     if (m.replied) {
       const replyDate = m.repliedAt ? new Date(m.repliedAt).toLocaleString('ar-MA') : '';
       bubblesHtml += `
-        <!-- My reply bubble (left side) -->
-        <div style="display:flex;justify-content:flex-start;">
-          <div style="max-width:72%;background:var(--card);border:1px solid var(--border);border-radius:18px 18px 18px 4px;padding:12px 16px;">
+        <!-- My reply bubble (right side) -->
+        <div style="display:flex;justify-content:flex-end;">
+          <div style="max-width:72%;background:rgba(37,211,102,0.12);border:1px solid rgba(37,211,102,0.2);border-radius:18px 18px 4px 18px;padding:12px 16px;">
             <div style="font-size:11px;color:var(--accent);font-weight:700;margin-bottom:6px;"><i class="fas fa-robot" style="margin-left:4px;"></i>أنت (البوت)</div>
             <div style="font-size:13px;color:var(--text);line-height:1.6;white-space:pre-wrap;word-break:break-word;">${escapeHtml(m.replyText||'')}</div>
-            <div style="font-size:10px;color:var(--text-muted);margin-top:6px;">${replyDate}</div>
+            <div style="font-size:10px;color:var(--text-muted);margin-top:6px;text-align:left;">${replyDate} <i class="fas fa-check-double" style="color:var(--accent);margin-right:3px;"></i></div>
           </div>
         </div>`;
     }
@@ -5718,12 +5687,36 @@
     area.innerHTML = bubblesHtml;
     if (scroll) area.scrollTop = area.scrollHeight;
 
-    // Show composer
-    const composer = document.getElementById('chat-composer');
-    composer.style.display = 'block';
     clearChatAttachment();
     const inp = document.getElementById('chat-text-input');
-    if (inp) { inp.value=''; onChatInputChange(inp); inp.focus(); }
+    if (inp) {
+      inp.value='';
+      onChatInputChange(inp);
+      inp.focus();
+    }
+  }
+
+  function closeChatView() {
+    document.getElementById('devmsg-chat-view').style.display = 'none';
+    document.getElementById('devmsg-list-view').style.display = 'block';
+    loadDevMessages();
+  }
+
+  // Helper to toggle Send and Mic buttons with animation
+  function updateComposerButtons() {
+    const ta = document.getElementById('chat-text-input');
+    const sendBtn = document.getElementById('chat-send-btn');
+    const micBtn = document.getElementById('chat-mic-btn');
+    if (!ta || !sendBtn || !micBtn) return;
+
+    const hasContent = ta.value.trim().length > 0 || _chatAttachFile !== null;
+    if (hasContent) {
+      sendBtn.classList.remove('hidden');
+      micBtn.classList.add('hidden');
+    } else {
+      sendBtn.classList.add('hidden');
+      micBtn.classList.remove('hidden');
+    }
   }
 
   // ── Composer logic ──────────────────────────
@@ -5731,6 +5724,7 @@
     // Auto-resize textarea
     ta.style.height = 'auto';
     ta.style.height = Math.min(ta.scrollHeight, 120) + 'px';
+    updateComposerButtons();
   }
 
   function toggleChatAttachMenu() {
@@ -5766,6 +5760,7 @@
     if (type === 'image') { icon.className='fas fa-image'; icon.style.color='#38bdf8'; }
     else                  { icon.className='fas fa-file-alt'; icon.style.color='#fbbf24'; }
     input.value = '';
+    updateComposerButtons();
   }
 
   function clearChatAttachment() {
@@ -5773,6 +5768,7 @@
     _chatAttachIsVoice = false;
     const p = document.getElementById('chat-attach-preview');
     if (p) p.style.display = 'none';
+    updateComposerButtons();
   }
 
   // ── Voice recording ──────────────────────────
@@ -5795,6 +5791,7 @@
         preview.style.display = 'flex';
         stream.getTracks().forEach(t=>t.stop());
         _chatRecorder = null;
+        updateComposerButtons();
       };
       _chatRecorder.start();
       _chatRecSeconds = 0;
@@ -5851,15 +5848,15 @@
         // Update local data
         const msg = _devMsgData.find(x=>x.id===_chatActiveId);
         if (msg) { msg.replied=true; msg.replyText=replyText; msg.repliedAt=new Date().toISOString(); }
-        // Append reply bubble instantly
+        // Append reply bubble instantly on the RIGHT side
         const area = document.getElementById('chat-messages-area');
         const replyBubble = document.createElement('div');
-        replyBubble.style.cssText='display:flex;justify-content:flex-start;animation:slideIn 0.25s ease;';
+        replyBubble.style.cssText='display:flex;justify-content:flex-end;animation:slideIn 0.25s ease;';
         replyBubble.innerHTML = `
-          <div style="max-width:72%;background:var(--card);border:1px solid var(--border);border-radius:18px 18px 18px 4px;padding:12px 16px;">
+          <div style="max-width:72%;background:rgba(37,211,102,0.12);border:1px solid rgba(37,211,102,0.2);border-radius:18px 18px 4px 18px;padding:12px 16px;">
             <div style="font-size:11px;color:var(--accent);font-weight:700;margin-bottom:6px;"><i class="fas fa-robot" style="margin-left:4px;"></i>أنت (البوت)</div>
             <div style="font-size:13px;color:var(--text);line-height:1.6;white-space:pre-wrap;word-break:break-word;">${escapeHtml(replyText) || (mediaFile?'📎 ملف':'')}</div>
-            <div style="font-size:10px;color:var(--text-muted);margin-top:6px;">${new Date().toLocaleTimeString('ar-MA',{hour:'2-digit',minute:'2-digit'})}</div>
+            <div style="font-size:10px;color:var(--text-muted);margin-top:6px;text-align:left;">${new Date().toLocaleTimeString('ar-MA',{hour:'2-digit',minute:'2-digit'})} <i class="fas fa-check-double" style="color:var(--accent);margin-right:3px;"></i></div>
           </div>`;
         area.appendChild(replyBubble);
         area.scrollTop = area.scrollHeight;
@@ -5867,9 +5864,6 @@
         const header = document.getElementById('chat-header');
         const badge = header?.querySelector('span[style*="border-radius:20px"]');
         if (badge) { badge.style.background='rgba(37,211,102,0.12)'; badge.style.color='var(--accent)'; badge.innerHTML='<i class="fas fa-check-double"></i> تم الرد'; }
-        // Update contact dot
-        const dot = document.querySelector(`#contact-item-${_chatActiveId} span[style*="var(--yellow)"]`);
-        if (dot) dot.remove();
         // Refresh count
         const unread = _devMsgData.filter(m=>!m.replied).length;
         const countEl = document.getElementById('devmsg-count');
@@ -5884,6 +5878,7 @@
       btn.innerHTML = prevHtml;
       const ta = document.getElementById('chat-text-input');
       if (ta) { ta.style.height='auto'; ta.focus(); }
+      updateComposerButtons();
     }
   }
 
@@ -5896,13 +5891,11 @@
       if (data.ok) {
         showToast('🗑️ تم الحذف','success');
         _devMsgData = _devMsgData.filter(m=>m.id!==id);
-        const item = document.getElementById('contact-item-'+id);
+        const item = document.getElementById('devmsg-'+id);
         if (item) item.remove();
         if (_chatActiveId === id) {
           _chatActiveId = null;
-          document.getElementById('chat-header').innerHTML = `<div style="color:var(--text-muted);font-size:13px;margin:auto;"><i class="fas fa-arrow-right" style="margin-left:8px;opacity:0.4;"></i>اختر محادثة من القائمة</div>`;
-          document.getElementById('chat-messages-area').innerHTML = '';
-          document.getElementById('chat-composer').style.display='none';
+          closeChatView();
         }
       } else showToast('❌ '+(data.error||'فشل الحذف'),'error');
     } catch(e) { showToast('❌ '+e.message,'error'); }
@@ -5918,10 +5911,7 @@
         showToast('🗑️ تم حذف الكل','success');
         _chatActiveId = null;
         _devMsgData   = [];
-        await loadDevMessages();
-        document.getElementById('chat-header').innerHTML = `<div style="color:var(--text-muted);font-size:13px;margin:auto;"><i class="fas fa-arrow-right" style="margin-left:8px;opacity:0.4;"></i>اختر محادثة من القائمة</div>`;
-        document.getElementById('chat-messages-area').innerHTML = '';
-        document.getElementById('chat-composer').style.display='none';
+        closeChatView();
       } else showToast('❌ '+(data.error||'فشل'),'error');
     } catch(e) { showToast('❌ '+e.message,'error'); }
   }
