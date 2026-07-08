@@ -2059,7 +2059,9 @@ async function startBot(sessionPath = sessionDir, phoneNumber = null) {
                     if (ramadanJob) currentIntervals.push(ramadanJob);
                 } catch (e) { }
 
-                // ⚠️ Only run reminder on MAIN session to avoid duplicate messages across sessions
+                // 🚫 AutoReminder DISABLED — dezactivated by owner
+                // To re-enable: uncomment the block below
+                /*
                 const isMainSession = sessionPath === 'session' || sessionPath === './session' || !sessionPath.includes('session_');
                 if (isMainSession) {
                     try {
@@ -2070,6 +2072,7 @@ async function startBot(sessionPath = sessionDir, phoneNumber = null) {
                         currentIntervals.push(reminderInterval);
                     } catch (e) { }
                 }
+                */
 
                 sessionIntervals.set(sessionPath, currentIntervals);
             }, 10000); // 10s delay to let connection settle
