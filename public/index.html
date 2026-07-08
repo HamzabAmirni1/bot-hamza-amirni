@@ -2607,7 +2607,7 @@
       </div>
 
       <!-- Messages area -->
-      <div id="chat-messages-area" style="flex:1; overflow-y:auto; padding:20px 24px; display:flex; flex-direction:column; gap:14px;">
+      <div id="chat-messages-area" style="flex:1; overflow-y:auto; padding:20px 24px; display:flex; flex-direction:column; gap:14px; direction:ltr;">
         <!-- messages bubbles rendered here -->
       </div>
 
@@ -2624,7 +2624,7 @@
         </div>
 
         <!-- Input row: [📎 LEFT] [textarea] [Send/Mic RIGHT] -->
-        <div style="display:flex; align-items:flex-end; gap:10px;">
+        <div style="display:flex; align-items:flex-end; gap:10px; direction:ltr;">
 
           <!-- 📎 Attach Button — LEFT side -->
           <div style="position:relative;">
@@ -5747,33 +5747,32 @@
       </span>`;
 
     // Build messages bubbles
-    // User incoming message -> LEFT  (they sent it, you received)
-    // Developer reply       -> RIGHT (you sent it)
+    // User incoming message -> LEFT  (flex-start in LTR)
+    // Developer reply       -> RIGHT (flex-end in LTR)
     const area = document.getElementById('chat-messages-area');
     const dateStr = m.timestamp ? new Date(m.timestamp).toLocaleString('ar-MA') : '';
     const timeStr = m.timestamp ? new Date(m.timestamp).toLocaleTimeString('ar-MA',{hour:'2-digit',minute:'2-digit'}) : '';
     let bubblesHtml = `
-      <!-- Date separator -->
       <div style="text-align:center;margin:4px 0 8px;">
         <span style="font-size:11px;color:var(--text-muted);background:rgba(0,0,0,0.25);padding:3px 14px;border-radius:20px;backdrop-filter:blur(4px);">${dateStr}</span>
       </div>
-      <!-- User bubble (LEFT side — they sent) -->
+      <!-- User bubble LEFT -->
       <div style="display:flex;justify-content:flex-start;">
         <div class="bubble-user">
-          <div style="font-size:13px;color:var(--text);line-height:1.65;white-space:pre-wrap;word-break:break-word;">${escapeHtml(m.text||'')}</div>
-          <div style="font-size:10px;color:var(--text-muted);margin-top:5px;text-align:left;direction:ltr;">${timeStr}</div>
+          <div style="font-size:13px;color:var(--text);line-height:1.65;white-space:pre-wrap;word-break:break-word;direction:rtl;">${escapeHtml(m.text||'')}</div>
+          <div style="font-size:10px;color:var(--text-muted);margin-top:5px;text-align:right;">${timeStr}</div>
         </div>
       </div>`;
 
     if (m.replied) {
       const replyTime = m.repliedAt ? new Date(m.repliedAt).toLocaleTimeString('ar-MA',{hour:'2-digit',minute:'2-digit'}) : '';
       bubblesHtml += `
-        <!-- Dev reply bubble (RIGHT side — you replied) -->
+        <!-- Dev reply bubble RIGHT -->
         <div style="display:flex;justify-content:flex-end;">
           <div class="bubble-dev">
             <div style="font-size:11px;color:var(--accent);font-weight:700;margin-bottom:5px;display:flex;align-items:center;gap:5px;"><i class="fas fa-robot"></i>أنت (البوت)</div>
-            <div style="font-size:13px;color:var(--text);line-height:1.65;white-space:pre-wrap;word-break:break-word;">${escapeHtml(m.replyText||'')}</div>
-            <div style="font-size:10px;color:rgba(37,211,102,0.7);margin-top:5px;direction:ltr;">${replyTime} <i class="fas fa-check-double"></i></div>
+            <div style="font-size:13px;color:var(--text);line-height:1.65;white-space:pre-wrap;word-break:break-word;direction:rtl;">${escapeHtml(m.replyText||'')}</div>
+            <div style="font-size:10px;color:rgba(37,211,102,0.7);margin-top:5px;text-align:right;">${replyTime} <i class="fas fa-check-double"></i></div>
           </div>
         </div>`;
     }
@@ -5942,15 +5941,15 @@
         // Update local data
         const msg = _devMsgData.find(x=>x.id===_chatActiveId);
         if (msg) { msg.replied=true; msg.replyText=replyText; msg.repliedAt=new Date().toISOString(); }
-        // Append reply bubble instantly on the RIGHT side (dev reply)
+        // Append reply bubble on the RIGHT (dev reply, LTR context)
         const area = document.getElementById('chat-messages-area');
         const replyBubble = document.createElement('div');
         replyBubble.style.cssText='display:flex;justify-content:flex-end;';
         replyBubble.innerHTML = `
           <div class="bubble-dev">
             <div style="font-size:11px;color:var(--accent);font-weight:700;margin-bottom:5px;display:flex;align-items:center;gap:5px;"><i class="fas fa-robot"></i>أنت (البوت)</div>
-            <div style="font-size:13px;color:var(--text);line-height:1.65;white-space:pre-wrap;word-break:break-word;">${escapeHtml(replyText) || (mediaFile?'📎 ملف':'')}</div>
-            <div style="font-size:10px;color:rgba(37,211,102,0.7);margin-top:5px;direction:ltr;">${new Date().toLocaleTimeString('ar-MA',{hour:'2-digit',minute:'2-digit'})} <i class="fas fa-check-double"></i></div>
+            <div style="font-size:13px;color:var(--text);line-height:1.65;white-space:pre-wrap;word-break:break-word;direction:rtl;">${escapeHtml(replyText) || (mediaFile?'📎 ملف':'')}</div>
+            <div style="font-size:10px;color:rgba(37,211,102,0.7);margin-top:5px;text-align:right;">${new Date().toLocaleTimeString('ar-MA',{hour:'2-digit',minute:'2-digit'})} <i class="fas fa-check-double"></i></div>
           </div>`;
         area.appendChild(replyBubble);
         area.scrollTop = area.scrollHeight;
