@@ -2623,10 +2623,34 @@
           <button onclick="clearChatAttachment()" style="background:none; border:none; color:var(--red); cursor:pointer; font-size:14px; flex-shrink:0;"><i class="fas fa-times"></i></button>
         </div>
 
-        <!-- Input row: [Send/Mic LEFT] [textarea] [📎 RIGHT] -->
+        <!-- Input row: [📎 LEFT] [textarea] [Send/Mic RIGHT] -->
         <div style="display:flex; align-items:flex-end; gap:10px;">
 
-          <!-- ✅ Send/Mic Button — LEFT side (first in DOM) -->
+          <!-- 📎 Attach Button — LEFT side -->
+          <div style="position:relative;">
+            <button id="chat-attach-btn" onclick="toggleChatAttachMenu()" title="إرفاق"
+              style="width:46px; height:46px; border-radius:50%; border:1px solid var(--border); background:var(--bg); color:var(--text-muted); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:17px; transition:all 0.2s; flex-shrink:0;"
+              onmouseover="this.style.background='var(--border)';this.style.color='var(--text)'" onmouseout="this.style.background='var(--bg)';this.style.color='var(--text-muted)'">
+              <i class="fas fa-paperclip"></i>
+            </button>
+            <!-- Attach menu popup -->
+            <div id="chat-attach-menu" style="display:none; position:absolute; bottom:54px; right:0; background:var(--card); border:1px solid var(--border); border-radius:16px; padding:8px; box-shadow:0 8px 32px rgba(0,0,0,0.35); z-index:100; min-width:170px;">
+              <input type="file" id="chat-file-input-image" accept="image/*" style="display:none;" onchange="onChatFileSelected(this,'image')">
+              <input type="file" id="chat-file-input-doc" accept=".pdf,.doc,.docx,.zip,.txt,application/*" style="display:none;" onchange="onChatFileSelected(this,'doc')">
+              <button onclick="document.getElementById('chat-file-input-image').click();toggleChatAttachMenu()" style="width:100%; padding:9px 14px; text-align:right; background:none; border:none; color:#38bdf8; font-family:Cairo,sans-serif; font-size:13px; cursor:pointer; border-radius:10px; display:flex; align-items:center; gap:10px; transition:background 0.15s;" onmouseover="this.style.background='rgba(56,189,248,0.08)'" onmouseout="this.style.background='none'"><i class="fas fa-image" style="width:18px;"></i> صورة</button>
+              <button onclick="document.getElementById('chat-file-input-doc').click();toggleChatAttachMenu()" style="width:100%; padding:9px 14px; text-align:right; background:none; border:none; color:#fbbf24; font-family:Cairo,sans-serif; font-size:13px; cursor:pointer; border-radius:10px; display:flex; align-items:center; gap:10px; transition:background 0.15s;" onmouseover="this.style.background='rgba(251,191,36,0.08)'" onmouseout="this.style.background='none'"><i class="fas fa-file-alt" style="width:18px;"></i> مستند</button>
+              <button onclick="startChatVoiceRecord();toggleChatAttachMenu()" style="width:100%; padding:9px 14px; text-align:right; background:none; border:none; color:#ef4444; font-family:Cairo,sans-serif; font-size:13px; cursor:pointer; border-radius:10px; display:flex; align-items:center; gap:10px; transition:background 0.15s;" onmouseover="this.style.background='rgba(239,68,68,0.08)'" onmouseout="this.style.background='none'"><i class="fas fa-microphone" style="width:18px;"></i> تسجيل صوت</button>
+            </div>
+          </div>
+
+          <!-- Text input — middle -->
+          <textarea id="chat-text-input" placeholder="اكتب ردك..." rows="1"
+            style="flex:1; padding:12px 18px; border-radius:24px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-family:Cairo,sans-serif; font-size:14px; resize:none; outline:none; transition:border-color 0.2s,box-shadow 0.2s; max-height:120px; line-height:1.5; overflow-y:auto; direction:rtl;"
+            oninput="onChatInputChange(this)"
+            onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();submitChatReply();}">
+          </textarea>
+
+          <!-- ✅ Send/Mic Button — RIGHT side -->
           <div style="width:46px; height:46px; display:flex; align-items:center; justify-content:center; position:relative; flex-shrink:0;">
             <!-- Send button (shown when input has text) -->
             <button id="chat-send-btn" onclick="submitChatReply()" title="إرسال" class="composer-btn hidden"
@@ -2638,30 +2662,6 @@
               style="background:linear-gradient(135deg,#ef4444,#f87171); box-shadow:0 4px 16px rgba(239,68,68,0.4);">
               <i class="fas fa-microphone"></i>
             </button>
-          </div>
-
-          <!-- Text input — middle -->
-          <textarea id="chat-text-input" placeholder="اكتب ردك..." rows="1"
-            style="flex:1; padding:12px 18px; border-radius:24px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-family:Cairo,sans-serif; font-size:14px; resize:none; outline:none; transition:border-color 0.2s,box-shadow 0.2s; max-height:120px; line-height:1.5; overflow-y:auto; direction:rtl;"
-            oninput="onChatInputChange(this)"
-            onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();submitChatReply();}">
-          </textarea>
-
-          <!-- 📎 Attach Button — RIGHT side -->
-          <div style="position:relative;">
-            <button id="chat-attach-btn" onclick="toggleChatAttachMenu()" title="إرفاق"
-              style="width:46px; height:46px; border-radius:50%; border:1px solid var(--border); background:var(--bg); color:var(--text-muted); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:17px; transition:all 0.2s; flex-shrink:0;"
-              onmouseover="this.style.background='var(--border)';this.style.color='var(--text)'" onmouseout="this.style.background='var(--bg)';this.style.color='var(--text-muted)'">
-              <i class="fas fa-paperclip"></i>
-            </button>
-            <!-- Attach menu popup -->
-            <div id="chat-attach-menu" style="display:none; position:absolute; bottom:54px; left:0; background:var(--card); border:1px solid var(--border); border-radius:16px; padding:8px; box-shadow:0 8px 32px rgba(0,0,0,0.35); z-index:100; min-width:170px;">
-              <input type="file" id="chat-file-input-image" accept="image/*" style="display:none;" onchange="onChatFileSelected(this,'image')">
-              <input type="file" id="chat-file-input-doc" accept=".pdf,.doc,.docx,.zip,.txt,application/*" style="display:none;" onchange="onChatFileSelected(this,'doc')">
-              <button onclick="document.getElementById('chat-file-input-image').click();toggleChatAttachMenu()" style="width:100%; padding:9px 14px; text-align:right; background:none; border:none; color:#38bdf8; font-family:Cairo,sans-serif; font-size:13px; cursor:pointer; border-radius:10px; display:flex; align-items:center; gap:10px; transition:background 0.15s;" onmouseover="this.style.background='rgba(56,189,248,0.08)'" onmouseout="this.style.background='none'"><i class="fas fa-image" style="width:18px;"></i> صورة</button>
-              <button onclick="document.getElementById('chat-file-input-doc').click();toggleChatAttachMenu()" style="width:100%; padding:9px 14px; text-align:right; background:none; border:none; color:#fbbf24; font-family:Cairo,sans-serif; font-size:13px; cursor:pointer; border-radius:10px; display:flex; align-items:center; gap:10px; transition:background 0.15s;" onmouseover="this.style.background='rgba(251,191,36,0.08)'" onmouseout="this.style.background='none'"><i class="fas fa-file-alt" style="width:18px;"></i> مستند</button>
-              <button onclick="startChatVoiceRecord();toggleChatAttachMenu()" style="width:100%; padding:9px 14px; text-align:right; background:none; border:none; color:#ef4444; font-family:Cairo,sans-serif; font-size:13px; cursor:pointer; border-radius:10px; display:flex; align-items:center; gap:10px; transition:background 0.15s;" onmouseover="this.style.background='rgba(239,68,68,0.08)'" onmouseout="this.style.background='none'"><i class="fas fa-microphone" style="width:18px;"></i> تسجيل صوت</button>
-            </div>
           </div>
         </div>
 
