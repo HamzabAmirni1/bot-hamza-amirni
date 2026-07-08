@@ -794,6 +794,12 @@
     }
 
     @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes slideIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes pulse { 0%,100% { transform:scale(1); opacity:1; } 50% { transform:scale(1.4); opacity:0.6; } }
+    #chat-messages-area { scrollbar-width:thin; scrollbar-color:var(--border) transparent; }
+    #chat-contact-list { scrollbar-width:thin; scrollbar-color:var(--border) transparent; }
+    #chat-text-input:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(37,211,102,0.1); }
+
 
     /* Numbers list */
     .number-item {
@@ -2518,37 +2524,113 @@
 
   <!-- =================== DEV MESSAGES PAGE =================== -->
   <div class="page" id="page-devmessages">
-    <div class="page-header">
-      <h1><i class="fas fa-inbox" style="color:var(--blue)"></i> رسائل المستخدمين الواردة</h1>
-      <p>الرسائل التي أرسلها المستخدمون باستخدام الأمر <code>.msgtodev</code> ويمكنك الرد عليها مباشرة</p>
+    <div class="page-header" style="margin-bottom:16px;">
+      <h1><i class="fas fa-comments" style="color:var(--blue)"></i> المحادثات</h1>
+      <p>رسائل المستخدمين الواردة — ردّ عليهم مباشرة كأنك في محادثة</p>
     </div>
-    <div class="card">
-      <div class="card-header" style="justify-content:space-between;">
-        <div style="display:flex;align-items:center;gap:12px;">
-          <div class="card-icon blue"><i class="fas fa-envelope-open-text"></i></div>
-          <div class="card-title">صندوق الوارد <span id="devmsg-count" style="font-size:12px;color:var(--text-muted);font-weight:400;"></span></div>
+
+    <!-- Chat Shell -->
+    <div id="chat-shell" style="display:flex;gap:0;height:72vh;border-radius:20px;overflow:hidden;border:1px solid var(--border);background:var(--card);">
+
+      <!-- ── LEFT: Contacts Sidebar ── -->
+      <div id="chat-sidebar" style="width:300px;min-width:260px;border-left:1px solid var(--border);display:flex;flex-direction:column;background:var(--bg);flex-shrink:0;">
+        <!-- Sidebar header -->
+        <div style="padding:16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--card);">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--blue));display:flex;align-items:center;justify-content:center;font-size:16px;color:white;flex-shrink:0;"><i class="fas fa-robot"></i></div>
+            <div>
+              <div style="font-weight:700;font-size:13px;color:var(--text);">صندوق الوارد</div>
+              <div id="devmsg-count" style="font-size:11px;color:var(--text-muted);">جاري التحميل...</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:6px;">
+            <button onclick="loadDevMessages()" title="تحديث" style="width:32px;height:32px;border-radius:50%;border:1px solid var(--border);background:var(--bg);color:var(--text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all 0.2s;" onmouseover="this.style.background='var(--border)'" onmouseout="this.style.background='var(--bg)'"><i class="fas fa-sync-alt"></i></button>
+            <button onclick="clearAllDevMessages()" title="حذف الكل" style="width:32px;height:32px;border-radius:50%;border:1px solid rgba(252,129,129,0.3);background:rgba(252,129,129,0.05);color:var(--red);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all 0.2s;" onmouseover="this.style.background='rgba(252,129,129,0.15)'" onmouseout="this.style.background='rgba(252,129,129,0.05)'"><i class="fas fa-trash-alt"></i></button>
+          </div>
         </div>
-        <div style="display:flex;gap:8px;">
-          <button class="btn btn-secondary" onclick="clearAllDevMessages()" style="padding:8px 14px;font-size:12px;background:rgba(252,129,129,0.08);color:var(--red);border-color:rgba(252,129,129,0.25);"><i class="fas fa-trash-alt"></i> حذف الكل</button>
-          <button class="btn btn-secondary" onclick="loadDevMessages()" style="padding:8px 16px;font-size:12px;"><i class="fas fa-sync-alt"></i> تحديث</button>
+        <!-- Filter pills -->
+        <div style="padding:10px 12px;border-bottom:1px solid var(--border);display:flex;gap:6px;">
+          <button id="devmsg-filter-all" onclick="setDevMsgFilter('all')" style="flex:1;padding:6px 0;font-size:11px;font-family:Cairo,sans-serif;font-weight:700;border:none;border-radius:20px;cursor:pointer;background:linear-gradient(135deg,var(--accent),var(--blue));color:white;transition:all 0.2s;">الكل</button>
+          <button id="devmsg-filter-unanswered" onclick="setDevMsgFilter('unanswered')" style="flex:1;padding:6px 0;font-size:11px;font-family:Cairo,sans-serif;font-weight:700;border:1px solid var(--border);border-radius:20px;cursor:pointer;background:transparent;color:var(--text-muted);transition:all 0.2s;">غير مُجاب</button>
+        </div>
+        <!-- Contact list -->
+        <div id="chat-contact-list" style="flex:1;overflow-y:auto;padding:8px 0;">
+          <div style="color:var(--text-muted);text-align:center;padding:40px 20px;font-size:13px;">
+            <i class="fas fa-spinner fa-spin" style="font-size:28px;margin-bottom:10px;display:block;opacity:0.5;"></i>
+            جاري التحميل...
+          </div>
         </div>
       </div>
-      <!-- Dev messages filter toggle bar -->
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid var(--border);background:rgba(255,255,255,0.01);flex-wrap:wrap;gap:12px;">
-        <div style="display:flex;background:var(--bg);padding:4px;border-radius:10px;border:1px solid var(--border);gap:4px;">
-          <button id="devmsg-filter-all" onclick="setDevMsgFilter('all')" style="padding:6px 16px;font-size:12px;font-family:Cairo,sans-serif;font-weight:700;border:none;border-radius:8px;cursor:pointer;background:linear-gradient(135deg, var(--accent), var(--blue));color:white;transition:all 0.2s;">الكل</button>
-          <button id="devmsg-filter-unanswered" onclick="setDevMsgFilter('unanswered')" style="padding:6px 16px;font-size:12px;font-family:Cairo,sans-serif;font-weight:700;border:none;border-radius:8px;cursor:pointer;background:transparent;color:var(--text-muted);transition:all 0.2s;">غير مُجاب</button>
+
+      <!-- ── RIGHT: Chat Panel ── -->
+      <div id="chat-panel" style="flex:1;display:flex;flex-direction:column;background:var(--bg);min-width:0;">
+
+        <!-- Chat Header (changes per selected contact) -->
+        <div id="chat-header" style="padding:12px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;background:var(--card);min-height:64px;">
+          <div style="color:var(--text-muted);font-size:13px;margin:auto;">
+            <i class="fas fa-arrow-right" style="margin-left:8px;opacity:0.4;"></i>
+            اختر محادثة من القائمة
+          </div>
         </div>
-        <span style="font-size:11px;color:var(--text-muted);font-weight:600;"><i class="fas fa-info-circle" style="color:var(--blue);margin-left:4px;"></i>غير المجاب يظهر أولاً تلقائياً</span>
-      </div>
-      <div id="dev-messages-list" style="padding: 20px; display: grid; gap: 16px;">
-        <div style="color:var(--text-muted);text-align:center;padding:40px;">
-          <i class="fas fa-inbox" style="font-size:40px;margin-bottom:12px;display:block;opacity:0.3;"></i>
-          لا توجد رسائل واردة حالياً.
+
+        <!-- Messages area -->
+        <div id="chat-messages-area" style="flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:12px;background:var(--bg);">
+          <!-- messages rendered here -->
         </div>
+
+        <!-- Composer bar -->
+        <div id="chat-composer" style="padding:12px 16px;border-top:1px solid var(--border);background:var(--card);display:none;">
+          <!-- Attachment preview strip -->
+          <div id="chat-attach-preview" style="display:none;margin-bottom:10px;padding:8px 12px;background:rgba(37,211,102,0.06);border:1px solid rgba(37,211,102,0.2);border-radius:12px;display:flex;align-items:center;gap:10px;">
+            <i id="chat-attach-icon" class="fas fa-file" style="font-size:18px;color:var(--accent);flex-shrink:0;"></i>
+            <div style="flex:1;min-width:0;">
+              <div id="chat-attach-name" style="font-size:12px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
+              <div id="chat-attach-size" style="font-size:11px;color:var(--text-muted);"></div>
+            </div>
+            <button onclick="clearChatAttachment()" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:14px;flex-shrink:0;"><i class="fas fa-times"></i></button>
+          </div>
+          <!-- Input row -->
+          <div style="display:flex;align-items:flex-end;gap:10px;">
+            <!-- Attachment button -->
+            <div style="position:relative;">
+              <button id="chat-attach-btn" onclick="toggleChatAttachMenu()" style="width:42px;height:42px;border-radius:50%;border:1px solid var(--border);background:var(--bg);color:var(--text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all 0.2s;flex-shrink:0;" onmouseover="this.style.background='var(--border)'" onmouseout="this.style.background='var(--bg)'">
+                <i class="fas fa-paperclip"></i>
+              </button>
+              <!-- Attach menu popup -->
+              <div id="chat-attach-menu" style="display:none;position:absolute;bottom:50px;right:0;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:8px;box-shadow:0 8px 32px rgba(0,0,0,0.3);z-index:100;min-width:160px;">
+                <input type="file" id="chat-file-input-image" accept="image/*" style="display:none;" onchange="onChatFileSelected(this,'image')">
+                <input type="file" id="chat-file-input-doc" accept=".pdf,.doc,.docx,.zip,.txt,application/*" style="display:none;" onchange="onChatFileSelected(this,'doc')">
+                <button onclick="document.getElementById('chat-file-input-image').click();toggleChatAttachMenu()" style="width:100%;padding:9px 14px;text-align:right;background:none;border:none;color:#38bdf8;font-family:Cairo,sans-serif;font-size:13px;cursor:pointer;border-radius:10px;display:flex;align-items:center;gap:10px;transition:background 0.15s;" onmouseover="this.style.background='rgba(56,189,248,0.08)'" onmouseout="this.style.background='none'"><i class="fas fa-image" style="width:18px;text-align:center;"></i> صورة</button>
+                <button onclick="document.getElementById('chat-file-input-doc').click();toggleChatAttachMenu()" style="width:100%;padding:9px 14px;text-align:right;background:none;border:none;color:#fbbf24;font-family:Cairo,sans-serif;font-size:13px;cursor:pointer;border-radius:10px;display:flex;align-items:center;gap:10px;transition:background 0.15s;" onmouseover="this.style.background='rgba(251,191,36,0.08)'" onmouseout="this.style.background='none'"><i class="fas fa-file-alt" style="width:18px;text-align:center;"></i> مستند</button>
+                <button onclick="startChatVoiceRecord();toggleChatAttachMenu()" style="width:100%;padding:9px 14px;text-align:right;background:none;border:none;color:#ef4444;font-family:Cairo,sans-serif;font-size:13px;cursor:pointer;border-radius:10px;display:flex;align-items:center;gap:10px;transition:background 0.15s;" onmouseover="this.style.background='rgba(239,68,68,0.08)'" onmouseout="this.style.background='none'"><i class="fas fa-microphone" style="width:18px;text-align:center;"></i> تسجيل صوت</button>
+              </div>
+            </div>
+
+            <!-- Text input -->
+            <textarea id="chat-text-input" placeholder="اكتب ردك..." rows="1"
+              style="flex:1;padding:11px 16px;border-radius:22px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-family:Cairo,sans-serif;font-size:14px;resize:none;outline:none;transition:border-color 0.2s,box-shadow 0.2s;max-height:120px;line-height:1.5;overflow-y:auto;"
+              oninput="onChatInputChange(this)"
+              onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();submitChatReply();}">
+            </textarea>
+
+            <!-- Send / Mic button -->
+            <button id="chat-send-btn" onclick="submitChatReply()" title="إرسال"
+              style="width:42px;height:42px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--accent),var(--blue));color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:17px;transition:all 0.25s;flex-shrink:0;box-shadow:0 4px 12px rgba(37,211,102,0.3);">
+              <i class="fas fa-paper-plane" id="chat-send-icon"></i>
+            </button>
+          </div>
+          <!-- Voice recording indicator -->
+          <div id="chat-recording-bar" style="display:none;padding:8px 12px;background:rgba(239,68,68,0.08);border-radius:12px;margin-top:8px;display:flex;align-items:center;gap:10px;">
+            <span style="width:10px;height:10px;background:#ef4444;border-radius:50%;animation:pulse 1s infinite;flex-shrink:0;"></span>
+            <span style="font-size:12px;color:#ef4444;font-weight:700;">جاري التسجيل... <span id="chat-rec-timer">0:00</span></span>
+            <button onclick="stopChatVoiceRecord(true)" style="margin-right:auto;padding:4px 12px;background:#ef4444;border:none;border-radius:20px;color:white;font-family:Cairo,sans-serif;font-size:11px;cursor:pointer;"><i class="fas fa-stop"></i> إيقاف</button>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
+
 
   <!-- =================== MANAGE PAGE =================== -->
   <div class="page" id="page-manage">
@@ -5480,262 +5562,369 @@
   }
 
   // =================== DEV MESSAGES INBOX ===================
+  // =================== CHAT CONVERSATION ENGINE ===================
+  let _devMsgData = [];          // full messages array
+  let _chatActiveId = null;      // currently open message id
+  let _chatAttachFile = null;    // attached file
+  let _chatAttachIsVoice = false;
+  let _chatRecorder = null;
+  let _chatRecChunks = [];
+  let _chatRecTimer = null;
+  let _chatRecSeconds = 0;
+
   async function loadDevMessages() {
-    const listEl = document.getElementById('dev-messages-list');
-    if (!listEl) return;
-    listEl.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-muted);"><i class="fas fa-spinner fa-spin" style="font-size:28px;margin-bottom:10px;display:block;"></i>جاري التحميل...</div>`;
+    const contactList = document.getElementById('chat-contact-list');
+    const countEl    = document.getElementById('devmsg-count');
+    if (!contactList) return;
+
+    contactList.innerHTML = `<div style="color:var(--text-muted);text-align:center;padding:40px 20px;font-size:13px;"><i class="fas fa-spinner fa-spin" style="font-size:26px;display:block;margin-bottom:10px;opacity:0.5;"></i>جاري التحميل...</div>`;
+
     try {
-      const res = await fetch('/api/dev-messages');
+      const res  = await fetch('/api/dev-messages');
       const data = await res.json();
-      const countEl = document.getElementById('devmsg-count');
+
       if (!data.ok || !data.messages || data.messages.length === 0) {
-        if (countEl) countEl.textContent = '(0)';
-        listEl.innerHTML = `<div style="color:var(--text-muted);text-align:center;padding:40px;"><i class="fas fa-inbox" style="font-size:40px;margin-bottom:12px;display:block;opacity:0.3;"></i>لا توجد رسائل واردة حالياً.<br><small style="font-size:12px;margin-top:8px;display:block;">يمكن للمستخدمين إرسال رسائل بالأمر <code>.msgtodev</code></small></div>`;
+        _devMsgData = [];
+        if (countEl) countEl.textContent = '0 رسالة';
+        contactList.innerHTML = `<div style="color:var(--text-muted);text-align:center;padding:40px 20px;font-size:12px;"><i class="fas fa-inbox" style="font-size:36px;display:block;margin-bottom:12px;opacity:0.25;"></i>لا توجد رسائل</div>`;
         return;
       }
-      
-      let msgs = [...data.messages];
-      
-      // Filter if requested
-      if (_devMsgFilter === 'unanswered') {
-        msgs = msgs.filter(m => !m.replied);
-      }
-      
-      const unreadCount = data.messages.filter(m => !m.replied).length;
-      if (countEl) {
-        if (_devMsgFilter === 'unanswered') {
-          countEl.textContent = `(${unreadCount} غير مُجاب)`;
-        } else {
-          countEl.textContent = unreadCount > 0 ? `(${unreadCount} غير مُجاب)` : `(${data.messages.length} رسالة)`;
-        }
-      }
-      
-      if (msgs.length === 0) {
-        listEl.innerHTML = `<div style="color:var(--text-muted);text-align:center;padding:40px;"><i class="fas fa-check-circle" style="font-size:40px;margin-bottom:12px;display:block;opacity:0.3;color:var(--accent);"></i>رائع! لا توجد رسائل بانتظار الرد حالياً.</div>`;
-        return;
-      }
-      
-      // Sort unanswered first, then by timestamp descending
+
+      _devMsgData = [...data.messages];
+
+      // Apply filter
+      let msgs = _devMsgFilter === 'unanswered'
+        ? _devMsgData.filter(m => !m.replied)
+        : _devMsgData;
+
+      // Sort: unanswered first, then newest
       msgs.sort((a, b) => {
-        if (!!a.replied !== !!b.replied) {
-          return a.replied ? 1 : -1; // Unanswered first
-        }
-        const timeA = a.timestamp ? new Date(a.timestamp).getTime() : 0;
-        const timeB = b.timestamp ? new Date(b.timestamp).getTime() : 0;
-        return timeB - timeA; // Newest first
+        if (!!a.replied !== !!b.replied) return a.replied ? 1 : -1;
+        return new Date(b.timestamp||0) - new Date(a.timestamp||0);
       });
 
-      listEl.innerHTML = msgs.map(m => {
-        const platform = (m.platform || 'whatsapp').toLowerCase();
-        let pColor = '#25d366', pIcon = 'fab fa-whatsapp', pLabel = 'واتساب';
-        if (platform === 'telegram')  { pColor = '#38bdf8'; pIcon = 'fab fa-telegram-plane'; pLabel = 'تليجرام'; }
-        if (platform === 'facebook')  { pColor = '#0084ff'; pIcon = 'fab fa-facebook-messenger'; pLabel = 'فيسبوك'; }
-        const dateStr = m.timestamp ? new Date(m.timestamp).toLocaleString('ar-MA') : '';
-        const replied = m.replied;
-        return `
-        <div id="devmsg-${m.id}" style="background:var(--bg);border-radius:16px;padding:18px 20px;border:1px solid var(--border);border-right:4px solid ${pColor};display:flex;flex-direction:column;gap:12px;overflow:hidden;">
-          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
-            <div style="display:flex;align-items:center;gap:10px;">
-              <div style="width:36px;height:36px;border-radius:50%;background:${pColor}22;display:flex;align-items:center;justify-content:center;color:${pColor};font-size:16px;"><i class="${pIcon}"></i></div>
-              <div>
-                <div style="font-weight:700;font-size:14px;color:var(--text-main);">${m.senderName || m.sender}</div>
-                <div style="font-size:11px;color:var(--text-muted);direction:ltr;">${m.sender} · ${pLabel}</div>
-              </div>
-            </div>
-            <div style="display:flex;align-items:center;gap:8px;">
-              ${replied ? `<span style="background:rgba(37,211,102,0.1);color:var(--accent);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;"><i class="fas fa-check-double"></i> تم الرد</span>` : `<span style="background:rgba(246,224,94,0.1);color:var(--yellow);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;"><i class="fas fa-clock"></i> بانتظار الرد</span>`}
-              <span style="font-size:11px;color:var(--text-muted);">${dateStr}</span>
-            </div>
-          </div>
-          <div style="font-size:14px;color:var(--text-main);background:var(--card);padding:12px 16px;border-radius:12px;line-height:1.6;white-space:pre-wrap;word-break:break-word;">${escapeHtml(m.text || '')}</div>
-          ${replied ? `<div style="font-size:12px;color:var(--text-muted);background:rgba(37,211,102,0.06);border:1px solid rgba(37,211,102,0.15);padding:10px 14px;border-radius:10px;"><i class="fas fa-reply" style="color:var(--accent);margin-left:6px;"></i><strong>ردك:</strong> ${escapeHtml(m.replyText || '')}</div>` : ''}
-          <div style="display:flex;gap:8px;">
-            ${!replied ? `<button onclick="showDevReply('${m.id}')" class="btn btn-primary" data-reply-btn="${m.id}" style="padding:8px 16px;font-size:12px;flex:1;"><i class="fas fa-reply"></i> رد على المستخدم</button>` : `<button onclick="showDevReply('${m.id}')" class="btn btn-secondary" data-reply-btn="${m.id}" style="padding:8px 16px;font-size:12px;flex:1;"><i class="fas fa-edit"></i> رد مرة أخرى</button>`}
-            <button onclick="deleteDevMsg('${m.id}')" class="btn" style="padding:8px 14px;font-size:12px;background:rgba(252,129,129,0.1);color:var(--red);border:1px solid rgba(252,129,129,0.3);"><i class="fas fa-trash"></i></button>
-          </div>
-          <div id="devmsg-reply-area-${m.id}" style="display:none; margin-top:12px; overflow:hidden;">
-            <textarea id="devmsg-reply-input-${m.id}" placeholder="اكتب ردك هنا... (اختياري إذا أرسلت ملفاً)" style="width:100%;min-height:80px;padding:12px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-family:Cairo,sans-serif;font-size:13px;resize:vertical;box-sizing:border-box;margin-bottom:8px;"></textarea>
-            
-            <!-- Inline Reply Media Selector -->
-            <div style="background:rgba(255,255,255,0.02);border:1px dashed var(--border);border-radius:10px;padding:10px;margin-bottom:8px;box-sizing:border-box;width:100%;">
-              <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;"><i class="fas fa-paperclip"></i> إرفاق ملف (صورة / صوت / مستند)</div>
-              <input type="file" id="devreply-media-file-${m.id}" accept="image/*,audio/*,video/*,.pdf,.doc,.docx,.zip,.txt" style="display:none;" onchange="onDevReplyMediaChange('${m.id}', this)" />
-              <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;">
-                <button type="button" onclick="document.getElementById('devreply-media-file-${m.id}').click()" style="padding:5px 10px;font-size:11px;background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.2);border-radius:6px;color:#38bdf8;cursor:pointer;display:flex;align-items:center;gap:4px;">
-                  <i class="fas fa-image"></i> صورة
-                </button>
-                <button type="button" onclick="setDevReplyFileAccept('${m.id}', 'audio/*'); document.getElementById('devreply-media-file-${m.id}').click()" style="padding:5px 10px;font-size:11px;background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.2);border-radius:6px;color:#a78bfa;cursor:pointer;display:flex;align-items:center;gap:4px;">
-                  <i class="fas fa-music"></i> ملف صوتي
-                </button>
-                <button type="button" id="devreply-mic-btn-${m.id}" onclick="toggleDevReplyRecording('${m.id}')" style="padding:5px 10px;font-size:11px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:6px;color:#ef4444;cursor:pointer;display:flex;align-items:center;gap:4px;">
-                  <i class="fas fa-microphone"></i> <span id="devreply-mic-label-${m.id}">تسجيل صوت</span>
-                </button>
-                <button type="button" onclick="setDevReplyFileAccept('${m.id}', '.pdf,.doc,.docx,.zip,.txt,application/*'); document.getElementById('devreply-media-file-${m.id}').click()" style="padding:5px 10px;font-size:11px;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);border-radius:6px;color:#fbbf24;cursor:pointer;display:flex;align-items:center;gap:4px;">
-                  <i class="fas fa-file"></i> مستند
-                </button>
-              </div>
-              <div id="devreply-media-preview-${m.id}" style="display:none;margin-top:8px;width:100%;box-sizing:border-box;">
-                <div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:rgba(37,211,102,0.06);border:1px solid rgba(37,211,102,0.15);border-radius:6px;overflow:hidden;box-sizing:border-box;width:100%;">
-                  <i id="devreply-media-icon-${m.id}" class="fas fa-file" style="font-size:14px;color:#25d366;flex-shrink:0;"></i>
-                  <div style="flex:1;min-width:0;overflow:hidden;direction:ltr;text-align:left;">
-                    <div id="devreply-media-name-${m.id}" style="font-size:11px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;direction:ltr;"></div>
-                    <div id="devreply-media-size-${m.id}" style="font-size:10px;color:var(--text-muted);direction:ltr;"></div>
-                  </div>
-                  <button type="button" onclick="clearDevReplyMedia('${m.id}')" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:12px;flex-shrink:0;"><i class="fas fa-times"></i></button>
-                </div>
-              </div>
-            </div>
+      const unread = _devMsgData.filter(m => !m.replied).length;
+      if (countEl) countEl.textContent = unread > 0 ? `${unread} غير مُجاب` : `${_devMsgData.length} رسالة`;
 
-            <div style="display:flex;gap:8px;margin-top:8px;justify-content:flex-end;">
-              <button onclick="hideDevReply('${m.id}')" class="btn btn-secondary" style="padding:8px 16px;font-size:12px;">إلغاء</button>
-              <button onclick="sendDevReply('${m.id}')" class="btn btn-primary" id="devreply-send-btn-${m.id}" style="padding:8px 18px;font-size:12px;"><i class="fas fa-paper-plane"></i> إرسال الرد</button>
-            </div>
+      if (msgs.length === 0) {
+        contactList.innerHTML = `<div style="color:var(--text-muted);text-align:center;padding:40px 20px;font-size:12px;"><i class="fas fa-check-circle" style="font-size:36px;display:block;margin-bottom:12px;opacity:0.3;color:var(--accent);"></i>رائع! لا رسائل تنتظر الرد</div>`;
+        return;
+      }
+
+      // Render contact items
+      contactList.innerHTML = msgs.map(m => {
+        const pl = (m.platform||'whatsapp').toLowerCase();
+        let pColor = '#25d366', pIcon = 'fab fa-whatsapp';
+        if (pl==='telegram') { pColor='#38bdf8'; pIcon='fab fa-telegram-plane'; }
+        if (pl==='facebook') { pColor='#0084ff'; pIcon='fab fa-facebook-messenger'; }
+        const name = m.senderName || m.sender || 'مجهول';
+        const preview = (m.text||'').slice(0,40) + ((m.text||'').length>40?'…':'');
+        const timeStr = m.timestamp ? new Date(m.timestamp).toLocaleTimeString('ar-MA',{hour:'2-digit',minute:'2-digit'}) : '';
+        const isActive = m.id === _chatActiveId;
+        return `
+        <div id="contact-item-${m.id}" onclick="openChat('${m.id}')"
+          style="padding:12px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:background 0.15s;border-right:3px solid ${isActive ? pColor : 'transparent'};background:${isActive ? 'rgba(255,255,255,0.04)' : 'transparent'};"
+          onmouseover="if('${m.id}'!==_chatActiveId)this.style.background='rgba(255,255,255,0.03)'"
+          onmouseout="if('${m.id}'!==_chatActiveId)this.style.background='transparent'">
+          <div style="position:relative;flex-shrink:0;">
+            <div style="width:42px;height:42px;border-radius:50%;background:${pColor}22;display:flex;align-items:center;justify-content:center;color:${pColor};font-size:18px;"><i class="${pIcon}"></i></div>
+            ${!m.replied ? `<span style="position:absolute;top:0;left:0;width:10px;height:10px;background:var(--yellow);border-radius:50%;border:2px solid var(--bg);"></span>` : ''}
           </div>
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
+              <span style="font-size:13px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px;">${escapeHtml(name)}</span>
+              <span style="font-size:10px;color:var(--text-muted);flex-shrink:0;">${timeStr}</span>
+            </div>
+            <div style="font-size:11px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;">${escapeHtml(preview)||'&nbsp;'}</div>
+          </div>
+          <button onclick="event.stopPropagation();deleteDevMsg('${m.id}')" title="حذف" style="opacity:0.4;background:none;border:none;color:var(--red);cursor:pointer;font-size:12px;flex-shrink:0;padding:4px;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.4'"><i class="fas fa-trash-alt"></i></button>
         </div>`;
       }).join('');
+
+      // Re-open active chat if still exists
+      if (_chatActiveId && _devMsgData.find(m=>m.id===_chatActiveId)) {
+        openChat(_chatActiveId, false);
+      }
+
     } catch(e) {
-      listEl.innerHTML = `<div style="color:var(--red);text-align:center;padding:30px;"><i class="fas fa-exclamation-triangle"></i> فشل تحميل الرسائل: ${e.message}</div>`;
+      contactList.innerHTML = `<div style="color:var(--red);text-align:center;padding:30px;font-size:12px;"><i class="fas fa-exclamation-triangle"></i> ${e.message}</div>`;
     }
   }
 
-  function showDevReply(id) {
-    document.getElementById('devmsg-reply-area-' + id).style.display = 'block';
-    document.getElementById('devmsg-reply-input-' + id).focus();
-  }
-  function hideDevReply(id) {
-    document.getElementById('devmsg-reply-area-' + id).style.display = 'none';
-    clearDevReplyMedia(id);
+  function openChat(id, scroll=true) {
+    _chatActiveId = id;
+    const m = _devMsgData.find(x=>x.id===id);
+    if (!m) return;
+
+    // Highlight active contact
+    document.querySelectorAll('[id^="contact-item-"]').forEach(el=>{
+      el.style.background='transparent';
+      el.style.borderRightColor='transparent';
+    });
+    const item = document.getElementById('contact-item-'+id);
+    if (item) { item.style.background='rgba(255,255,255,0.04)'; item.style.borderRightColor = '#25d366'; }
+
+    // Build chat header
+    const pl = (m.platform||'whatsapp').toLowerCase();
+    let pColor='#25d366', pIcon='fab fa-whatsapp', pLabel='واتساب';
+    if(pl==='telegram'){pColor='#38bdf8';pIcon='fab fa-telegram-plane';pLabel='تليجرام';}
+    if(pl==='facebook'){pColor='#0084ff';pIcon='fab fa-facebook-messenger';pLabel='فيسبوك';}
+    const name = m.senderName||m.sender||'مجهول';
+
+    document.getElementById('chat-header').innerHTML = `
+      <div style="width:42px;height:42px;border-radius:50%;background:${pColor}22;display:flex;align-items:center;justify-content:center;color:${pColor};font-size:20px;flex-shrink:0;"><i class="${pIcon}"></i></div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:700;font-size:15px;color:var(--text);">${escapeHtml(name)}</div>
+        <div style="font-size:11px;color:var(--text-muted);direction:ltr;text-align:right;">${m.sender} · ${pLabel}</div>
+      </div>
+      <span style="background:${m.replied?'rgba(37,211,102,0.12)':'rgba(246,224,94,0.12)'};color:${m.replied?'var(--accent)':'var(--yellow)'};padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;">
+        <i class="fas ${m.replied?'fa-check-double':'fa-clock'}"></i> ${m.replied?'تم الرد':'بانتظار الرد'}
+      </span>`;
+
+    // Build messages bubbles
+    const area = document.getElementById('chat-messages-area');
+    const dateStr = m.timestamp ? new Date(m.timestamp).toLocaleString('ar-MA') : '';
+    let bubblesHtml = `
+      <!-- Date separator -->
+      <div style="text-align:center;margin:8px 0;">
+        <span style="font-size:10px;color:var(--text-muted);background:var(--bg);padding:3px 12px;border-radius:20px;border:1px solid var(--border);">${dateStr}</span>
+      </div>
+      <!-- User bubble (right side) -->
+      <div style="display:flex;justify-content:flex-end;">
+        <div style="max-width:72%;background:rgba(37,211,102,0.12);border:1px solid rgba(37,211,102,0.2);border-radius:18px 18px 4px 18px;padding:12px 16px;position:relative;">
+          <div style="font-size:13px;color:var(--text);line-height:1.6;white-space:pre-wrap;word-break:break-word;">${escapeHtml(m.text||'')}</div>
+          <div style="font-size:10px;color:var(--text-muted);margin-top:6px;text-align:left;">${dateStr} <i class="fas fa-check-double" style="color:var(--accent);margin-right:3px;"></i></div>
+        </div>
+      </div>`;
+
+    if (m.replied) {
+      const replyDate = m.repliedAt ? new Date(m.repliedAt).toLocaleString('ar-MA') : '';
+      bubblesHtml += `
+        <!-- My reply bubble (left side) -->
+        <div style="display:flex;justify-content:flex-start;">
+          <div style="max-width:72%;background:var(--card);border:1px solid var(--border);border-radius:18px 18px 18px 4px;padding:12px 16px;">
+            <div style="font-size:11px;color:var(--accent);font-weight:700;margin-bottom:6px;"><i class="fas fa-robot" style="margin-left:4px;"></i>أنت (البوت)</div>
+            <div style="font-size:13px;color:var(--text);line-height:1.6;white-space:pre-wrap;word-break:break-word;">${escapeHtml(m.replyText||'')}</div>
+            <div style="font-size:10px;color:var(--text-muted);margin-top:6px;">${replyDate}</div>
+          </div>
+        </div>`;
+    }
+
+    area.innerHTML = bubblesHtml;
+    if (scroll) area.scrollTop = area.scrollHeight;
+
+    // Show composer
+    const composer = document.getElementById('chat-composer');
+    composer.style.display = 'block';
+    clearChatAttachment();
+    const inp = document.getElementById('chat-text-input');
+    if (inp) { inp.value=''; onChatInputChange(inp); inp.focus(); }
   }
 
-  async function sendDevReply(id) {
-    const input = document.getElementById('devmsg-reply-input-' + id);
-    const replyText = input.value.trim();
-    const mediaFile = _devReplyFiles[id];
-    
-    if (!replyText && !mediaFile) { showToast('⚠️ اكتب نص الرد أو أرفق ملفاً', 'error'); return; }
-    
-    const btn = document.getElementById(`devreply-send-btn-${id}`);
-    const oldHtml = btn ? btn.innerHTML : '';
-    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإرسال...'; }
-    
+  // ── Composer logic ──────────────────────────
+  function onChatInputChange(ta) {
+    // Auto-resize textarea
+    ta.style.height = 'auto';
+    ta.style.height = Math.min(ta.scrollHeight, 120) + 'px';
+  }
+
+  function toggleChatAttachMenu() {
+    const menu = document.getElementById('chat-attach-menu');
+    menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+    // Close on outside click
+    if (menu.style.display === 'block') {
+      setTimeout(() => {
+        document.addEventListener('click', function handler(e) {
+          if (!menu.contains(e.target) && e.target.id !== 'chat-attach-btn') {
+            menu.style.display = 'none';
+          }
+          document.removeEventListener('click', handler);
+        });
+      }, 50);
+    }
+  }
+
+  function onChatFileSelected(input, type) {
+    const file = input.files[0];
+    if (!file) return;
+    _chatAttachFile = file;
+    _chatAttachIsVoice = false;
+
+    const preview = document.getElementById('chat-attach-preview');
+    const icon    = document.getElementById('chat-attach-icon');
+    const name    = document.getElementById('chat-attach-name');
+    const size    = document.getElementById('chat-attach-size');
+
+    preview.style.display = 'flex';
+    name.textContent = file.name;
+    size.textContent = (file.size/1024).toFixed(1) + ' KB';
+    if (type === 'image') { icon.className='fas fa-image'; icon.style.color='#38bdf8'; }
+    else                  { icon.className='fas fa-file-alt'; icon.style.color='#fbbf24'; }
+    input.value = '';
+  }
+
+  function clearChatAttachment() {
+    _chatAttachFile = null;
+    _chatAttachIsVoice = false;
+    const p = document.getElementById('chat-attach-preview');
+    if (p) p.style.display = 'none';
+  }
+
+  // ── Voice recording ──────────────────────────
+  async function startChatVoiceRecord() {
+    if (_chatRecorder) return;
     try {
-      const body = { id, replyText };
-      if (mediaFile) {
-        if (btn) btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري رفع الملف...';
-        body.mediaBase64 = await fileToBase64(mediaFile);
-        body.mediaType = mediaFile.type;
-        body.mediaName = mediaFile.name;
-        body.ptt = _devReplyIsRecorded[id] || false;
-        if (btn) btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإرسال...';
-      }
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      _chatRecChunks = [];
+      _chatRecorder = new MediaRecorder(stream);
+      _chatRecorder.ondataavailable = e => { if(e.data.size>0) _chatRecChunks.push(e.data); };
+      _chatRecorder.onstop = () => {
+        const blob = new Blob(_chatRecChunks, { type:'audio/ogg;codecs=opus' });
+        _chatAttachFile = new File([blob], 'voice_note.ogg', { type:'audio/ogg' });
+        _chatAttachIsVoice = true;
+        const preview = document.getElementById('chat-attach-preview');
+        document.getElementById('chat-attach-icon').className = 'fas fa-microphone';
+        document.getElementById('chat-attach-icon').style.color = '#ef4444';
+        document.getElementById('chat-attach-name').textContent = 'رسالة صوتية';
+        document.getElementById('chat-attach-size').textContent = (_chatAttachFile.size/1024).toFixed(1)+' KB';
+        preview.style.display = 'flex';
+        stream.getTracks().forEach(t=>t.stop());
+        _chatRecorder = null;
+      };
+      _chatRecorder.start();
+      _chatRecSeconds = 0;
+      document.getElementById('chat-recording-bar').style.display = 'flex';
+      document.getElementById('chat-rec-timer').textContent = '0:00';
+      _chatRecTimer = setInterval(()=>{
+        _chatRecSeconds++;
+        const m=Math.floor(_chatRecSeconds/60), s=_chatRecSeconds%60;
+        document.getElementById('chat-rec-timer').textContent = m+':'+(s<10?'0':'')+s;
+      }, 1000);
+    } catch(e) {
+      showToast('❌ تعذّر الوصول للميكروفون: '+e.message,'error');
+    }
+  }
 
-      const res = await fetch('/api/dev-messages/reply', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-      });
+  function stopChatVoiceRecord(save=true) {
+    clearInterval(_chatRecTimer);
+    document.getElementById('chat-recording-bar').style.display = 'none';
+    if (_chatRecorder && _chatRecorder.state !== 'inactive') {
+      if (!save) { _chatRecorder.stream?.getTracks().forEach(t=>t.stop()); _chatRecorder=null; return; }
+      _chatRecorder.stop();
+    }
+  }
+
+  // ── Submit reply ──────────────────────────
+  async function submitChatReply() {
+    if (!_chatActiveId) return;
+    const inp       = document.getElementById('chat-text-input');
+    const replyText = inp ? inp.value.trim() : '';
+    const mediaFile = _chatAttachFile;
+
+    if (!replyText && !mediaFile) { showToast('⚠️ اكتب رسالة أو أرفق ملفاً','error'); return; }
+
+    const btn = document.getElementById('chat-send-btn');
+    const prevHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+    try {
+      const body = { id: _chatActiveId, replyText };
+      if (mediaFile) {
+        body.mediaBase64 = await fileToBase64(mediaFile);
+        body.mediaType   = mediaFile.type;
+        body.mediaName   = mediaFile.name;
+        body.ptt         = _chatAttachIsVoice;
+      }
+      const res  = await fetch('/api/dev-messages/reply', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
       const data = await res.json();
+
       if (data.ok) {
-        showToast('✅ تم إرسال الرد بنجاح!', 'success');
-        // ── Update the card in-place WITHOUT destroying all reply areas ──
-        // 1. Clear the input and media attachment
-        input.value = '';
-        clearDevReplyMedia(id);
-        // 2. Restore the send button
-        if (btn) { btn.disabled = false; btn.innerHTML = oldHtml; }
-        // 3. Mark the card as "replied" without re-rendering
-        const card = document.getElementById('devmsg-' + id);
-        if (card) {
-          // Update the status badge – find it by class or style content
-          const allSpans = card.querySelectorAll('span');
-          for (const sp of allSpans) {
-            if (sp.innerHTML.includes('بانتظار الرد') || sp.style.background.includes('246,224,94')) {
-              sp.style.background = 'rgba(37,211,102,0.1)';
-              sp.style.color = 'var(--accent)';
-              sp.innerHTML = '<i class="fas fa-check-double"></i> تم الرد';
-              break;
-            }
-          }
-          // Update the reply button using the data-reply-btn attribute
-          const replyBtn = card.querySelector(`[data-reply-btn="${id}"]`);
-          if (replyBtn) {
-            replyBtn.className = 'btn btn-secondary';
-            replyBtn.innerHTML = '<i class="fas fa-edit"></i> رد مرة أخرى';
-          }
-          // Add/update the "ردك:" preview section
-          const existingReplyPreview = card.querySelector('.dev-reply-preview');
-          const replyPreviewHtml = replyText
-            ? `<div class="dev-reply-preview" style="font-size:12px;color:var(--text-muted);background:rgba(37,211,102,0.06);border:1px solid rgba(37,211,102,0.15);padding:10px 14px;border-radius:10px;"><i class="fas fa-reply" style="color:var(--accent);margin-left:6px;"></i><strong>ردك:</strong> ${escapeHtml(replyText)}</div>`
-            : `<div class="dev-reply-preview" style="font-size:12px;color:var(--text-muted);background:rgba(37,211,102,0.06);border:1px solid rgba(37,211,102,0.15);padding:10px 14px;border-radius:10px;"><i class="fas fa-reply" style="color:var(--accent);margin-left:6px;"></i><strong>ردك:</strong> ${mediaFile ? '📎 ملف مرفق' : ''}</div>`;
-          if (existingReplyPreview) {
-            existingReplyPreview.outerHTML = replyPreviewHtml;
-          } else {
-            // Insert before the buttons row (which comes before the reply area in the HTML)
-            const btnsRow = card.querySelector(`[data-reply-btn="${id}"]`);
-            if (btnsRow && btnsRow.parentElement) {
-              btnsRow.parentElement.insertAdjacentHTML('beforebegin', replyPreviewHtml);
-            } else {
-              // Fallback: insert at end of card
-              card.insertAdjacentHTML('beforeend', replyPreviewHtml);
-            }
-          }
-          // Hide the reply area after sending
-          const replyArea = document.getElementById('devmsg-reply-area-' + id);
-          if (replyArea) replyArea.style.display = 'none';
-        }
+        showToast('✅ تم إرسال الرد!', 'success');
+        if (inp) inp.value = '';
+        clearChatAttachment();
+        // Update local data
+        const msg = _devMsgData.find(x=>x.id===_chatActiveId);
+        if (msg) { msg.replied=true; msg.replyText=replyText; msg.repliedAt=new Date().toISOString(); }
+        // Append reply bubble instantly
+        const area = document.getElementById('chat-messages-area');
+        const replyBubble = document.createElement('div');
+        replyBubble.style.cssText='display:flex;justify-content:flex-start;animation:slideIn 0.25s ease;';
+        replyBubble.innerHTML = `
+          <div style="max-width:72%;background:var(--card);border:1px solid var(--border);border-radius:18px 18px 18px 4px;padding:12px 16px;">
+            <div style="font-size:11px;color:var(--accent);font-weight:700;margin-bottom:6px;"><i class="fas fa-robot" style="margin-left:4px;"></i>أنت (البوت)</div>
+            <div style="font-size:13px;color:var(--text);line-height:1.6;white-space:pre-wrap;word-break:break-word;">${escapeHtml(replyText) || (mediaFile?'📎 ملف':'')}</div>
+            <div style="font-size:10px;color:var(--text-muted);margin-top:6px;">${new Date().toLocaleTimeString('ar-MA',{hour:'2-digit',minute:'2-digit'})}</div>
+          </div>`;
+        area.appendChild(replyBubble);
+        area.scrollTop = area.scrollHeight;
+        // Update header status badge
+        const header = document.getElementById('chat-header');
+        const badge = header?.querySelector('span[style*="border-radius:20px"]');
+        if (badge) { badge.style.background='rgba(37,211,102,0.12)'; badge.style.color='var(--accent)'; badge.innerHTML='<i class="fas fa-check-double"></i> تم الرد'; }
+        // Update contact dot
+        const dot = document.querySelector(`#contact-item-${_chatActiveId} span[style*="var(--yellow)"]`);
+        if (dot) dot.remove();
+        // Refresh count
+        const unread = _devMsgData.filter(m=>!m.replied).length;
+        const countEl = document.getElementById('devmsg-count');
+        if (countEl) countEl.textContent = unread > 0 ? `${unread} غير مُجاب` : `${_devMsgData.length} رسالة`;
       } else {
-        showToast('❌ ' + (data.error || 'فشل الإرسال'), 'error');
-        if (btn) { btn.disabled = false; btn.innerHTML = oldHtml; }
+        showToast('❌ '+(data.error||'فشل الإرسال'),'error');
       }
     } catch(e) {
-      showToast('❌ خطأ: ' + e.message, 'error');
-      if (btn) { btn.disabled = false; btn.innerHTML = oldHtml; }
+      showToast('❌ خطأ: '+e.message,'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = prevHtml;
+      const ta = document.getElementById('chat-text-input');
+      if (ta) { ta.style.height='auto'; ta.focus(); }
     }
   }
 
   async function deleteDevMsg(id) {
-    if (!confirm('هل تريد حذف هذه الرسالة نهائياً؟')) return;
+    const ok = await showConfirm('هل تريد حذف هذه المحادثة نهائياً؟');
+    if (!ok) return;
     try {
-      const res = await fetch('/api/dev-messages/delete', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id })
-      });
+      const res  = await fetch('/api/dev-messages/delete', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id}) });
       const data = await res.json();
       if (data.ok) {
-        showToast('🗑️ تم حذف الرسالة', 'success');
-        const el = document.getElementById('devmsg-' + id);
-        if (el) el.remove();
-        const listEl = document.getElementById('dev-messages-list');
-        if (listEl && !listEl.querySelector('[id^=devmsg-]')) {
-          listEl.innerHTML = `<div style="color:var(--text-muted);text-align:center;padding:40px;"><i class="fas fa-inbox" style="font-size:40px;margin-bottom:12px;display:block;opacity:0.3;"></i>لا توجد رسائل واردة حالياً.</div>`;
+        showToast('🗑️ تم الحذف','success');
+        _devMsgData = _devMsgData.filter(m=>m.id!==id);
+        const item = document.getElementById('contact-item-'+id);
+        if (item) item.remove();
+        if (_chatActiveId === id) {
+          _chatActiveId = null;
+          document.getElementById('chat-header').innerHTML = `<div style="color:var(--text-muted);font-size:13px;margin:auto;"><i class="fas fa-arrow-right" style="margin-left:8px;opacity:0.4;"></i>اختر محادثة من القائمة</div>`;
+          document.getElementById('chat-messages-area').innerHTML = '';
+          document.getElementById('chat-composer').style.display='none';
         }
-      } else {
-        showToast('❌ ' + (data.error || 'فشل الحذف'), 'error');
-      }
-    } catch(e) {
-      showToast('❌ خطأ: ' + e.message, 'error');
-    }
+      } else showToast('❌ '+(data.error||'فشل الحذف'),'error');
+    } catch(e) { showToast('❌ '+e.message,'error'); }
   }
 
   async function clearAllDevMessages() {
-    if (!confirm('هل تريد حذف جميع الرسائل الواردة نهائياً؟')) return;
+    const ok = await showConfirm('هل تريد حذف جميع المحادثات؟ لا يمكن التراجع.');
+    if (!ok) return;
     try {
-      const res = await fetch('/api/dev-messages/clear-all', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-      });
+      const res  = await fetch('/api/dev-messages/clear-all', { method:'POST', headers:{'Content-Type':'application/json'} });
       const data = await res.json();
       if (data.ok) {
-        showToast('🗑️ تم حذف جميع الرسائل', 'success');
+        showToast('🗑️ تم حذف الكل','success');
+        _chatActiveId = null;
+        _devMsgData   = [];
         await loadDevMessages();
-      } else {
-        showToast('❌ ' + (data.error || 'فشل الحذف'), 'error');
-      }
-    } catch(e) {
-      showToast('❌ خطأ: ' + e.message, 'error');
-    }
+        document.getElementById('chat-header').innerHTML = `<div style="color:var(--text-muted);font-size:13px;margin:auto;"><i class="fas fa-arrow-right" style="margin-left:8px;opacity:0.4;"></i>اختر محادثة من القائمة</div>`;
+        document.getElementById('chat-messages-area').innerHTML = '';
+        document.getElementById('chat-composer').style.display='none';
+      } else showToast('❌ '+(data.error||'فشل'),'error');
+    } catch(e) { showToast('❌ '+e.message,'error'); }
   }
+
+  // Legacy stubs (kept for backward compat calls)
+  function showDevReply(id) { openChat(id); }
+  function hideDevReply(id) {}
+  function sendDevReply(id) { submitChatReply(); }
 
   // =================== HELPERS ===================
   function showAlert(el, type, msg) {
