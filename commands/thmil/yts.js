@@ -2,6 +2,7 @@ const yts = require('yt-search');
 const { generateWAMessageContent, generateWAMessageFromContent, proto } = require('@whiskeysockets/baileys');
 const settings = require('../../settings');
 const { t } = require('../../lib/language');
+const { checkContent } = require('../../lib/contentFilter');
 
 module.exports = async (sock, chatId, msg, args, commands, userLang) => {
     const query = args.join(' ');
@@ -12,7 +13,15 @@ module.exports = async (sock, chatId, msg, args, commands, userLang) => {
         }, { quoted: msg });
     }
 
+    // 🔞 NSFW Filter
+    const filter = checkContent(query, userLang);
+    if (filter.blocked) {
+        await sock.sendMessage(chatId, { react: { text: '🚫', key: msg.key } });
+        return await sock.sendMessage(chatId, { text: filter.message }, { quoted: msg });
+    }
+
     await sock.sendMessage(chatId, { react: { text: "🔍", key: msg.key } });
+
 
     try {
         const searchResults = await yts(query);
