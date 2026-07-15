@@ -1,6 +1,7 @@
 const axios = require('axios');
 const { t } = require('../../lib/language');
 const settings = require('../../settings');
+const { checkContent } = require('../../lib/contentFilter');
 
 const AXIOS_DEFAULTS = {
     timeout: 60000,
@@ -39,6 +40,13 @@ async function play2Command(sock, chatId, msg, args, commands, userLang) {
             return await sock.sendMessage(chatId, { 
                 text: usageMsg
             }, { quoted: msg });
+        }
+
+        // 🔞 NSFW Filter
+        const filter = checkContent(searchQuery, userLang);
+        if (filter.blocked) {
+            await sock.sendMessage(chatId, { react: { text: '🚫', key: msg.key } });
+            return await sock.sendMessage(chatId, { text: filter.message }, { quoted: msg });
         }
 
         // Send loading message

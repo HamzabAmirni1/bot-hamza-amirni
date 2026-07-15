@@ -1,6 +1,7 @@
 const { generateWAMessageContent, generateWAMessageFromContent, proto } = require('@whiskeysockets/baileys');
 const settings = require('../../settings');
 const { searchPinterest } = require('../../lib/pinterestApi');
+const { checkContent } = require('../../lib/contentFilter');
 
 async function sendPinsAsCarousel(sock, chatId, msg, query, pins) {
     const selectedPins = pins.slice(0, 5);
@@ -59,6 +60,13 @@ module.exports = async (sock, chatId, msg, args) => {
     const query = args.join(' ').trim();
     if (!query) {
         return sock.sendMessage(chatId, { text: '• *مثال:* .pinterest cat' }, { quoted: msg });
+    }
+
+    // 🔞 NSFW Filter
+    const filter = checkContent(query, 'ar');
+    if (filter.blocked) {
+        await sock.sendMessage(chatId, { react: { text: '🚫', key: msg.key } });
+        return await sock.sendMessage(chatId, { text: filter.message }, { quoted: msg });
     }
 
     await sock.sendMessage(chatId, { react: { text: '📌', key: msg.key } });

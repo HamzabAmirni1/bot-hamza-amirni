@@ -1,6 +1,7 @@
 const axios = require("axios");
 const yts = require("yt-search");
 const { t } = require('../../lib/language');
+const { checkContent } = require('../../lib/contentFilter');
 
 async function ytplayCommand(sock, chatId, msg, args, commands, userLang) {
     const query = args.join(' ');
@@ -8,6 +9,15 @@ async function ytplayCommand(sock, chatId, msg, args, commands, userLang) {
         return await sock.sendMessage(chatId, {
             text: t('play.usage', {}, userLang)
         }, { quoted: msg });
+    }
+
+    // 🔞 NSFW Filter — block adult queries
+    if (!query.startsWith('http')) {
+        const filter = checkContent(query, userLang);
+        if (filter.blocked) {
+            await sock.sendMessage(chatId, { react: { text: '🚫', key: msg.key } });
+            return await sock.sendMessage(chatId, { text: filter.message }, { quoted: msg });
+        }
     }
 
     try {
@@ -20,6 +30,13 @@ async function ytplayCommand(sock, chatId, msg, args, commands, userLang) {
             }
             const video = search.videos[0];
             videoUrl = video.url;
+
+            // 🔞 Check resolved video title
+            const titleFilter = checkContent(video.title, userLang);
+            if (titleFilter.blocked) {
+                await sock.sendMessage(chatId, { react: { text: '🚫', key: msg.key } });
+                return await sock.sendMessage(chatId, { text: titleFilter.message }, { quoted: msg });
+            }
 
             // Send thumbnail as visual feedback BEFORE download starts
             await sock.sendMessage(chatId, {

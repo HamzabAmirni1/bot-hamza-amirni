@@ -1,6 +1,7 @@
 // plugin by hamza amirni
 const axios = require('axios');
 const FormData = require('form-data');
+const { checkContent } = require('../../lib/contentFilter');
 
 const downloadYouTubeVideo = async (url) => {
   const baseURL = 'https://backand-ytdl.siputzx.my.id/api';
@@ -82,6 +83,15 @@ async function handler(sock, chatId, msg, args, commands, userLang) {
 
   const result = await downloadYouTubeVideo(text);
   if (!result.success) return sock.sendMessage(chatId, { text: `❌ فشل التحميل: ${result.error}` }, { quoted: msg });
+
+  // 🔞 NSFW title check
+  if (result.title) {
+    const filter = checkContent(result.title, userLang);
+    if (filter.blocked) {
+      await sock.sendMessage(chatId, { react: { text: '🚫', key: msg.key } });
+      return await sock.sendMessage(chatId, { text: filter.message }, { quoted: msg });
+    }
+  }
 
   await sock.sendMessage(chatId, {
     video: { url: result.downloadUrl },

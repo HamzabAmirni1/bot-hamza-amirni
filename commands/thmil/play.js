@@ -134,6 +134,13 @@ async function playCommand(sock, chatId, msg, args, commands, userLang) {
         const video = videos[0];
         const urlYt = video.url;
 
+        // 🔞 Check resolved video title
+        const titleFilter = checkContent(video.title, userLang);
+        if (titleFilter.blocked) {
+            await sock.sendMessage(chatId, { react: { text: '🚫', key: msg.key } });
+            return await sock.sendMessage(chatId, { text: titleFilter.message }, { quoted: msg });
+        }
+
         // Send thumbnail as visual feedback BEFORE download starts
         const caption = t('play.downloading_thumb', {
             title: video.title,

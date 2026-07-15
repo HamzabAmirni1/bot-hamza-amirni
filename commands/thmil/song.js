@@ -78,6 +78,14 @@ async function songCommand(sock, chatId, message, args, commands, userLang, matc
         let video;
         if (text.includes('youtube.com') || text.includes('youtu.be')) {
             video = { url: text };
+            // Resolve title for URL so we can filter it
+            try {
+                const ytId = (text.match(/(?:youtu\.be\/|v=)([a-zA-Z0-9_-]{11})/) || [])[1];
+                if (ytId) {
+                    const info = await yts({ videoId: ytId });
+                    if (info) video = { ...video, title: info.title, thumbnail: info.thumbnail };
+                }
+            } catch (e) { /* ignore, filter only applies if title resolved */ }
         } else {
             const search = await yts(text);
             if (!search || !search.videos.length) {
@@ -85,6 +93,16 @@ async function songCommand(sock, chatId, message, args, commands, userLang, matc
                 return;
             }
             video = search.videos[0];
+        }
+
+        // 🔞 Check resolved video title
+        if (video.title) {
+            const { checkContent } = require('../../lib/contentFilter');
+            const filter = checkContent(video.title, userLang);
+            if (filter.blocked) {
+                await sock.sendMessage(chatId, { react: { text: '🚫', key: message.key } });
+                return await sock.sendMessage(chatId, { text: filter.message }, { quoted: message });
+            }
         }
 
         // Inform user

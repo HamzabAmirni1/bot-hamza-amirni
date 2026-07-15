@@ -1,5 +1,6 @@
 const axios = require('axios');
 // plugin by hamza amirni
+const { checkContent } = require('../../lib/contentFilter');
 
 class YouTubeDownloader {
   constructor() {
@@ -92,6 +93,15 @@ Download YouTube videos directly.
   const data = await ytdl.download(url, format)
 
   if (!data) throw '❌ Failed to download the video. Please try another quality.'
+
+  // 🔞 NSFW title check
+  if (data.title) {
+    const filter = checkContent(data.title, userLang);
+    if (filter.blocked) {
+      await sock.sendMessage(chatId, { react: { text: '🚫', key: msg.key } });
+      return await sock.sendMessage(chatId, { text: filter.message }, { quoted: msg });
+    }
+  }
 
   try {
     const head = await axios.head(data.downloadUrl)

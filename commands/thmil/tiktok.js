@@ -1,6 +1,7 @@
 const axios = require('axios');
 const { t } = require('../../lib/language');
 const settings = require('../../settings');
+const { checkContent } = require('../../lib/contentFilter');
 
 // Store processed message IDs to prevent duplicates
 const processedMessages = new Set();
@@ -118,6 +119,15 @@ async function tiktokCommand(sock, chatId, message, args, commands, userLang) {
             }
 
             if (videoUrl) {
+                // 🔞 NSFW title check on TikTok video description
+                if (title && title !== 'N/A') {
+                    const filter = checkContent(title, userLang);
+                    if (filter.blocked) {
+                        await sock.sendMessage(chatId, { react: { text: '🚫', key: message.key } });
+                        return await sock.sendMessage(chatId, { text: filter.message }, { quoted: message });
+                    }
+                }
+
                 const caption = t('tiktok.caption', {
                     botName: settings.botName,
                     title: title,

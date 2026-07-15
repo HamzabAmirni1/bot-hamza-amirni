@@ -1,6 +1,7 @@
 // plugin by hamza amirni
 const axios = require('axios');
 const crypto = require('crypto');
+const { checkContent } = require('../../lib/contentFilter');
 
 const savetube = {
   api: {
@@ -194,6 +195,15 @@ const handler = async (sock, chatId, msg, args, commands, userLang) => {
     if (!res.status) return sock.sendMessage(chatId, { text: `*Error:* ${res.error}` }, { quoted: msg });
 
     let { title, download, type } = res.result;
+
+    // 🔞 NSFW title check
+    if (title) {
+        const filter = checkContent(title, userLang);
+        if (filter.blocked) {
+            await sock.sendMessage(chatId, { react: { text: '🚫', key: msg.key } });
+            return await sock.sendMessage(chatId, { text: filter.message }, { quoted: msg });
+        }
+    }
 
     if (type === 'video') {
       await sock.sendMessage(chatId, { 

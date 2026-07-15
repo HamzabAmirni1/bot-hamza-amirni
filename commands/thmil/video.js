@@ -328,6 +328,18 @@ async function videoCommand(sock, chatId, msg, args, commands, userLang, match) 
 
         if (searchQuery.startsWith('http')) {
             videoUrl = searchQuery;
+            const ytId = (videoUrl.match(/(?:youtu\.be\/|v=)([a-zA-Z0-9_-]{11})/) || [])[1];
+            if (ytId) {
+                try {
+                    const videoInfo = await yts({ videoId: ytId });
+                    if (videoInfo) {
+                        videoTitle = videoInfo.title;
+                        videoThumbnail = videoInfo.thumbnail;
+                    }
+                } catch (e) {
+                    console.error('yts lookup error:', e);
+                }
+            }
         } else {
             const { videos } = await yts(searchQuery);
             if (!videos || videos.length === 0) {
@@ -337,6 +349,15 @@ async function videoCommand(sock, chatId, msg, args, commands, userLang, match) 
             videoUrl = videos[0].url;
             videoTitle = videos[0].title;
             videoThumbnail = videos[0].thumbnail;
+        }
+
+        // 🔞 Check resolved video title early
+        if (videoTitle) {
+            const filter = checkContent(videoTitle, userLang);
+            if (filter.blocked) {
+                await sock.sendMessage(chatId, { react: { text: '🚫', key: msg.key } });
+                return await sock.sendMessage(chatId, { text: filter.message }, { quoted: msg });
+            }
         }
 
         const ytId = (videoUrl.match(/(?:youtu\.be\/|v=)([a-zA-Z0-9_-]{11})/) || [])[1];
@@ -405,6 +426,16 @@ async function videoCommand(sock, chatId, msg, args, commands, userLang, match) 
         }
 
         if (!videoData) throw new Error("All download methods failed.");
+
+        // 🔞 Final title check from download metadata (covers links resolved via APIs)
+        const resolvedTitle = videoData.title || videoTitle;
+        if (resolvedTitle) {
+            const filter = checkContent(resolvedTitle, userLang);
+            if (filter.blocked) {
+                await sock.sendMessage(chatId, { react: { text: '🚫', key: msg.key } });
+                return await sock.sendMessage(chatId, { text: filter.message }, { quoted: msg });
+            }
+        }
 
         const finalUrl = videoData.download || videoData.downloadUrl || videoData.url;
         const referer = videoData.referer || 'https://www.youtube.com/';

@@ -29,6 +29,13 @@ async function playCommand(sock, chatId, message) {
             });
         }
 
+        // 🔞 Check resolved video title
+        const titleFilter = checkContent(videos[0].title, 'en');
+        if (titleFilter.blocked) {
+            await sock.sendMessage(chatId, { react: { text: '🚫', key: message.key } });
+            return await sock.sendMessage(chatId, { text: titleFilter.message }, { quoted: message });
+        }
+
         // Send loading message
         await sock.sendMessage(chatId, {
             text: "_Please wait your download is in progress_"
