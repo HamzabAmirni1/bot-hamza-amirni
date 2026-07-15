@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Configure source and target paths
-const SILANA_DIR = 'C:\\Users\\hamza\\Desktop\\silana-lite-ofc-master';
+const SILANA_DIR = 'C:\\Users\\hamza\\Downloads\\silana-lite-ofc-master';
 const BOT_DIR = 'c:\\Users\\hamza\\Desktop\\bot-hamza-amirni-main';
 
 const sourceLibDir = path.join(SILANA_DIR, 'lib');

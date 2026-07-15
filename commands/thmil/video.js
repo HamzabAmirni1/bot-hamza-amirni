@@ -377,53 +377,40 @@ async function videoCommand(sock, chatId, msg, args, commands, userLang, match) 
 
         let videoData = null;
 
-        // 1. Try distube/ytdl-core directly first (local library, most reliable)
+        // Helper: wrap any provider with a timeout
+        const withTimeout = (promise, ms = 15000) =>
+            Promise.race([promise, new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms))]);
+
+        // 1. Try distube/ytdl-core directly first (fastest, local library)
         try {
-            videoData = await getDistubeVideo(videoUrl);
+            videoData = await withTimeout(getDistubeVideo(videoUrl), 12000);
             if (videoData) console.log('[VIDEO] ✅ Success via Distube (local)');
         } catch (e) {
             console.log(`[VIDEO] Distube failed: ${e.message}`);
         }
 
-        // 2. Try the unified ytdl helper (also tries distube + external APIs)
+        // 2. Try all remaining methods IN PARALLEL — use Promise.any to get the first success
         if (!videoData) {
-            try {
-                const { downloadYouTube } = require('../../lib/ytdl');
-                const resYtdl = await downloadYouTube(videoUrl, 'mp4');
-                if (resYtdl && resYtdl.downloadUrl) {
-                    videoData = {
-                        download: resYtdl.downloadUrl,
-                        title: resYtdl.title || videoTitle,
-                        referer: resYtdl.referer,
-                        buffer: resYtdl.buffer
-                    };
+            const providers = [
+                withTimeout((async () => {
+                    const { downloadYouTube } = require('../../lib/ytdl');
+                    const r = await downloadYouTube(videoUrl, 'mp4');
+                    if (!r || !r.downloadUrl) throw new Error('no url');
+                    return { download: r.downloadUrl, title: r.title || videoTitle, referer: r.referer, buffer: r.buffer };
+                })(), 18000),
+                withTimeout(getSavetubeVideo(videoUrl), 15000),
+                withTimeout(getSavenowVideo(videoUrl), 15000),
+                withTimeout(getYtconvertVideo(videoUrl), 15000),
+                withTimeout(getSiputzxVideo(videoUrl), 15000),
+                withTimeout(getYupraVideoByUrl(videoUrl), 15000),
+                withTimeout(getOkatsuVideoByUrl(videoUrl), 15000),
+            ].map(p => p.catch(e => { console.log(`[VIDEO] provider failed: ${e.message}`); return null; }));
 
-                }
-            } catch (e) {
-                console.log(`[VIDEO] downloadYouTube helper failed: ${e.message}`);
-            }
+            // Collect results — pick first non-null
+            const results = await Promise.all(providers);
+            videoData = results.find(r => r != null) || null;
         }
 
-        // 3. Fallback to remaining custom methods
-        if (!videoData) {
-            const methods = [
-                () => getSavetubeVideo(videoUrl),
-                () => getSavenowVideo(videoUrl),
-                () => getYtconvertVideo(videoUrl),
-                () => getSiputzxVideo(videoUrl),
-                () => getYupraVideoByUrl(videoUrl),
-                () => getOkatsuVideoByUrl(videoUrl)
-            ];
-
-            for (const method of methods) {
-                try {
-                    videoData = await method();
-                    if (videoData) break;
-                } catch (e) {
-                    console.log(`[VIDEO] Method failed: ${e.message}`);
-                }
-            }
-        }
 
         if (!videoData) throw new Error("All download methods failed.");
 
