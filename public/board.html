@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>لوحة الطلبات | Hamza Bot</title>
+  <meta name="description" content="لوحة طلبات العمل والخدمات — تواصل مباشرة مع أصحاب الطلبات" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0a0d14;
+      --surface:   #111827;
+      --card:      #161d2e;
+      --border:    rgba(255,255,255,0.07);
+      --accent1:   #f59e0b;
+      --accent2:   #8b5cf6;
+      --accent3:   #06b6d4;
+      --text:      #e2e8f0;
+      --muted:     #64748b;
+      --danger:    #ef4444;
+      --success:   #22c55e;
+      --radius:    14px;
+    }
+
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before, body::after {
+      content: '';
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.12;
+      pointer-events: none;
+      z-index: 0;
+    }
+    body::before { width: 600px; height: 600px; background: var(--accent2); top: -200px; right: -150px; }
+    body::after  { width: 500px; height: 500px; background: var(--accent1); bottom: -200px; left: -150px; }
+
+    /* ── Header ── */
+    header {
+      position: sticky; top: 0; z-index: 50;
+      background: rgba(10,13,20,0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .logo-wrap { display: flex; align-items: center; gap: 10px; }
+    .logo-icon {
+      width: 42px; height: 42px;
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      border-radius: 12px; display: grid; place-items: center; font-size: 20px;
+    }
+    .logo-text { font-size: 20px; font-weight: 900; background: linear-gradient(90deg,var(--accent1),var(--accent2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .header-stats { display: flex; gap: 16px; }
+    .stat-chip {
+      display: flex; align-items: center; gap: 6px;
+      background: var(--surface); border: 1px solid var(--border);
+      padding: 6px 14px; border-radius: 50px; font-size: 13px; color: var(--muted);
+    }
+    .stat-chip span { color: var(--text); font-weight: 700; }
+
+    /* ── Hero ── */
+    .hero { text-align: center; padding: 60px 24px 40px; position: relative; z-index: 1; }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3);
+      color: var(--accent1); padding: 5px 16px; border-radius: 50px;
+      font-size: 13px; font-weight: 600; margin-bottom: 20px;
+    }
+    h1 { font-size: clamp(28px, 6vw, 52px); font-weight: 900; line-height: 1.2; margin-bottom: 14px; }
+    h1 .grad { background: linear-gradient(90deg,var(--accent1),var(--accent2),var(--accent3)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .hero-sub { color: var(--muted); font-size: 16px; max-width: 500px; margin: 0 auto 36px; }
+
+    /* ── Search ── */
+    .search-wrap { max-width: 640px; margin: 0 auto 40px; display: flex; gap: 10px; padding: 0 16px; position: relative; z-index: 2; }
+    .search-wrap input {
+      flex: 1; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 14px 18px; color: var(--text); font-family: 'Cairo', sans-serif; font-size: 15px;
+      outline: none; transition: border-color 0.2s;
+    }
+    .search-wrap input:focus { border-color: var(--accent2); }
+    .search-wrap input::placeholder { color: var(--muted); }
+    .btn-search {
+      background: linear-gradient(135deg, var(--accent2), var(--accent3));
+      border: none; border-radius: var(--radius); padding: 14px 22px;
+      color: #fff; font-family: 'Cairo', sans-serif; font-size: 15px; font-weight: 700;
+      cursor: pointer; white-space: nowrap; transition: opacity 0.2s, transform 0.15s;
+    }
+    .btn-search:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    /* ── Filters ── */
+    .filters { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 36px; padding: 0 16px; }
+    .filter-btn {
+      background: var(--surface); border: 1px solid var(--border);
+      padding: 8px 20px; border-radius: 50px; color: var(--muted);
+      font-family: 'Cairo', sans-serif; font-size: 14px; font-weight: 600;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .filter-btn:hover, .filter-btn.active {
+      background: linear-gradient(135deg, var(--accent2), var(--accent1));
+      border-color: transparent; color: #fff;
+    }
+
+    /* ── Grid ── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px; padding: 0 20px 100px;
+      max-width: 1200px; margin: 0 auto; position: relative; z-index: 1;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 18px;
+      padding: 22px; display: flex; flex-direction: column; gap: 14px;
+      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+      animation: fadeUp 0.4s ease both;
+    }
+    .card:hover { transform: translateY(-4px); box-shadow: 0 20px 60px rgba(0,0,0,0.4); border-color: rgba(139,92,246,0.3); }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+    .card-header { display: flex; align-items: flex-start; gap: 12px; }
+    .avatar { width: 48px; height: 48px; border-radius: 14px; background: linear-gradient(135deg,var(--accent1),var(--accent2)); display: grid; place-items: center; font-size: 22px; flex-shrink: 0; }
+    .card-meta { flex: 1; }
+    .card-name { font-size: 16px; font-weight: 700; margin-bottom: 3px; }
+    .card-time  { font-size: 12px; color: var(--muted); }
+    .card-badge { padding: 4px 10px; border-radius: 50px; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+    .badge-job     { background: rgba(34,197,94,0.12);  color: var(--success); border: 1px solid rgba(34,197,94,0.25); }
+    .badge-service { background: rgba(6,182,212,0.12);  color: var(--accent3); border: 1px solid rgba(6,182,212,0.25); }
+    .badge-request { background: rgba(245,158,11,0.12); color: var(--accent1); border: 1px solid rgba(245,158,11,0.25); }
+    .badge-urgent  { background: rgba(239,68,68,0.12);  color: var(--danger);  border: 1px solid rgba(239,68,68,0.25); }
+
+    .divider { height: 1px; background: var(--border); }
+    .card-body { font-size: 14px; color: #94a3b8; line-height: 1.75; }
+    .card-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tag-loc  { display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); padding: 5px 12px; border-radius: 50px; font-size: 12px; color: var(--muted); }
+    .tag-cond { background: rgba(139,92,246,0.08); border: 1px solid rgba(139,92,246,0.2); padding: 5px 12px; border-radius: 50px; font-size: 12px; color: var(--accent2); }
+
+    .card-btns { display: flex; gap: 8px; }
+    .btn-wa {
+      flex: 2;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      background: linear-gradient(135deg, #25d366, #128c7e);
+      border: none; border-radius: 12px; padding: 12px 16px;
+      color: #fff; font-family: 'Cairo', sans-serif; font-size: 14px; font-weight: 700;
+      text-decoration: none; cursor: pointer; transition: transform 0.15s, opacity 0.2s;
+    }
+    .btn-wa:hover { transform: scale(1.02); opacity: 0.9; }
+    .btn-call {
+      flex: 1;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      background: linear-gradient(135deg, var(--accent2), var(--accent3));
+      border: none; border-radius: 12px; padding: 12px;
+      color: #fff; font-family: 'Cairo', sans-serif; font-size: 14px; font-weight: 700;
+      text-decoration: none; cursor: pointer; transition: transform 0.15s, opacity 0.2s;
+    }
+    .btn-call:hover { transform: scale(1.02); opacity: 0.9; }
+
+    /* ── FAB ── */
+    .fab {
+      position: fixed; bottom: 28px; left: 28px; z-index: 100;
+      width: 60px; height: 60px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      border: none; color: #fff; font-size: 28px; cursor: pointer;
+      box-shadow: 0 8px 30px rgba(139,92,246,0.5);
+      display: grid; place-items: center;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .fab:hover { transform: scale(1.1); box-shadow: 0 14px 40px rgba(139,92,246,0.7); }
+
+    /* ── Modal ── */
+    .overlay { position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.75); backdrop-filter: blur(8px); display: none; place-items: center; padding: 20px; }
+    .overlay.open { display: grid; }
+    .modal { background: var(--card); border: 1px solid var(--border); border-radius: 22px; padding: 30px; width: 100%; max-width: 460px; animation: modalIn 0.3s ease; }
+    @keyframes modalIn { from{transform:scale(0.9);opacity:0} to{transform:scale(1);opacity:1} }
+    .modal h2 { font-size: 21px; font-weight: 900; margin-bottom: 18px; text-align: center; }
+    .modal label { display: block; font-size: 13px; color: var(--muted); margin: 12px 0 5px; }
+    .modal input, .modal textarea, .modal select {
+      width: 100%; background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 11px 14px; color: var(--text);
+      font-family: 'Cairo', sans-serif; font-size: 14px; outline: none;
+      resize: vertical; transition: border-color 0.2s;
+    }
+    .modal input:focus, .modal textarea:focus, .modal select:focus { border-color: var(--accent2); }
+    .modal-btns { display: flex; gap: 10px; margin-top: 20px; }
+    .btn-submit { flex: 1; background: linear-gradient(135deg, var(--accent2), var(--accent1)); border: none; border-radius: 12px; padding: 13px; color: #fff; font-family: 'Cairo', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
+    .btn-submit:hover { opacity: 0.88; }
+    .btn-cancel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 13px 18px; color: var(--muted); font-family: 'Cairo', sans-serif; font-size: 15px; cursor: pointer; }
+
+    /* ── Empty ── */
+    .empty { text-align: center; padding: 60px 20px; color: var(--muted); grid-column: 1/-1; }
+    .empty-icon { font-size: 52px; margin-bottom: 14px; }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(20px);
+      background: var(--success); color: #fff; padding: 12px 26px; border-radius: 50px;
+      font-size: 14px; font-weight: 700; opacity: 0; transition: opacity 0.3s, transform 0.3s;
+      z-index: 300; pointer-events: none;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    @media (max-width: 560px) {
+      .header-stats { display: none; }
+      .grid { padding: 0 12px 100px; }
+      .modal { padding: 22px 18px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo-wrap">
+    <div class="logo-icon">🤝</div>
+    <span class="logo-text">لوحة الطلبات</span>
+  </div>
+  <div class="header-stats">
+    <div class="stat-chip">🟢 المنشورات: <span id="liveCount">0</span></div>
+    <div class="stat-chip">📍 المدن: <span id="cityCount">0</span></div>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="hero-badge">⚡ منصة العمل والطلبات المحلية</div>
+  <h1>ابحث عن <span class="grad">عمال أو خدمات</span><br/>في مدينتك</h1>
+  <p class="hero-sub">منشورات حقيقية من أشخاص حقيقيين — تواصل فوري عبر واتساب أو الهاتف مباشرةً</p>
+</div>
+
+<div class="search-wrap">
+  <input id="searchInput" type="text" placeholder="ابحث عن مهنة، مدينة، طلب..." oninput="renderCards()" />
+  <button class="btn-search" onclick="renderCards()">🔍 بحث</button>
+</div>
+
+<div class="filters">
+  <button class="filter-btn active" onclick="setFilter('all',this)">🗂️ الكل</button>
+  <button class="filter-btn" onclick="setFilter('job',this)">🧑‍💼 طلب عمل</button>
+  <button class="filter-btn" onclick="setFilter('service',this)">🛠️ خدمة</button>
+  <button class="filter-btn" onclick="setFilter('request',this)">📋 طلب</button>
+  <button class="filter-btn" onclick="setFilter('urgent',this)">🔴 عاجل</button>
+</div>
+
+<div class="grid" id="cardsGrid"></div>
+
+<button class="fab" onclick="openModal()" title="إضافة طلب">＋</button>
+
+<!-- Modal -->
+<div class="overlay" id="overlay" onclick="bgClose(event)">
+  <div class="modal">
+    <h2>➕ نشر طلب جديد</h2>
+
+    <label>اسمك أو لقبك *</label>
+    <input id="mName" type="text" placeholder="مثال: محمد المراكشي" />
+
+    <label>نوع المنشور *</label>
+    <select id="mType">
+      <option value="job">🧑‍💼 طلب عمل</option>
+      <option value="service">🛠️ خدمة</option>
+      <option value="request">📋 طلب</option>
+      <option value="urgent">🔴 عاجل</option>
+    </select>
+
+    <label>المدينة / المنطقة *</label>
+    <input id="mCity" type="text" placeholder="مثال: مكناس، الرباط، فاس..." />
+
+    <label>وصف الطلب *</label>
+    <textarea id="mDesc" rows="4" placeholder="اشرح ما تبحث عنه أو ما تقدمه بالتفصيل..."></textarea>
+
+    <label>شرط أو ملاحظة (اختياري)</label>
+    <input id="mCond" type="text" placeholder="مثال: يلزم البطاقة الوطنية" />
+
+    <label>رقم الهاتف / واتساب *</label>
+    <input id="mPhone" type="tel" placeholder="0612345678" />
+
+    <div class="modal-btns">
+      <button class="btn-submit" onclick="submitCard()">✅ نشر الطلب</button>
+      <button class="btn-cancel" onclick="closeModal()">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const EMOJIS = ['👨','👩','🧑','👷','🧔','👩‍💼','👨‍💼','🧑‍🔧','👩‍🔧','👨‍🔧','🧑‍🎓','👩‍🍳'];
+
+let cards = JSON.parse(localStorage.getItem('reqBoard_v2') || 'null');
+
+if (!cards) {
+  cards = [
+    { id:1, name:'عبدالله المكناسي', type:'job', city:'مكناس',
+      desc:'كنقلب على ناس يخدمو معايا فمكناس — العمل مؤقت مدته أسبوعين. الأجر يومي.',
+      cond:'البطاقة الوطنية شرط', phone:'0775300064', time:'منذ ساعة', emoji:'👷' },
+    { id:2, name:'فاطمة الزهراء', type:'service', city:'الرباط',
+      desc:'خدمة تنظيف منازل وشقق — عندي تجربة 5 سنين. كنجي لدارك بأي وقت.',
+      cond:'', phone:'0661234567', time:'منذ 3 ساعات', emoji:'👩' },
+    { id:3, name:'يوسف الحسن', type:'request', city:'الدار البيضاء',
+      desc:'كنقلب على بلّاط — تيلكارلي ديالي محتاج تصليح فالكازا المعاريف.',
+      cond:'', phone:'0622987654', time:'منذ 5 ساعات', emoji:'🧔' },
+    { id:4, name:'مريم بنعلي', type:'urgent', city:'فاس',
+      desc:'محتاجة خياطة ديال الستيرة — عاجل ليوم غدا إن شاء الله.',
+      cond:'الخدمة ليوم غدا فقط', phone:'0655112233', time:'منذ 30 دقيقة', emoji:'👩‍💼' },
+    { id:5, name:'أحمد المراكشي', type:'job', city:'مراكش',
+      desc:'كنخدم فالبناء — بناء، سيمانة، صباغة. كنقلب على مقاول أو مشروع.',
+      cond:'مع مواصلات', phone:'0633445566', time:'منذ يوم', emoji:'👨‍🔧' },
+    { id:6, name:'حسناء الجديدي', type:'service', city:'طنجة',
+      desc:'دروس خصوصية فالرياضيات والعلوم — إعدادي وثانوي. كنجي للدار.',
+      cond:'إعدادي وثانوي فقط', phone:'0677889900', time:'منذ يومين', emoji:'🧑‍🎓' }
+  ];
+  save();
+}
+
+let activeFilter = 'all';
+
+function badgeClass(t) {
+  return { job:'badge-job', service:'badge-service', request:'badge-request', urgent:'badge-urgent' }[t] || 'badge-request';
+}
+function badgeLabel(t) {
+  return { job:'🧑‍💼 طلب عمل', service:'🛠️ خدمة', request:'📋 طلب', urgent:'🔴 عاجل' }[t] || '📋';
+}
+function waLink(p) {
+  const c = p.replace(/\D/g,'');
+  const n = c.startsWith('0') ? '212'+c.slice(1) : c;
+  return `https://wa.me/${n}`;
+}
+function esc(s) {
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function renderCards() {
+  const q = (document.getElementById('searchInput').value||'').toLowerCase();
+  const grid = document.getElementById('cardsGrid');
+
+  const list = cards.filter(c => {
+    const okF = activeFilter === 'all' || c.type === activeFilter;
+    const okQ = !q || [c.name,c.city,c.desc,c.cond].some(x=>(x||'').toLowerCase().includes(q));
+    return okF && okQ;
+  });
+
+  if (list.length === 0) {
+    grid.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><p>لا توجد نتائج مطابقة</p></div>`;
+  } else {
+    grid.innerHTML = list.map((c,i) => `
+      <div class="card" style="animation-delay:${i*0.05}s">
+        <div class="card-header">
+          <div class="avatar">${c.emoji||'👷'}</div>
+          <div class="card-meta">
+            <div class="card-name">${esc(c.name)}</div>
+            <div class="card-time">🕐 ${esc(c.time)}</div>
+          </div>
+          <span class="card-badge ${badgeClass(c.type)}">${badgeLabel(c.type)}</span>
+        </div>
+        <div class="divider"></div>
+        <div class="card-body">${esc(c.desc)}</div>
+        <div class="card-tags">
+          <span class="tag-loc">📍 ${esc(c.city)}</span>
+          ${c.cond ? `<span class="tag-cond">✅ ${esc(c.cond)}</span>` : ''}
+        </div>
+        <div class="card-btns">
+          <a class="btn-wa" href="${waLink(c.phone)}" target="_blank" rel="noopener">
+            <svg width="18" height="18" viewBox="0 0 32 32" fill="currentColor"><path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.736 5.476 2.023 7.787L0 32l8.385-2.2A15.94 15.94 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm8.07 22.286c-.334.94-1.96 1.794-2.705 1.91-.744.116-1.667.164-2.69-.168-1.023-.332-2.33-.776-4.002-1.52-3.525-1.564-5.83-5.13-6.006-5.37-.176-.24-1.437-1.91-1.437-3.642s.91-2.58 1.233-2.932c.323-.352.703-.44.937-.44l.673.013c.216.009.504-.082.789.603.285.684 1.97 4.82 2.14 5.17.17.35.284.76.056 1.21-.228.45-.342.73-.67 1.12-.33.39-.694.87-.99 1.17-.297.3-.606.624-.261 1.224.346.6 1.538 2.537 3.304 4.11 2.27 2.027 4.187 2.655 4.786 2.96.6.305.95.256 1.3-.154.35-.41 1.492-1.74 1.89-2.337.397-.598.794-.498 1.34-.298.548.2 3.473 1.638 4.07 1.936.597.298.994.447 1.14.695.146.248.146 1.437-.188 2.376z"/></svg>
+            واتساب
+          </a>
+          <a class="btn-call" href="tel:${esc(c.phone)}">📞 اتصال</a>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  document.getElementById('liveCount').textContent = cards.length;
+  document.getElementById('cityCount').textContent = new Set(cards.map(c=>c.city)).size;
+}
+
+function setFilter(type, btn) {
+  activeFilter = type;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderCards();
+}
+
+function openModal()  { document.getElementById('overlay').classList.add('open'); }
+function closeModal() { document.getElementById('overlay').classList.remove('open'); }
+function bgClose(e)   { if (e.target.id === 'overlay') closeModal(); }
+
+function submitCard() {
+  const name  = document.getElementById('mName').value.trim();
+  const type  = document.getElementById('mType').value;
+  const city  = document.getElementById('mCity').value.trim();
+  const desc  = document.getElementById('mDesc').value.trim();
+  const cond  = document.getElementById('mCond').value.trim();
+  const phone = document.getElementById('mPhone').value.trim();
+
+  if (!name || !city || !desc || !phone) {
+    toast('⚠️ يرجى ملء الحقول المطلوبة', '#f59e0b');
+    return;
+  }
+
+  cards.unshift({
+    id: Date.now(), name, type, city, desc, cond, phone,
+    time: 'الآن', emoji: EMOJIS[Math.floor(Math.random()*EMOJIS.length)]
+  });
+  save();
+  closeModal();
+  ['mName','mCity','mDesc','mCond','mPhone'].forEach(id => document.getElementById(id).value='');
+  renderCards();
+  toast('✅ تم نشر طلبك بنجاح!');
+}
+
+function save() { localStorage.setItem('reqBoard_v2', JSON.stringify(cards)); }
+
+function toast(msg, bg='#22c55e') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.style.background = bg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+renderCards();
+</script>
+</body>
+</html>
